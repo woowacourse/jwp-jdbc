@@ -2,8 +2,8 @@ package nextstep.jdbc;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import slipp.support.db.ConnectionManager;
 
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -13,17 +13,14 @@ import java.util.List;
 public class JdbcTemplate {
     private static final Logger logger = LoggerFactory.getLogger(JdbcTemplate.class);
 
-    private static final JdbcTemplate INSTANCE = new JdbcTemplate();
+    private final DataSource dataSource;
 
-    private JdbcTemplate() {
-    }
-
-    public static JdbcTemplate getInstance() {
-        return INSTANCE;
+    public JdbcTemplate(final DataSource dataSource) {
+        this.dataSource = dataSource;
     }
 
     public void update(final List<String> params, final String sql) {
-        try (final Connection con = ConnectionManager.getConnection();
+        try (final Connection con = dataSource.getConnection();
              final PreparedStatement pstmt = con.prepareStatement(sql)) {
 
             setPstmtParams(pstmt, params);
@@ -36,7 +33,7 @@ public class JdbcTemplate {
     }
 
     public <T> T executeQuery(final List<String> params, final String sql, final RowMapper<T> rowMapper) {
-        try (final Connection con = ConnectionManager.getConnection();
+        try (final Connection con = dataSource.getConnection();
              final PreparedStatement pstmt = con.prepareStatement(sql);
              final ResultSet rs = createResultSet(pstmt, params)) {
 

@@ -3,8 +3,8 @@ package slipp.dao;
 import nextstep.jdbc.JdbcTemplate;
 import nextstep.jdbc.RowMapper;
 import slipp.domain.User;
+import slipp.support.db.ConnectionManager;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -13,7 +13,7 @@ public class UserDao {
     private JdbcTemplate jdbcTemplate;
 
     public UserDao() {
-        this.jdbcTemplate = JdbcTemplate.getInstance();
+        this.jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
     }
 
     public void insert(final User user) {
@@ -26,10 +26,9 @@ public class UserDao {
         final String sql = "UPDATE USERS SET password = ?, name = ?, email = ? WHERE userid = ?";
         final List<String> params = List.of(user.getPassword(), user.getName(), user.getEmail(), user.getUserId());
         jdbcTemplate.update(params, sql);
-
     }
 
-    public List<User> findAll() throws SQLException {
+    public List<User> findAll() {
         final String sql = "SELECT * FROM USERS";
         final RowMapper<List<User>> rowMapper = rs -> {
             final List<User> result = new ArrayList<>();
@@ -46,7 +45,7 @@ public class UserDao {
         return jdbcTemplate.executeQuery(Collections.EMPTY_LIST, sql, rowMapper);
     }
 
-    public User findByUserId(final String userId) throws SQLException {
+    public User findByUserId(final String userId) {
         final String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
         final List<String> params = List.of(userId);
 
