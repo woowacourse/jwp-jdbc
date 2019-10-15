@@ -5,7 +5,6 @@ import slipp.domain.User;
 import slipp.support.db.ConnectionManager;
 
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,44 +43,47 @@ public class UserDao {
     public List<User> findAll() throws SQLException {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getConnection());
 
-        return jdbcTemplate.executeQuery(con -> {
-            String sql = "SELECT userId, password, name, email FROM USERS";
-            PreparedStatement pstmt = con.prepareStatement(sql);
-            ResultSet rs = pstmt.executeQuery();
+        return jdbcTemplate.executeQuery(
+                con -> {
+                    String sql = "SELECT userId, password, name, email FROM USERS";
+                    PreparedStatement pstmt = con.prepareStatement(sql);
+                    return pstmt;
+                },
+                resultSet -> {
+                    List<User> users = new ArrayList<>();
+                    while (resultSet.next()) {
+                        User user = new User(
+                                resultSet.getString("userId"),
+                                resultSet.getString("password"),
+                                resultSet.getString("name"),
+                                resultSet.getString("email"));
+                        users.add(user);
+                    }
 
-            List<User> users = new ArrayList<>();
-            while (rs.next()) {
-                User user = new User(
-                        rs.getString("userId"),
-                        rs.getString("password"),
-                        rs.getString("name"),
-                        rs.getString("email"));
-                users.add(user);
-            }
-
-            return users;
-        });
+                    return users;
+                });
     }
 
     public User findByUserId(String userId) throws SQLException {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getConnection());
-        return jdbcTemplate.executeQuery(con -> {
-            String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
-            PreparedStatement pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, userId);
+        return jdbcTemplate.executeQuery(
+                con -> {
+                    String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
+                    PreparedStatement pstmt = con.prepareStatement(sql);
+                    pstmt.setString(1, userId);
+                    return pstmt;
+                },
+                resultSet -> {
+                    User user = null;
+                    if (resultSet.next()) {
+                        user = new User(
+                                resultSet.getString("userId"),
+                                resultSet.getString("password"),
+                                resultSet.getString("name"),
+                                resultSet.getString("email"));
+                    }
 
-            ResultSet rs = pstmt.executeQuery();
-
-            User user = null;
-            if (rs.next()) {
-                user = new User(
-                        rs.getString("userId"),
-                        rs.getString("password"),
-                        rs.getString("name"),
-                        rs.getString("email"));
-            }
-
-            return user;
-        });
+                    return user;
+                });
     }
 }
