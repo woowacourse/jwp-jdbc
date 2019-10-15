@@ -9,15 +9,15 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-public abstract class InsertJdbcTemplate {
-    private static final Logger logger = LoggerFactory.getLogger(InsertJdbcTemplate.class);
+public abstract class JdbcTemplate {
+    private static final Logger logger = LoggerFactory.getLogger(JdbcTemplate.class);
 
-    void insert(User user) {
-        String sql = createQueryForInsert();
+    void save(User user) {
+        String sql = createQuery();
 
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
-            setValuesForInsert(user, pstmt);
+            setValues(user, pstmt);
 
             pstmt.executeUpdate();
         } catch (SQLException e) {
@@ -26,7 +26,7 @@ public abstract class InsertJdbcTemplate {
         }
     }
 
-    abstract String createQueryForInsert();
+    abstract String createQuery();
 
-    abstract void setValuesForInsert(User user, PreparedStatement pstmt) throws SQLException;
+    abstract void setValues(User user, PreparedStatement pstmt) throws SQLException;
 }
