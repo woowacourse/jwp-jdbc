@@ -6,15 +6,22 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-public abstract class JdbcTemplate {
-
-    public void update(final String sql) {
+public class JdbcTemplate {
+    public void write(final String sql, final PreparedStatementSetter setter) {
         try (final Connection connection = ConnectionManager.getConnection();
              final PreparedStatement statement = connection.prepareStatement(sql)) {
-            setParameters(statement);
+            setter.setParameters(statement);
             statement.executeUpdate();
         } catch (final SQLException ignored) {}
     }
 
-    public abstract void setParameters(final PreparedStatement statement) throws SQLException;
+    public Object findItem(final String sql, final PreparedStatementSetter setter, final RowMapper mapper) {
+        try (final Connection connection = ConnectionManager.getConnection();
+             final PreparedStatement statement = connection.prepareStatement(sql)) {
+            setter.setParameters(statement);
+            return mapper.mapRow(statement.executeQuery());
+        } catch (final SQLException ignored) {
+            return null;
+        }
+    }
 }

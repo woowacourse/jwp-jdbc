@@ -1,10 +1,10 @@
 package slipp.dao;
 
 import nextstep.jdbc.JdbcTemplate;
+import nextstep.jdbc.PreparedStatementSetter;
+import nextstep.jdbc.RowMapper;
 import slipp.domain.User;
-import slipp.support.db.ConnectionManager;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -13,7 +13,7 @@ import java.util.List;
 
 public class UserDao {
     public void insert(final User user) {
-        final JdbcTemplate template = new JdbcTemplate() {
+        final PreparedStatementSetter setter = new PreparedStatementSetter() {
             @Override
             public void setParameters(final PreparedStatement statement) throws SQLException {
                 statement.setString(1, user.getUserId());
@@ -22,11 +22,12 @@ public class UserDao {
                 statement.setString(4, user.getEmail());
             }
         };
-        template.update("INSERT INTO USERS VALUES (?, ?, ?, ?)");
+        final JdbcTemplate template = new JdbcTemplate();
+        template.write("INSERT INTO USERS VALUES (?, ?, ?, ?)", setter);
     }
 
     public void update(final User user) {
-        final JdbcTemplate template = new JdbcTemplate() {
+        final PreparedStatementSetter setter = new PreparedStatementSetter() {
             @Override
             public void setParameters(final PreparedStatement statement) throws SQLException {
                 statement.setString(1, user.getPassword());
@@ -35,7 +36,8 @@ public class UserDao {
                 statement.setString(4, user.getUserId());
             }
         };
-        template.update("UPDATE USERS SET password = ?, name = ?, email = ? WHERE userid = ?");
+        final JdbcTemplate template = new JdbcTemplate();
+        template.write("UPDATE USERS SET password = ?, name = ?, email = ? WHERE userid = ?", setter);
     }
 
     public List<User> findAll() throws SQLException {
@@ -43,35 +45,29 @@ public class UserDao {
         return new ArrayList<User>();
     }
 
-    public User findByUserId(String userId) throws SQLException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        try {
-            con = ConnectionManager.getConnection();
-            String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
-            pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, userId);
-
-            rs = pstmt.executeQuery();
-
-            User user = null;
-            if (rs.next()) {
-                user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
-                        rs.getString("email"));
+    public User findByUserId(final String userId) throws SQLException {
+        final PreparedStatementSetter setter = new PreparedStatementSetter() {
+            @Override
+            public void setParameters(final PreparedStatement statement) throws SQLException {
+                statement.setString(1, userId);
             }
-
-            return user;
-        } finally {
-            if (rs != null) {
-                rs.close();
+        };
+        final RowMapper mapper = new RowMapper() {
+            @Override
+            public Object mapRow(final ResultSet resultSet) throws SQLException {
+                User user = null;
+                if (resultSet.next()) {
+                    user = new User(
+                            resultSet.getString("userId"),
+                            resultSet.getString("password"),
+                            resultSet.getString("name"),
+                            resultSet.getString("email"));
+                }
+                return user;
             }
-            if (pstmt != null) {
-                pstmt.close();
-            }
-            if (con != null) {
-                con.close();
-            }
-        }
+        };
+        final JdbcTemplate template = new JdbcTemplate();
+        final String sql = "SELECT userId, password, name, email FROM USERS WHERE userid = ?";
+        return (User) template.findItem(sql, setter, mapper);
     }
 }
