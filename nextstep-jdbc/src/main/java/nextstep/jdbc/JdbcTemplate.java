@@ -6,30 +6,16 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public class JdbcTemplate {
+    private final DataSource dataSource;
+
     public JdbcTemplate(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
-    private final DataSource dataSource;
-
     public void executeUpdate(String sql, PreparedStatementMapping consumer) throws SQLException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        try {
-            con = getConnection();
-
-            pstmt = con.prepareStatement(sql);
+        try (Connection con = getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
             consumer.adjustTo(pstmt);
-
             pstmt.executeUpdate();
-        } finally {
-            if (pstmt != null) {
-                pstmt.close();
-            }
-
-            if (con != null) {
-                con.close();
-            }
         }
     }
 

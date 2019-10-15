@@ -46,5 +46,5 @@ https://gist.github.com/joshbuchea/6f47e86d2510bce28f8e7f42ae84c716
 - [ ] ```pstmt.executeQuery();``` 사용하는 부분 ```Template```으로 빼기 (```findById()```)
 - [ ]  ```ResultSet``` 부분 ```Template```으로 빼기 (```findById()```)
 - [ ] ```JDBC Template``` ```static```으로 사용할 수 있게 변경
-- [ ] ```try-with-resource```로 바꾸기
+- [x] ```try-with-resource```로 바꾸기
 
