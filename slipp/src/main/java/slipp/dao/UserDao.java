@@ -1,7 +1,6 @@
 package slipp.dao;
 
-import nextstep.jdbc.InsertJdbcTemplate;
-import nextstep.jdbc.UpdateJdbcTemplate;
+import nextstep.jdbc.JdbcTemplate;
 import slipp.domain.User;
 import slipp.exception.NotFoundUserException;
 import slipp.support.db.ConnectionManager;
@@ -16,14 +15,11 @@ import java.util.List;
 public class UserDao {
 
     public void insert(User user) throws SQLException {
-        InsertJdbcTemplate insertJdbcTemplate = new InsertJdbcTemplate() {
-            @Override
-            public String createQueryForInsert() {
-                return "INSERT INTO USERS VALUES (?, ?, ?, ?)";
-            }
+        String query = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
 
+        JdbcTemplate jdbcTemplate = new JdbcTemplate() {
             @Override
-            public void setValuesForInsert(User user, PreparedStatement pstmt) throws SQLException {
+            public void setValues(PreparedStatement pstmt) throws SQLException {
                 pstmt.setString(1, user.getUserId());
                 pstmt.setString(2, user.getPassword());
                 pstmt.setString(3, user.getName());
@@ -31,18 +27,14 @@ public class UserDao {
             }
         };
 
-        insertJdbcTemplate.insert(user);
+        jdbcTemplate.execute(query);
     }
 
     public void update(User user) throws SQLException {
-        UpdateJdbcTemplate updateJdbcTemplate = new UpdateJdbcTemplate() {
+        String query = "UPDATE USERS SET password = ?, name = ?, email = ? WHERE userId = ?";
+        JdbcTemplate jdbcTemplate = new JdbcTemplate() {
             @Override
-            public String createQueryForUpdate() {
-                return "UPDATE USERS SET password = ?, name = ?, email = ? WHERE userId = ?";
-            }
-
-            @Override
-            public void setValuesForUpdate(User user, PreparedStatement pstmt) throws SQLException {
+            public void setValues(PreparedStatement pstmt) throws SQLException {
                 pstmt.setString(1, user.getPassword());
                 pstmt.setString(2, user.getName());
                 pstmt.setString(3, user.getEmail());
@@ -50,7 +42,7 @@ public class UserDao {
             }
         };
 
-        updateJdbcTemplate.update(user);
+        jdbcTemplate.execute(query);
     }
 
     public List<User> findAll() throws SQLException {
