@@ -1,12 +1,11 @@
 package slipp.dao;
 
 import nextstep.jdbc.JdbcTemplate;
+import nextstep.jdbc.DataExtractionStrategy;
 import slipp.domain.User;
 import slipp.support.db.ConnectionManager;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -30,66 +29,33 @@ public class UserDao {
         jdbcTemplate.update(sql, user.getPassword(), user.getName(), user.getEmail(), user.getUserId());
     }
 
-    public List<User> findAll() throws SQLException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        List<User> users = new ArrayList<>();
+    public List<User> findAll() {
+        String sql = "SELECT * FROM USERS";
 
-        try {
-            con = ConnectionManager.getConnection();
-            String sql = "SELECT * FROM USERS";
-            pstmt = con.prepareStatement(sql);
-
-            rs = pstmt.executeQuery();
+        DataExtractionStrategy<List<User>> strategy = rs -> {
+            List<User> users = new ArrayList<>();
 
             while (rs.next()) {
                 users.add(getUser(rs));
             }
+            return users;
+        };
 
-        } finally {
-            if (rs != null) {
-                rs.close();
-            }
-            if (pstmt != null) {
-                pstmt.close();
-            }
-            if (con != null) {
-                con.close();
-            }
-        }
-        return users;
+        return jdbcTemplate.executeQuery(sql, strategy);
     }
 
-    public User findByUserId(String userId) throws SQLException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        try {
-            con = ConnectionManager.getConnection();
-            String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
-            pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, userId);
+    public User findByUserId(String userId) {
+        String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
 
-            rs = pstmt.executeQuery();
-
+        DataExtractionStrategy<User> strategy = rs -> {
             User user = null;
             if (rs.next()) {
                 user = getUser(rs);
             }
-
             return user;
-        } finally {
-            if (rs != null) {
-                rs.close();
-            }
-            if (pstmt != null) {
-                pstmt.close();
-            }
-            if (con != null) {
-                con.close();
-            }
-        }
+        };
+
+        return jdbcTemplate.executeQuery(sql, strategy, userId);
     }
 
     private User getUser(ResultSet rs) throws SQLException {
