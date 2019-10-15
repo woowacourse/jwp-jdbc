@@ -24,11 +24,27 @@ public class JdbcTemplate implements AutoCloseable {
     }
 
     public void executeQuery(String query, Map<String, Object> params, ResultSetMapper mapper) {
-        try (PreparedStatement pstmt = conn.prepareStatement(QueryUtil.parseQueryParams(query, params));
+        try (PreparedStatement pstmt = getStatement(query, params);
              ResultSet rs = pstmt.executeQuery()) {
-            while(rs.next()) {
-                mapper.wrap(rs);
-            }
+            iterateResultSet(mapper, rs);
+        } catch (SQLException e) {
+            throw new JdbcTemplateException(e);
+        }
+    }
+
+    private PreparedStatement getStatement(String query, Map<String, Object> params) throws SQLException {
+        return conn.prepareStatement(QueryUtil.parseQueryParams(query, params));
+    }
+
+    private void iterateResultSet(ResultSetMapper mapper, ResultSet rs) throws SQLException {
+        while(rs.next()) {
+            mapper.wrap(rs);
+        }
+    }
+
+    public int executeUpdate(String query, Map<String, Object> params) {
+        try (PreparedStatement pstmt = getStatement(query, params)) {
+            return pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new JdbcTemplateException(e);
         }
