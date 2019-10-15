@@ -2,7 +2,6 @@ package slipp.dao;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import slipp.domain.User;
 import slipp.support.db.ConnectionManager;
 
 import java.sql.Connection;
@@ -12,12 +11,10 @@ import java.sql.SQLException;
 public abstract class JdbcTemplate {
     private static final Logger logger = LoggerFactory.getLogger(JdbcTemplate.class);
 
-    void save(User user) {
-        String sql = createQuery();
-
+    void save(String sql) {
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
-            setValues(user, pstmt);
+            setValues(pstmt);
 
             pstmt.executeUpdate();
         } catch (SQLException e) {
@@ -26,7 +23,5 @@ public abstract class JdbcTemplate {
         }
     }
 
-    abstract String createQuery();
-
-    abstract void setValues(User user, PreparedStatement pstmt) throws SQLException;
+    abstract void setValues(PreparedStatement pstmt) throws SQLException;
 }
