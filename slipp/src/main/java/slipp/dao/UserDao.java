@@ -1,5 +1,6 @@
 package slipp.dao;
 
+import nextstep.jdbc.JdbcTemplate;
 import slipp.domain.User;
 import slipp.support.db.ConnectionManager;
 
@@ -11,32 +12,30 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserDao {
-    public void insert(User user) throws SQLException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        try {
-            con = ConnectionManager.getConnection();
-            String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
-            pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, user.getUserId());
-            pstmt.setString(2, user.getPassword());
-            pstmt.setString(3, user.getName());
-            pstmt.setString(4, user.getEmail());
-
-            pstmt.executeUpdate();
-        } finally {
-            if (pstmt != null) {
-                pstmt.close();
+    public void insert(final User user) {
+        final JdbcTemplate template = new JdbcTemplate() {
+            @Override
+            public void setParameters(final PreparedStatement statement) throws SQLException {
+                statement.setString(1, user.getUserId());
+                statement.setString(2, user.getPassword());
+                statement.setString(3, user.getName());
+                statement.setString(4, user.getEmail());
             }
-
-            if (con != null) {
-                con.close();
-            }
-        }
+        };
+        template.update("INSERT INTO USERS VALUES (?, ?, ?, ?)");
     }
 
-    public void update(User user) throws SQLException {
-        // TODO 구현 필요함.
+    public void update(final User user) {
+        final JdbcTemplate template = new JdbcTemplate() {
+            @Override
+            public void setParameters(final PreparedStatement statement) throws SQLException {
+                statement.setString(1, user.getPassword());
+                statement.setString(2, user.getName());
+                statement.setString(3, user.getEmail());
+                statement.setString(4, user.getUserId());
+            }
+        };
+        template.update("UPDATE USERS SET password = ?, name = ?, email = ? WHERE userid = ?");
     }
 
     public List<User> findAll() throws SQLException {
