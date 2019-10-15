@@ -12,10 +12,10 @@ public class JdbcTemplate {
         this.con = con;
     }
 
-    public void updateQuery(UpdateQuery query) throws SQLException {
+    public void updateQuery(JdbcQuery query) throws SQLException {
         PreparedStatement pstmt = null;
         try {
-            pstmt = query.update(con);
+            pstmt = query.execute(con);
             pstmt.executeUpdate();
         } finally {
             if (pstmt != null) {
@@ -28,7 +28,7 @@ public class JdbcTemplate {
         }
     }
 
-    public <T> T executeQuery(ExecuteQuery query, JdbcMapper<T> mapper) throws SQLException {
+    public <T> T executeQuery(JdbcQuery query, JdbcMapper<T> mapper) throws SQLException {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
