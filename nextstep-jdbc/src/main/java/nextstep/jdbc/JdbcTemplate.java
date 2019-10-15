@@ -16,37 +16,35 @@ public class JdbcTemplate<T> {
     }
 
     public void executeSql(String sql, Object... arg) {
-
         try (Connection connection = dataSource.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
             for (int i = 0; i < arg.length; i++) {
                 preparedStatement.setObject(i + 1, arg[i]);
             }
-
             preparedStatement.executeUpdate();
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
     public List<T> queryForList(String sql, RowMapper<T> rowMapper) {
-        List<T> lists = new ArrayList<>();
+        List<T> objects = new ArrayList<>();
 
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+             PreparedStatement preparedStatement = connection.prepareStatement(sql);
+             ResultSet resultSet = preparedStatement.executeQuery()) {
 
-            ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 T object = rowMapper.mapRow(resultSet);
-                lists.add(object);
+                objects.add(object);
             }
 
-            return lists;
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
-        return null;
+        return objects;
     }
 }
