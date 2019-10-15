@@ -11,13 +11,13 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class JdbcTemplate {
+public class JdbcTemplate {
     private static final Logger logger = LoggerFactory.getLogger(JdbcTemplate.class);
 
-    void save(String sql) {
+    void save(String sql, PreparedStatementSetter pstmtSetter) {
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
-            setValues(pstmt);
+            pstmtSetter.setValues(pstmt);
 
             pstmt.executeUpdate();
         } catch (SQLException e) {
@@ -29,7 +29,6 @@ public abstract class JdbcTemplate {
     List query(String sql, RowMapper rowMapper) {
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
-            setValues(pstmt);
 
             ResultSet resultSet = pstmt.executeQuery();
             List<Object> objects = new ArrayList<>();
@@ -43,10 +42,10 @@ public abstract class JdbcTemplate {
         }
     }
 
-    Object queryForObject(String sql, RowMapper rowMapper) {
+    Object queryForObject(String sql, RowMapper rowMapper, PreparedStatementSetter pstmtSetter) {
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
-            setValues(pstmt);
+            pstmtSetter.setValues(pstmt);
 
             ResultSet resultSet = pstmt.executeQuery();
             List<Object> objects = new ArrayList<>();
@@ -60,6 +59,4 @@ public abstract class JdbcTemplate {
             throw new RuntimeException();
         }
     }
-
-    abstract void setValues(PreparedStatement pstmt) throws SQLException;
 }
