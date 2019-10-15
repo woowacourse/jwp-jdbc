@@ -15,14 +15,42 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserDao {
-    private static final Logger log = LoggerFactory.getLogger(UserDao.class);
-
     public void insert(User user) {
-        InsertJdbcTemplate.insert(user);
+        InsertJdbcTemplate insertJdbcTemplate = new InsertJdbcTemplate() {
+            @Override
+            protected void setValuesForInsert(User user, PreparedStatement pstmt) throws SQLException {
+                pstmt.setString(1, user.getUserId());
+                pstmt.setString(2, user.getPassword());
+                pstmt.setString(3, user.getName());
+                pstmt.setString(4, user.getEmail());
+            }
+
+            @Override
+            protected String createQueryForInsert() {
+                return "INSERT INTO USERS VALUES (?, ?, ?, ?)";
+            }
+        };
+
+        insertJdbcTemplate.insert(user);
     }
 
     public void update(User user) {
-        UpdateJdbcTemplate.update(user);
+        UpdateJdbcTemplate updateJdbcTemplate = new UpdateJdbcTemplate() {
+            @Override
+            protected void setValuesForUpdate(User user, PreparedStatement pstmt) throws SQLException {
+                pstmt.setString(1, user.getPassword());
+                pstmt.setString(2, user.getName());
+                pstmt.setString(3, user.getEmail());
+                pstmt.setString(4, user.getUserId());
+            }
+
+            @Override
+            protected String createQueryForUpdate() {
+                return "UPDATE USERS SET password=?, name=?, email=? WHERE userId=?";
+            }
+        };
+
+        updateJdbcTemplate.update(user);
     }
 
     public List<User> findAll() throws SQLException {
