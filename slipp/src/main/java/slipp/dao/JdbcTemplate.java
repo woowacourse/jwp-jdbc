@@ -26,7 +26,7 @@ public abstract class JdbcTemplate {
         }
     }
 
-    List query(String sql) {
+    List query(String sql, RowMapper rowMapper) {
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
             setValues(pstmt);
@@ -34,7 +34,7 @@ public abstract class JdbcTemplate {
             ResultSet resultSet = pstmt.executeQuery();
             List<Object> objects = new ArrayList<>();
             while (resultSet.next()) {
-                objects.add(mapRow(resultSet));
+                objects.add(rowMapper.mapRow(resultSet));
             }
             return objects;
         } catch (SQLException e) {
@@ -43,7 +43,7 @@ public abstract class JdbcTemplate {
         }
     }
 
-    Object queryForObject(String sql) {
+    Object queryForObject(String sql, RowMapper rowMapper) {
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
             setValues(pstmt);
@@ -51,7 +51,7 @@ public abstract class JdbcTemplate {
             ResultSet resultSet = pstmt.executeQuery();
             List<Object> objects = new ArrayList<>();
             while (resultSet.next()) {
-                objects.add(mapRow(resultSet));
+                objects.add(rowMapper.mapRow(resultSet));
             }
             logger.debug("objects size : {} ", objects.size());
             return objects.get(0);
@@ -62,7 +62,4 @@ public abstract class JdbcTemplate {
     }
 
     abstract void setValues(PreparedStatement pstmt) throws SQLException;
-
-    abstract Object mapRow(ResultSet resultSet) throws SQLException;
-
 }
