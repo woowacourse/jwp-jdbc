@@ -1,7 +1,7 @@
 package nextstep.jdbc;
 
 import nextstep.jdbc.exception.ConnectionFailedException;
-import nextstep.jdbc.exception.InsertionFailedException;
+import nextstep.jdbc.exception.ExecuteUpdateFailedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,17 +27,17 @@ public class JdbcTemplate {
         }
     }
 
-    public void insert(final String sql, Object... values) {
+    public void executeUpdate(final String sql, Object... values) {
         try (Connection con = getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
             for (int index = 1; index <= values.length; index++) {
                 pstmt.setObject(index, values[index - 1]);
-                log.debug("insert value {}={}", index, values[index - 1]);
+                log.debug("executeUpdate value {}={}", index, values[index - 1]);
             }
 
             pstmt.executeUpdate();
         } catch (SQLException e) {
-            throw new InsertionFailedException(e);
+            throw new ExecuteUpdateFailedException(e);
         }
     }
 }
