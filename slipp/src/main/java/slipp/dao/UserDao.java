@@ -60,8 +60,32 @@ public class UserDao {
     }
 
     public List<User> findAll() throws SQLException {
-        // TODO 구현 필요함.
-        return new ArrayList<User>();
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        List<User> users = new ArrayList<>();
+        try {
+            con = ConnectionManager.getConnection();
+            String sql = "SELECT * FROM USERS";
+            pstmt = con.prepareStatement(sql);
+
+            ResultSet resultSet = pstmt.executeQuery();
+            while (resultSet.next()) {
+                String id = resultSet.getString("userId");
+                String password = resultSet.getString("password");
+                String name = resultSet.getString("name");
+                String email = resultSet.getString("email");
+                users.add(new User(id, password, name, email));
+            }
+        } finally {
+            if (pstmt != null) {
+                pstmt.close();
+            }
+
+            if (con != null) {
+                con.close();
+            }
+        }
+        return users;
     }
 
     public User findByUserId(String userId) throws SQLException {
