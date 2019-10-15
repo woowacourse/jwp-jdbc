@@ -16,6 +16,8 @@ import java.util.List;
 
 public class JdbcTemplate {
     private static final Logger log = LoggerFactory.getLogger(JdbcTemplate.class);
+    private static final String ILLEGAL_EXECUTION_EXCEPTION_MESSAGE = "잘못된 Connection";
+    private static final String INSTANTIATION_FAILED_EXCEPTION_MESSAGE = "인스턴스 생성 실패";
 
     private final DataSource dataSource;
 
@@ -33,7 +35,7 @@ public class JdbcTemplate {
             preparedStatement.executeUpdate();
         } catch (SQLException | IllegalConnectionException e) {
             log.error("execution error : ", e);
-            throw new IllegalExecutionException("잘못된 Connection");
+            throw new IllegalExecutionException(ILLEGAL_EXECUTION_EXCEPTION_MESSAGE);
         }
     }
 
@@ -54,12 +56,9 @@ public class JdbcTemplate {
             return object;
         } catch (SQLException
                 | IllegalConnectionException
-                | NoSuchMethodException
-                | IllegalAccessException
-                | InstantiationException
-                | InvocationTargetException e) {
+                | IllegalAccessException e) {
             log.error("execution error : ", e);
-            throw new IllegalExecutionException("잘못된 Connection");
+            throw new IllegalExecutionException(ILLEGAL_EXECUTION_EXCEPTION_MESSAGE);
         }
     }
 
@@ -77,25 +76,31 @@ public class JdbcTemplate {
             return data;
         } catch (SQLException
                 | IllegalConnectionException
-                | NoSuchMethodException
-                | IllegalAccessException
-                | InstantiationException
-                | InvocationTargetException e) {
+                | IllegalAccessException e) {
             log.error("execution error : ", e);
-            throw new IllegalExecutionException("잘못된 Connection");
+            throw new IllegalExecutionException(ILLEGAL_EXECUTION_EXCEPTION_MESSAGE);
         }
     }
 
-    private <T> T getObject(Class<?> clazz, ResultSet resultSet) throws NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException, SQLException {
-        Object object;
-        Constructor constructor = clazz.getDeclaredConstructor();
-        constructor.setAccessible(true);
-        object = constructor.newInstance();
+    private <T> T getObject(Class<?> clazz, ResultSet resultSet) throws IllegalAccessException, SQLException {
+        Object object = instantiate(clazz);
         Field[] fields = clazz.getDeclaredFields();
         for (Field field : fields) {
             field.setAccessible(true);
             field.set(object, resultSet.getString(field.getName()));
         }
         return (T) object;
+    }
+
+    private Object instantiate(Class<?> clazz) {
+        try {
+            Constructor constructor = clazz.getDeclaredConstructor();
+            constructor.setAccessible(true);
+            return constructor.newInstance();
+        } catch (NoSuchMethodException | InstantiationException
+                | IllegalAccessException | InvocationTargetException e) {
+            log.error("instantiate error : ", e);
+            throw new InstantiationFailedException(INSTANTIATION_FAILED_EXCEPTION_MESSAGE);
+        }
     }
 }
