@@ -13,11 +13,11 @@ public class JdbcTemplate {
         this.dataSource = dataSource;
     }
 
-    public void insert(String query, String... params) {
+    public void insert(String query, Object... params) {
         cxud(query, params);
     }
 
-    public <T> T select(FunctionThrowingSQLException<ResultSet, T> rowMapper, String query, String... params) {
+    public <T> T select(FunctionThrowingSQLException<ResultSet, T> rowMapper, String query, Object... params) {
         try (final Connection con = this.dataSource.getConnection();
              final PreparedStatement pstmt = prepareStatement(con, query, params);
              final ResultSet resultSet = pstmt.executeQuery()) {
@@ -31,11 +31,11 @@ public class JdbcTemplate {
         return select(rowMapper, query);
     }
 
-    public void update(String query, String... params) {
+    public void update(String query, Object... params) {
         cxud(query, params);
     }
 
-    public void delete(String query, String... params) {
+    public void delete(String query, Object... params) {
         cxud(query, params);
     }
 
@@ -43,7 +43,7 @@ public class JdbcTemplate {
         cxud(query);
     }
 
-    private void cxud(String query, String... params) {
+    private void cxud(String query, Object... params) {
         try (final Connection con = dataSource.getConnection();
              final PreparedStatement pstmt = prepareStatement(con, query, params)) {
             pstmt.executeUpdate();
@@ -53,11 +53,11 @@ public class JdbcTemplate {
     }
 
     private PreparedStatement prepareStatement(
-            Connection con, String query, String... params
+            Connection con, String query, Object... params
     ) throws SQLException {
         final PreparedStatement pstmt = con.prepareStatement(query);
         for (int i = 0; i < params.length; i++) {
-            pstmt.setString(i + 1, params[i]);
+            pstmt.setObject(i + 1, params[i]);
         }
         return pstmt;
     }

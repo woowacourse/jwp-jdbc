@@ -22,9 +22,9 @@ public class UserDaoTest {
     }
 
     @Test
-    public void crud() throws Exception {
-        User expected = new User("userId", "password", "name", "javajigi@email.com");
-        UserDao userDao = new UserDao();
+    public void crud() {
+        final User expected = new User("userId", "password", "name", "javajigi@email.com");
+        final UserDao userDao = new UserDao();
 
         userDao.insert(expected);
         User actual = userDao.findByUserId(expected.getUserId());
@@ -32,7 +32,6 @@ public class UserDaoTest {
 
         expected.update(new UserUpdatedDto("password2", "name2", "sanjigi@email.com"));
         userDao.update(expected);
-
         actual = userDao.findByUserId(expected.getUserId());
         assertThat(actual).isEqualTo(expected);
 
@@ -42,9 +41,9 @@ public class UserDaoTest {
     }
 
     @Test
-    public void findAll() throws Exception {
-        UserDao userDao = new UserDao();
-        List<User> users = userDao.findAll();
+    public void findAll() {
+        final UserDao userDao = new UserDao();
+        final List<User> users = userDao.findAll();
         assertThat(users).hasSize(1);
     }
 }
