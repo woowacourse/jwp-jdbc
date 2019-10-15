@@ -26,16 +26,68 @@ public class JdbcTemplate {
         }
     }
 
+    void save(String sql, Object... objects) {
+        try (Connection con = ConnectionManager.getConnection();
+             PreparedStatement pstmt = con.prepareStatement(sql)) {
+            setValues(pstmt, objects);
+
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            logger.error(e.getMessage(), e);
+            throw new RuntimeException();
+        }
+    }
+
+    private void setValues(PreparedStatement pstmt, Object[] objects) throws SQLException {
+        for (int i = 1; i <= objects.length; i++) {
+            pstmt.setString(i, String.valueOf(objects[i - 1]));
+        }
+    }
+
     List query(String sql, RowMapper rowMapper) {
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
 
             ResultSet resultSet = pstmt.executeQuery();
-            List<Object> objects = new ArrayList<>();
+            List<Object> results = new ArrayList<>();
             while (resultSet.next()) {
-                objects.add(rowMapper.mapRow(resultSet));
+                results.add(rowMapper.mapRow(resultSet));
             }
-            return objects;
+            return results;
+        } catch (SQLException e) {
+            logger.error(e.getMessage(), e);
+            throw new RuntimeException();
+        }
+    }
+
+    List query(String sql, RowMapper rowMapper, PreparedStatementSetter pstmtSetter) {
+        try (Connection con = ConnectionManager.getConnection();
+             PreparedStatement pstmt = con.prepareStatement(sql)) {
+            pstmtSetter.setValues(pstmt);
+
+            ResultSet resultSet = pstmt.executeQuery();
+            List<Object> results = new ArrayList<>();
+            while (resultSet.next()) {
+                results.add(rowMapper.mapRow(resultSet));
+            }
+            return results;
+        } catch (SQLException e) {
+            logger.error(e.getMessage(), e);
+            throw new RuntimeException();
+        }
+    }
+
+    List query(String sql, RowMapper rowMapper, Object... objects) {
+        try (Connection con = ConnectionManager.getConnection();
+             PreparedStatement pstmt = con.prepareStatement(sql)) {
+            setValues(pstmt, objects);
+
+            ResultSet resultSet = pstmt.executeQuery();
+            List<Object> results = new ArrayList<>();
+            while (resultSet.next()) {
+                results.add(rowMapper.mapRow(resultSet));
+            }
+            return results;
         } catch (SQLException e) {
             logger.error(e.getMessage(), e);
             throw new RuntimeException();
@@ -48,12 +100,30 @@ public class JdbcTemplate {
             pstmtSetter.setValues(pstmt);
 
             ResultSet resultSet = pstmt.executeQuery();
-            List<Object> objects = new ArrayList<>();
+            List<Object> results = new ArrayList<>();
             while (resultSet.next()) {
-                objects.add(rowMapper.mapRow(resultSet));
+                results.add(rowMapper.mapRow(resultSet));
             }
-            logger.debug("objects size : {} ", objects.size());
-            return objects.get(0);
+            logger.debug("results size : {} ", results.size());
+            return results.get(0);
+        } catch (SQLException e) {
+            logger.error(e.getMessage(), e);
+            throw new RuntimeException();
+        }
+    }
+
+    Object queryForObject(String sql, RowMapper rowMapper, Object... objects) {
+        try (Connection con = ConnectionManager.getConnection();
+             PreparedStatement pstmt = con.prepareStatement(sql)) {
+            setValues(pstmt, objects);
+
+            ResultSet resultSet = pstmt.executeQuery();
+            List<Object> results = new ArrayList<>();
+            while (resultSet.next()) {
+                results.add(rowMapper.mapRow(resultSet));
+            }
+            logger.debug("objects size : {} ", results.size());
+            return results.get(0);
         } catch (SQLException e) {
             logger.error(e.getMessage(), e);
             throw new RuntimeException();

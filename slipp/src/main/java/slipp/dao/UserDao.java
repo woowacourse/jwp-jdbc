@@ -7,30 +7,14 @@ import java.util.List;
 public class UserDao {
     public void insert(User user) {
         String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
-
-        PreparedStatementSetter pstmtSetter = pstmt -> {
-            pstmt.setString(1, user.getUserId());
-            pstmt.setString(2, user.getPassword());
-            pstmt.setString(3, user.getName());
-            pstmt.setString(4, user.getEmail());
-        };
-
         JdbcTemplate jdbcTemplate = new JdbcTemplate();
-        jdbcTemplate.save(sql, pstmtSetter);
+        jdbcTemplate.save(sql, user.getUserId(), user.getPassword(), user.getName(), user.getEmail());
     }
 
     public void update(User user) {
         String sql = "UPDATE USERS SET PASSWORD = ?, NAME = ?, EMAIL = ? WHERE USERID = ?";
-
-        PreparedStatementSetter pstmtSetter = pstmt -> {
-            pstmt.setString(1, user.getPassword());
-            pstmt.setString(2, user.getName());
-            pstmt.setString(3, user.getEmail());
-            pstmt.setString(4, user.getUserId());
-        };
-
         JdbcTemplate jdbcTemplate = new JdbcTemplate();
-        jdbcTemplate.save(sql, pstmtSetter);
+        jdbcTemplate.save(sql, user.getPassword(), user.getName(), user.getEmail(), user.getUserId());
     }
 
     public List<User> findAll() {
@@ -51,12 +35,10 @@ public class UserDao {
     public User findByUserId(String userId) {
         String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
 
-        PreparedStatementSetter pstmtSetter = pstmt -> pstmt.setString(1, userId);
-
         RowMapper rowMapper = rs -> new User(rs.getString("userId"), rs.getString("password"),
                 rs.getString("name"), rs.getString("email"));
 
         JdbcTemplate jdbcTemplate = new JdbcTemplate();
-        return (User) jdbcTemplate.queryForObject(sql, rowMapper, pstmtSetter);
+        return (User) jdbcTemplate.queryForObject(sql, rowMapper, userId);
     }
 }
