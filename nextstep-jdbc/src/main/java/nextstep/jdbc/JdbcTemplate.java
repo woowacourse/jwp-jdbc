@@ -1,18 +1,18 @@
 package nextstep.jdbc;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import nextstep.jdbc.exception.NotOnlyResultException;
 
-public abstract class JdbcTemplate {
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
-    public void execute(String sql) throws SQLException {
-        Connection con = null;
+public class JdbcTemplate<T> {
+
+    public void execute(Connection con, String sql, PreparedStatementSetter pss) throws SQLException {
         PreparedStatement pstmt = null;
         try {
-            con = getConnection();
             pstmt = con.prepareStatement(sql);
-            setValues(pstmt);
+            pss.setValues(pstmt);
             pstmt.executeUpdate();
         } finally {
             if (pstmt != null) {
@@ -25,7 +25,55 @@ public abstract class JdbcTemplate {
         }
     }
 
-    protected abstract Connection getConnection();
+   public List<T> query(Connection con, String sql, PreparedStatementSetter pss, RowMapper<T> rowMapper) throws SQLException {
+        PreparedStatement pstmt = null;
+        List<T> result = new ArrayList<>();
+        try {
+            pstmt = con.prepareStatement(sql);
+            pss.setValues(pstmt);
+            ResultSet resultSet = pstmt.executeQuery();
 
-    public abstract void setValues(PreparedStatement pstmt);
+            while (resultSet.next()) {
+                result.add(rowMapper.mapRow(resultSet));
+            }
+        } finally {
+            if (pstmt != null) {
+                pstmt.close();
+            }
+
+            if (con != null) {
+                con.close();
+            }
+        }
+
+        return result;
+    }
+
+    public T queryForObject(Connection con, String sql, PreparedStatementSetter pss, RowMapper<T> rowMapper) throws SQLException {
+        PreparedStatement pstmt = null;
+        T result = null;
+
+        try {
+            pstmt = con.prepareStatement(sql);
+            pss.setValues(pstmt);
+            ResultSet resultSet = pstmt.executeQuery();
+            while (resultSet.next()) {
+                if (result != null) {
+                    throw new NotOnlyResultException();
+                }
+
+                result = rowMapper.mapRow(resultSet);
+            }
+        } finally {
+            if (pstmt != null) {
+                pstmt.close();
+            }
+
+            if (con != null) {
+                con.close();
+            }
+        }
+
+        return result;
+    }
 }
