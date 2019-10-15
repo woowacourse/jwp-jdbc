@@ -6,57 +6,36 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class JdbcTemplate<T> {
+public abstract class JdbcTemplate<T> {
 
-    public void execute(Connection con, String sql, PreparedStatementSetter pss) throws SQLException {
-        PreparedStatement pstmt = null;
-        try {
-            pstmt = con.prepareStatement(sql);
+    public void execute(String sql, PreparedStatementSetter pss) throws SQLException {
+        try (Connection con = getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)){
             pss.setValues(pstmt);
             pstmt.executeUpdate();
-        } finally {
-            if (pstmt != null) {
-                pstmt.close();
-            }
-
-            if (con != null) {
-                con.close();
-            }
         }
     }
 
-   public List<T> query(Connection con, String sql, PreparedStatementSetter pss, RowMapper<T> rowMapper) throws SQLException {
-        PreparedStatement pstmt = null;
+   public List<T> query(String sql, PreparedStatementSetter pss, RowMapper<T> rowMapper) throws SQLException {
         List<T> result = new ArrayList<>();
-        try {
-            pstmt = con.prepareStatement(sql);
+        try (Connection con = getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)){
             pss.setValues(pstmt);
             ResultSet resultSet = pstmt.executeQuery();
 
             while (resultSet.next()) {
                 result.add(rowMapper.mapRow(resultSet));
             }
-        } finally {
-            if (pstmt != null) {
-                pstmt.close();
-            }
-
-            if (con != null) {
-                con.close();
-            }
         }
 
         return result;
     }
 
-    public T queryForObject(Connection con, String sql, PreparedStatementSetter pss, RowMapper<T> rowMapper) throws SQLException {
-        PreparedStatement pstmt = null;
+    public T queryForObject(String sql, PreparedStatementSetter pss, RowMapper<T> rowMapper) throws SQLException {
         T result = null;
 
-        try {
-            pstmt = con.prepareStatement(sql);
+        try (Connection con = getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)){
             pss.setValues(pstmt);
             ResultSet resultSet = pstmt.executeQuery();
+
             while (resultSet.next()) {
                 if (result != null) {
                     throw new NotOnlyResultException();
@@ -64,16 +43,10 @@ public class JdbcTemplate<T> {
 
                 result = rowMapper.mapRow(resultSet);
             }
-        } finally {
-            if (pstmt != null) {
-                pstmt.close();
-            }
-
-            if (con != null) {
-                con.close();
-            }
         }
 
         return result;
     }
+
+    protected abstract Connection getConnection();
 }

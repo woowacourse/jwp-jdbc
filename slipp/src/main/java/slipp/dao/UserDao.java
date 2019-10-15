@@ -15,10 +15,14 @@ import java.util.List;
 
 public class UserDao {
 
-    private JdbcTemplate<User> jdbcTemplate = new JdbcTemplate<>();
+    private JdbcTemplate<User> jdbcTemplate = new JdbcTemplate<User>() {
+        @Override
+        protected Connection getConnection() {
+            return ConnectionManager.getConnection();
+        }
+    };
 
     public void insert(User user) {
-        Connection con = ConnectionManager.getConnection();
         String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
         PreparedStatementSetter pss = pstmt -> {
             try {
@@ -32,7 +36,7 @@ public class UserDao {
         };
 
         try {
-            jdbcTemplate.execute(con, sql, pss);
+            jdbcTemplate.execute(sql, pss);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -53,7 +57,7 @@ public class UserDao {
         };
 
         try {
-            jdbcTemplate.execute(con, sql, pss);
+            jdbcTemplate.execute(sql, pss);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -71,7 +75,7 @@ public class UserDao {
             }
         };
 
-        return jdbcTemplate.query(con, sql, pss, rowMapper);
+        return jdbcTemplate.query(sql, pss, rowMapper);
     }
 
     public User findByUserId(String userId) throws SQLException {
@@ -89,6 +93,6 @@ public class UserDao {
             }
         };
 
-        return jdbcTemplate.queryForObject(con, sql, pss, rowMapper);
+        return jdbcTemplate.queryForObject(sql, pss, rowMapper);
     }
 }
