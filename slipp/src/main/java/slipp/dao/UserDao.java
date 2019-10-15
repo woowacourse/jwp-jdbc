@@ -1,20 +1,21 @@
 package slipp.dao;
 
+import nextstep.jdbc.JdbcTemplate;
+import nextstep.jdbc.RowMapper;
 import slipp.domain.User;
 
 import java.util.List;
 
 public class UserDao {
+
     public void insert(User user) {
         String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
-        JdbcTemplate jdbcTemplate = new JdbcTemplate();
-        jdbcTemplate.save(sql, user.getUserId(), user.getPassword(), user.getName(), user.getEmail());
+        JdbcTemplate.save(sql, user.getUserId(), user.getPassword(), user.getName(), user.getEmail());
     }
 
     public void update(User user) {
         String sql = "UPDATE USERS SET PASSWORD = ?, NAME = ?, EMAIL = ? WHERE USERID = ?";
-        JdbcTemplate jdbcTemplate = new JdbcTemplate();
-        jdbcTemplate.save(sql, user.getPassword(), user.getName(), user.getEmail(), user.getUserId());
+        JdbcTemplate.save(sql, user.getPassword(), user.getName(), user.getEmail(), user.getUserId());
     }
 
     public List<User> findAll() {
@@ -28,8 +29,7 @@ public class UserDao {
             return new User(id, password, name, email);
         };
 
-        JdbcTemplate jdbcTemplate = new JdbcTemplate();
-        return jdbcTemplate.query(sql, rowMapper);
+        return JdbcTemplate.query(sql, rowMapper);
     }
 
     public User findByUserId(String userId) {
@@ -38,7 +38,6 @@ public class UserDao {
         RowMapper rowMapper = rs -> new User(rs.getString("userId"), rs.getString("password"),
                 rs.getString("name"), rs.getString("email"));
 
-        JdbcTemplate jdbcTemplate = new JdbcTemplate();
-        return (User) jdbcTemplate.queryForObject(sql, rowMapper, userId);
+        return (User) JdbcTemplate.queryForObject(sql, rowMapper, userId);
     }
 }
