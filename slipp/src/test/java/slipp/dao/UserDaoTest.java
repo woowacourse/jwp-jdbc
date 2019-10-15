@@ -1,5 +1,6 @@
 package slipp.dao;
 
+import nextstep.jdbc.ConnectionManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
@@ -7,7 +8,6 @@ import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import slipp.domain.User;
 import slipp.dto.UserUpdatedDto;
-import slipp.support.db.ConnectionManager;
 
 import java.util.List;
 
@@ -22,7 +22,7 @@ public class UserDaoTest {
     }
 
     @Test
-    public void crud() throws Exception {
+    public void crud() {
         User expected = new User("userId", "password", "name", "javajigi@email.com");
         UserDao userDao = new UserDao();
         userDao.insert(expected);
@@ -36,7 +36,7 @@ public class UserDaoTest {
     }
 
     @Test
-    public void findAll() throws Exception {
+    public void findAll() {
         UserDao userDao = new UserDao();
         List<User> users = userDao.findAll();
         assertThat(users).hasSize(1);
