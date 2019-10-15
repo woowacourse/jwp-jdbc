@@ -9,20 +9,20 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-public abstract class UpdateJdbcTemplate {
-    private static final Logger log = LoggerFactory.getLogger(UpdateJdbcTemplate.class);
+public abstract class JdbcTemplate {
+    private static final Logger log = LoggerFactory.getLogger(JdbcTemplate.class);
 
     public void update(User user) {
         try (Connection con = ConnectionManager.getConnection();
-             PreparedStatement pstmt = con.prepareStatement(createQueryForUpdate())) {
-            setValuesForUpdate(user, pstmt);
-            pstmt.executeUpdate();
+             PreparedStatement pstmt = con.prepareStatement(createQuery())) {
+            setValues(user, pstmt);
+            pstmt.execute();
         } catch (SQLException e) {
             log.error("SQLException : {}", e.getMessage());
         }
     }
 
-    protected abstract void setValuesForUpdate(User user, PreparedStatement pstmt) throws SQLException;
+    protected abstract void setValues(User user, PreparedStatement pstmt) throws SQLException;
 
-    protected abstract String createQueryForUpdate();
+    protected abstract String createQuery();
 }

@@ -1,11 +1,8 @@
 package slipp.dao;
 
 import nextstep.jdbc.ConnectionManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import slipp.domain.User;
-import slipp.support.db.InsertJdbcTemplate;
-import slipp.support.db.UpdateJdbcTemplate;
+import slipp.support.db.JdbcTemplate;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -16,9 +13,9 @@ import java.util.List;
 
 public class UserDao {
     public void insert(User user) {
-        InsertJdbcTemplate insertJdbcTemplate = new InsertJdbcTemplate() {
+        JdbcTemplate jdbcTemplate = new JdbcTemplate() {
             @Override
-            protected void setValuesForInsert(User user, PreparedStatement pstmt) throws SQLException {
+            protected void setValues(User user, PreparedStatement pstmt) throws SQLException {
                 pstmt.setString(1, user.getUserId());
                 pstmt.setString(2, user.getPassword());
                 pstmt.setString(3, user.getName());
@@ -26,18 +23,18 @@ public class UserDao {
             }
 
             @Override
-            protected String createQueryForInsert() {
+            protected String createQuery() {
                 return "INSERT INTO USERS VALUES (?, ?, ?, ?)";
             }
         };
 
-        insertJdbcTemplate.insert(user);
+        jdbcTemplate.update(user);
     }
 
     public void update(User user) {
-        UpdateJdbcTemplate updateJdbcTemplate = new UpdateJdbcTemplate() {
+        JdbcTemplate jdbcTemplate = new JdbcTemplate() {
             @Override
-            protected void setValuesForUpdate(User user, PreparedStatement pstmt) throws SQLException {
+            protected void setValues(User user, PreparedStatement pstmt) throws SQLException {
                 pstmt.setString(1, user.getPassword());
                 pstmt.setString(2, user.getName());
                 pstmt.setString(3, user.getEmail());
@@ -45,12 +42,12 @@ public class UserDao {
             }
 
             @Override
-            protected String createQueryForUpdate() {
+            protected String createQuery() {
                 return "UPDATE USERS SET password=?, name=?, email=? WHERE userId=?";
             }
         };
 
-        updateJdbcTemplate.update(user);
+        jdbcTemplate.update(user);
     }
 
     public List<User> findAll() throws SQLException {
