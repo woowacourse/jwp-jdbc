@@ -1,5 +1,7 @@
 package nextstep.jdbc;
 
+import nextstep.jdbc.exception.SQLSelectException;
+import nextstep.jdbc.exception.SQLUpdateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,44 +30,45 @@ public class JdbcTemplate<T> {
 
         } catch (SQLException e) {
             logger.error("{}", e);
+            throw new SQLUpdateException();
         }
     }
 
     public List<T> queryForList(String sql, RowMapper<T> rowMapper) {
-        List<T> objects = new ArrayList<>();
-
         try (Connection connection = dataSource.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(sql);
              ResultSet resultSet = preparedStatement.executeQuery()) {
+
+            List<T> objects = new ArrayList<>();
 
             while (resultSet.next()) {
                 T object = rowMapper.mapRow(resultSet);
                 objects.add(object);
             }
 
+            return objects;
+
         } catch (SQLException e) {
             logger.error("{}", e);
+            throw new SQLSelectException();
         }
-
-        return objects;
     }
 
     public T queryForObject(String sql, RowMapper<T> rowMapper, Object... arg) {
-        T object = null;
-
         try (Connection connection = dataSource.getConnection();
              PreparedStatement preparedStatement = setPreparedStatement(connection.prepareStatement(sql), arg);
              ResultSet resultSet = preparedStatement.executeQuery()) {
 
             if (resultSet.next()) {
-                object = rowMapper.mapRow(resultSet);
+                return rowMapper.mapRow(resultSet);
             }
+
+            return null;
 
         } catch (SQLException e) {
             logger.error("{}", e);
+            throw new SQLSelectException();
         }
-
-        return object;
     }
 
     private PreparedStatement setPreparedStatement(PreparedStatement preparedStatement, Object... arg) throws SQLException {
