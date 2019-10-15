@@ -39,16 +39,16 @@ public class JdbcTemplate {
     public void executeUpdate(final String sql, Object... values) {
         log.debug("executeUpdate sql={}", sql);
 
-        excuteAll(sql, null, values);
+        excute(sql, null, values);
     }
 
     public <T> T executeQuery(final String sql, RowMapper<T> rowMapper, Object... values) {
         log.debug("executeQuery sql={}", sql);
 
-        return (T) excuteAll(sql, rowMapper, values);
+        return (T) excute(sql, rowMapper, values);
     }
 
-    public <T> Object excuteAll(final String sql, RowMapper<T> rowMapper, Object... values) {
+    public <T> Object excute(final String sql, RowMapper<T> rowMapper, Object... values) {
         log.debug("execute sql={}", sql);
 
         try (Connection con = getConnection();
