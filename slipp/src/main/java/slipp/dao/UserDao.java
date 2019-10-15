@@ -19,6 +19,11 @@ public class UserDao {
                 pstmt.setString(3, user.getName());
                 pstmt.setString(4, user.getEmail());
             }
+
+            @Override
+            Object mapRow(ResultSet resultSet) throws SQLException {
+                return null;
+            }
         };
         jdbcTemplate.save(sql);
     }
@@ -34,6 +39,11 @@ public class UserDao {
                 pstmt.setString(3, user.getEmail());
                 pstmt.setString(4, user.getUserId());
             }
+
+            @Override
+            Object mapRow(ResultSet resultSet) throws SQLException {
+                return null;
+            }
         };
         jdbcTemplate.save(sql);
     }
@@ -41,7 +51,7 @@ public class UserDao {
     public List<User> findAll() {
         String sql = "SELECT * FROM USERS";
 
-        SelectJdbcTemplate selectJdbcTemplate = new SelectJdbcTemplate() {
+        JdbcTemplate jdbcTemplate = new JdbcTemplate() {
             @Override
             Object mapRow(ResultSet resultSet) throws SQLException {
                 String id = resultSet.getString("userId");
@@ -55,13 +65,13 @@ public class UserDao {
             void setValues(PreparedStatement pstmt) {
             }
         };
-        return selectJdbcTemplate.query(sql);
+        return jdbcTemplate.query(sql);
     }
 
     public User findByUserId(String userId) {
         String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
 
-        SelectJdbcTemplate selectJdbcTemplate = new SelectJdbcTemplate() {
+        JdbcTemplate jdbcTemplate = new JdbcTemplate() {
             @Override
             Object mapRow(ResultSet resultSet) throws SQLException {
                 return new User(resultSet.getString("userId"), resultSet.getString("password"),
@@ -73,6 +83,6 @@ public class UserDao {
                 pstmt.setString(1, userId);
             }
         };
-        return (User) selectJdbcTemplate.queryForObject(sql);
+        return (User) jdbcTemplate.queryForObject(sql);
     }
 }
