@@ -20,12 +20,4 @@ public class ConnectionManager {
         ds.setPassword(DB_PW);
         return ds;
     }
-
-    public static Connection getConnection() {
-        try {
-            return getDataSource().getConnection();
-        } catch (SQLException e) {
-            throw new IllegalStateException(e);
-        }
-    }
 }
