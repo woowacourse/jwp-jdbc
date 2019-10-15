@@ -1,13 +1,10 @@
 package slipp.dao;
 
 import slipp.domain.User;
-import slipp.support.db.ConnectionManager;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class UserDao {
@@ -41,64 +38,41 @@ public class UserDao {
         jdbcTemplate.save(sql);
     }
 
-    public List<User> findAll() throws SQLException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        List<User> users = new ArrayList<>();
-        try {
-            con = ConnectionManager.getConnection();
-            String sql = "SELECT * FROM USERS";
-            pstmt = con.prepareStatement(sql);
+    public List<User> findAll() {
+        String sql = "SELECT * FROM USERS";
 
-            ResultSet resultSet = pstmt.executeQuery();
-            while (resultSet.next()) {
+        SelectJdbcTemplate selectJdbcTemplate = new SelectJdbcTemplate() {
+            @Override
+            Object mapRow(ResultSet resultSet) throws SQLException {
                 String id = resultSet.getString("userId");
                 String password = resultSet.getString("password");
                 String name = resultSet.getString("name");
                 String email = resultSet.getString("email");
-                users.add(new User(id, password, name, email));
-            }
-        } finally {
-            if (pstmt != null) {
-                pstmt.close();
+                return new User(id, password, name, email);
             }
 
-            if (con != null) {
-                con.close();
+            @Override
+            void setValues(PreparedStatement pstmt) {
             }
-        }
-        return users;
+        };
+        return selectJdbcTemplate.query(sql);
     }
 
-    public User findByUserId(String userId) throws SQLException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        try {
-            con = ConnectionManager.getConnection();
-            String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
-            pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, userId);
+    public User findByUserId(String userId) {
+        String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
 
-            rs = pstmt.executeQuery();
-
-            User user = null;
-            if (rs.next()) {
-                user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
-                        rs.getString("email"));
+        SelectJdbcTemplate selectJdbcTemplate = new SelectJdbcTemplate() {
+            @Override
+            Object mapRow(ResultSet resultSet) throws SQLException {
+                return new User(resultSet.getString("userId"), resultSet.getString("password"),
+                        resultSet.getString("name"), resultSet.getString("email"));
             }
 
-            return user;
-        } finally {
-            if (rs != null) {
-                rs.close();
+            @Override
+            void setValues(PreparedStatement pstmt) throws SQLException {
+                pstmt.setString(1, userId);
             }
-            if (pstmt != null) {
-                pstmt.close();
-            }
-            if (con != null) {
-                con.close();
-            }
-        }
+        };
+        return (User) selectJdbcTemplate.queryForObject(sql);
     }
 }
