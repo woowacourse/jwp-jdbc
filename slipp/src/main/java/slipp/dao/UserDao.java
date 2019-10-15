@@ -35,11 +35,7 @@ public class UserDao {
             }
         };
 
-        try {
-            jdbcTemplate.execute(sql, pss);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        jdbcTemplate.execute(sql, pss);
     }
 
     public void update(User user) {
@@ -55,16 +51,13 @@ public class UserDao {
             }
         };
 
-        try {
-            jdbcTemplate.execute(sql, pss);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        jdbcTemplate.execute(sql, pss);
     }
 
     public List<User> findAll() throws SQLException {
         String sql = "SELECT * FROM USERS";
-        PreparedStatementSetter pss = pstmt -> {};
+        PreparedStatementSetter pss = pstmt -> {
+        };
         RowMapper<User> rowMapper = getUserRowMapper();
 
         return jdbcTemplate.query(sql, rowMapper, pss);

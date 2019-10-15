@@ -1,6 +1,8 @@
 package nextstep.jdbc;
 
+import nextstep.jdbc.exception.ExecuteUpdateSQLException;
 import nextstep.jdbc.exception.NotOnlyResultException;
+import nextstep.jdbc.exception.SelectSQLException;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -11,21 +13,25 @@ import java.util.List;
 
 public abstract class JdbcTemplate<T> {
 
-    public void execute(String sql, PreparedStatementSetter pss) throws SQLException {
+    public void execute(String sql, PreparedStatementSetter pss) {
         try (Connection con = getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
             pss.setValues(pstmt);
             pstmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new ExecuteUpdateSQLException();
         }
     }
 
-    public void execute(String sql, Object... values) throws SQLException {
+    public void execute(String sql, Object... values) {
         try (Connection con = getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
             setObjects(pstmt, values);
             pstmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new ExecuteUpdateSQLException();
         }
     }
 
-    public List<T> query(String sql, RowMapper<T> rowMapper, PreparedStatementSetter pss) throws SQLException {
+    public List<T> query(String sql, RowMapper<T> rowMapper, PreparedStatementSetter pss) {
         List<T> result = new ArrayList<>();
         try (Connection con = getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
             pss.setValues(pstmt);
@@ -34,12 +40,14 @@ public abstract class JdbcTemplate<T> {
             while (resultSet.next()) {
                 result.add(rowMapper.mapRow(resultSet));
             }
+        } catch (SQLException e) {
+            throw new SelectSQLException();
         }
 
         return result;
     }
 
-    public List<T> query(String sql, RowMapper<T> rowMapper, Object... values) throws SQLException {
+    public List<T> query(String sql, RowMapper<T> rowMapper, Object... values) {
         List<T> result = new ArrayList<>();
         try (Connection con = getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
             setObjects(pstmt, values);
@@ -48,14 +56,15 @@ public abstract class JdbcTemplate<T> {
             while (resultSet.next()) {
                 result.add(rowMapper.mapRow(resultSet));
             }
+        } catch (SQLException e) {
+            throw new SelectSQLException();
         }
 
         return result;
     }
 
 
-
-    public T queryForObject(String sql, RowMapper<T> rowMapper, PreparedStatementSetter pss) throws SQLException {
+    public T queryForObject(String sql, RowMapper<T> rowMapper, PreparedStatementSetter pss) {
         T result = null;
 
         try (Connection con = getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
@@ -69,12 +78,14 @@ public abstract class JdbcTemplate<T> {
 
                 result = rowMapper.mapRow(resultSet);
             }
+        } catch (SQLException e) {
+            throw new SelectSQLException();
         }
 
         return result;
     }
 
-    public T queryForObject(String sql, RowMapper<T> rowMapper, Object... values) throws SQLException {
+    public T queryForObject(String sql, RowMapper<T> rowMapper, Object... values) {
         T result = null;
 
         try (Connection con = getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
@@ -88,6 +99,8 @@ public abstract class JdbcTemplate<T> {
 
                 result = rowMapper.mapRow(resultSet);
             }
+        } catch (SQLException e) {
+            throw new SelectSQLException();
         }
 
         return result;
