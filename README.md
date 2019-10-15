@@ -43,8 +43,8 @@ https://gist.github.com/joshbuchea/6f47e86d2510bce28f8e7f42ae84c716
 - [x] ```ConnectionManager.getConnection()```
 - [x] ```UserDao```의 ```update()``` 구현 ( 테스트 통과)
 - [x] ```pstmt.executeUpdate();``` 사용하는 부분 ```Template```으로 빼기 (```insert()```)
-- [ ] ```pstmt.executeQuery();``` 사용하는 부분 ```Template```으로 빼기 (```findById()```)
-- [ ]  ```ResultSet``` 부분 ```Template```으로 빼기 (```findById()```)
+- [x] ```pstmt.executeQuery();``` 사용하는 부분 ```Template```으로 빼기 (```findById()```)
+- [x]  ```ResultSet``` 부분 ```Template```으로 빼기 (```findById()```)
 - [ ] ```JDBC Template``` ```static```으로 사용할 수 있게 변경
 - [x] ```try-with-resource```로 바꾸기
 
