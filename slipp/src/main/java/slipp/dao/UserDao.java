@@ -1,6 +1,7 @@
 package slipp.dao;
 
 import nextstep.jdbc.JdbcTemplate;
+import nextstep.jdbc.RowMapper;
 import slipp.domain.User;
 import slipp.support.db.ConnectionManager;
 
@@ -8,11 +9,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class UserDao {
-    private JdbcTemplate jdbcTemplate = new JdbcTemplate();
+    private JdbcTemplate<User> jdbcTemplate = new JdbcTemplate<>(ConnectionManager.getDataSource());
 
     public void insert(User user) {
         String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
@@ -24,38 +24,18 @@ public class UserDao {
         jdbcTemplate.executeSql(sql, user.getPassword(), user.getName(), user.getEmail(), user.getUserId());
     }
 
-    public List<User> findAll() throws SQLException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        List<User> users = new ArrayList<>();
+    public List<User> findAll() {
+        String sql = "SELECT * FROM USERS";
 
-        try {
-            con = ConnectionManager.getConnection();
-            String sql = "SELECT * FROM USERS";
-            pstmt = con.prepareStatement(sql);
-            ResultSet resultSet = pstmt.executeQuery();
+        RowMapper<User> rowMapper = (resultSet) ->
+            new User(
+                resultSet.getString("userId"),
+                resultSet.getString("password"),
+                resultSet.getString("name"),
+                resultSet.getString("email")
+            );
 
-            while (resultSet.next()) {
-                User user = new User(
-                    resultSet.getString("userId"),
-                    resultSet.getString("password"),
-                    resultSet.getString("name"),
-                    resultSet.getString("email")
-                );
-
-                users.add(user);
-            }
-        } finally {
-            if (pstmt != null) {
-                pstmt.close();
-            }
-
-            if (con != null) {
-                con.close();
-            }
-        }
-
-        return users;
+        return jdbcTemplate.queryForList(sql, rowMapper);
     }
 
     public User findByUserId(String userId) throws SQLException {
@@ -73,7 +53,7 @@ public class UserDao {
             User user = null;
             if (rs.next()) {
                 user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
-                        rs.getString("email"));
+                    rs.getString("email"));
             }
 
             return user;
