@@ -5,10 +5,6 @@ import nextstep.jdbc.RowMapper;
 import slipp.domain.User;
 import slipp.support.db.ConnectionManager;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,25 +22,24 @@ public class UserDao {
         jdbcTemplate.executeUpdate(sql, user.getPassword(), user.getName(), user.getEmail(), user.getUserId());
     }
 
-    public List<User> findAll() throws SQLException {
+    public List<User> findAll() {
         String sql = "SELECT * FROM USERS";
-        List<User> users = new ArrayList<>();
 
-        try (Connection con = ConnectionManager.getConnection();
-             PreparedStatement pstmt = con.prepareStatement(sql);
-             ResultSet rs = pstmt.executeQuery()) {
-
+        RowMapper<List<User>> rowMapper = rs -> {
+            List<User> users = new ArrayList<>();
             while (rs.next()) {
-                String userId = rs.getString("userId");
+                String retrievedUserId = rs.getString("userId");
                 String password = rs.getString("password");
                 String name = rs.getString("name");
                 String email = rs.getString("email");
 
-                User user = new User(userId, password, name, email);
+                User user = new User(retrievedUserId, password, name, email);
                 users.add(user);
             }
-        }
-        return users;
+            return users;
+        };
+
+        return jdbcTemplate.executeQuery(sql, rowMapper);
     }
 
     public User findByUserId(String userId) {
