@@ -55,4 +55,10 @@ public class UserDao {
             return user;
         });
     }
+
+    public void deleteByUserId(final String userId) {
+        final String sql = "DELETE FROM USERS WHERE userId = ?";
+        final List<Object> params = List.of(userId);
+        jdbcTemplate.update(params, sql);
+    }
 }
