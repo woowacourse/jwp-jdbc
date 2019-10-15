@@ -7,7 +7,7 @@ import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import slipp.domain.User;
 import slipp.dto.UserUpdatedDto;
-import slipp.support.db.ConnectionManager;
+import nextstep.jdbc.ConnectionManager;
 
 import java.util.List;
 

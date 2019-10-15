@@ -1,5 +1,8 @@
 package nextstep.jdbc;
 
-public class JdbcTemplate {
+import java.sql.PreparedStatement;
+
+public interface JdbcTemplate {
+    void setValuesForInsert(Object object, PreparedStatement pstmt);
 
 }
