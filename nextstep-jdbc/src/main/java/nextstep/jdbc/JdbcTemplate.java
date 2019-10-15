@@ -1,19 +1,22 @@
 package nextstep.jdbc;
 
-import slipp.support.db.ConnectionManager;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class JdbcTemplate {
+    private final Connection con;
+
+    public JdbcTemplate(Connection con) {
+        this.con = con;
+    }
+
     public void updateQuery(UpdateQuery query) throws SQLException {
-        Connection con = null;
         PreparedStatement pstmt = null;
         try {
-            con = ConnectionManager.getConnection();
-            query.update(con);
+            pstmt = query.update(con);
+            pstmt.executeUpdate();
         } finally {
             if (pstmt != null) {
                 pstmt.close();
@@ -26,11 +29,9 @@ public class JdbcTemplate {
     }
 
     public <T> T executeQuery(ExecuteQuery<T> query) throws SQLException {
-        Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = ConnectionManager.getConnection();
             return query.execute(con);
         } finally {
             if (rs != null) {
