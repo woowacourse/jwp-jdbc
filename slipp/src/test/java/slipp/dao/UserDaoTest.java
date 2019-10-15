@@ -22,17 +22,23 @@ public class UserDaoTest {
     }
 
     @Test
-    public void cru() throws Exception {
+    public void crud() throws Exception {
         User expected = new User("userId", "password", "name", "javajigi@email.com");
         UserDao userDao = new UserDao();
+
         userDao.insert(expected);
         User actual = userDao.findByUserId(expected.getUserId());
         assertThat(actual).isEqualTo(expected);
 
         expected.update(new UserUpdatedDto("password2", "name2", "sanjigi@email.com"));
         userDao.update(expected);
+
         actual = userDao.findByUserId(expected.getUserId());
         assertThat(actual).isEqualTo(expected);
+
+        userDao.deleteByUserId(expected.getUserId());
+        actual = userDao.findByUserId(expected.getUserId());
+        assertThat(actual).isNull();
     }
 
     @Test

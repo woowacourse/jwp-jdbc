@@ -5,8 +5,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
-import java.util.function.Function;
 
 public class JdbcTemplate {
     private final DataSource dataSource;
@@ -16,29 +14,41 @@ public class JdbcTemplate {
     }
 
     public void insert(String query, String... params) {
-        insertOrUpdate(query, params);
+        cxud(query, params);
     }
 
-    public <T> List<T> selectAll(String query, FunctionThrowingSQLException<ResultSet, List<T>> rowMapper) {
-        try (Connection con = dataSource.getConnection();
-             PreparedStatement pstmt = con.prepareStatement(query);
-             ResultSet resultSet = pstmt.executeQuery()) {
+    public <T> T select(FunctionThrowingSQLException<ResultSet, T> rowMapper, String query, String... params) {
+        try (final Connection con = this.dataSource.getConnection();
+             final PreparedStatement pstmt = prepareStatement(con, query, params);
+             final ResultSet resultSet = pstmt.executeQuery()) {
             return rowMapper.apply(resultSet);
         } catch (SQLException e) {
-            throw new IllegalStateException(e);
+            throw new QueryFailedException(e);
         }
     }
 
-    public void update(String query, String... params) {
-        insertOrUpdate(query, params);
+    public <T> T selectAll(FunctionThrowingSQLException<ResultSet, T> rowMapper, String query) {
+        return select(rowMapper, query);
     }
 
-    private void insertOrUpdate(String query, String... params) {
-        try (Connection con = dataSource.getConnection();
-             PreparedStatement pstmt = prepareStatement(con, query, params)) {
+    public void update(String query, String... params) {
+        cxud(query, params);
+    }
+
+    public void delete(String query, String... params) {
+        cxud(query, params);
+    }
+
+    public void deleteAll(String query) {
+        cxud(query);
+    }
+
+    private void cxud(String query, String... params) {
+        try (final Connection con = dataSource.getConnection();
+             final PreparedStatement pstmt = prepareStatement(con, query, params)) {
             pstmt.executeUpdate();
         } catch (SQLException e) {
-            throw new IllegalStateException(e);
+            throw new QueryFailedException(e);
         }
     }
 

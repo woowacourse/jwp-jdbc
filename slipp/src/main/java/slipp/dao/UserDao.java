@@ -4,16 +4,14 @@ import nextstep.jdbc.JdbcTemplate;
 import slipp.domain.User;
 import slipp.support.db.ConnectionManager;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class UserDao {
+    private final JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+
     public void insert(User user) {
-        (new JdbcTemplate(ConnectionManager.getDataSource())).insert(
+        this.jdbcTemplate.insert(
                 "INSERT INTO USERS VALUES (?, ?, ?, ?)",
                 user.getUserId(),
                 user.getPassword(),
@@ -23,7 +21,7 @@ public class UserDao {
     }
 
     public void update(User user) {
-        (new JdbcTemplate(ConnectionManager.getDataSource())).update(
+        this.jdbcTemplate.update(
                 "UPDATE USERS SET password=?, name=?, email=? WHERE userId=?",
                 user.getPassword(),
                 user.getName(),
@@ -33,8 +31,7 @@ public class UserDao {
     }
 
     public List<User> findAll() {
-        return (new JdbcTemplate(ConnectionManager.getDataSource())).selectAll(
-                "SELECT userId, password, name, email FROM USERS",
+        return this.jdbcTemplate.selectAll(
                 rs -> {
                     final List<User> users = new ArrayList<>();
                     while (rs.next()) {
@@ -48,39 +45,30 @@ public class UserDao {
                         );
                     }
                     return users;
-                }
+                },
+                "SELECT userId, password, name, email FROM USERS"
         );
     }
 
-    public User findByUserId(String userId) throws SQLException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        try {
-            con = ConnectionManager.getConnection();
-            String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
-            pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, userId);
+    public User findByUserId(String userId) {
+        return this.jdbcTemplate.select(
+                rs -> {
+                    if(rs.next()) {
+                        return new User(
+                                rs.getString("userId"),
+                                rs.getString("password"),
+                                rs.getString("name"),
+                                rs.getString("email")
+                        );
+                    }
+                    return null;
+                },
+                "SELECT userId, password, name, email FROM USERS WHERE userId=?",
+                userId
+        );
+    }
 
-            rs = pstmt.executeQuery();
-
-            User user = null;
-            if (rs.next()) {
-                user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
-                        rs.getString("email"));
-            }
-
-            return user;
-        } finally {
-            if (rs != null) {
-                rs.close();
-            }
-            if (pstmt != null) {
-                pstmt.close();
-            }
-            if (con != null) {
-                con.close();
-            }
-        }
+    public void deleteByUserId(String userId) {
+        this.jdbcTemplate.delete("DELETE FROM USERS WHERE userId=?", userId);
     }
 }
