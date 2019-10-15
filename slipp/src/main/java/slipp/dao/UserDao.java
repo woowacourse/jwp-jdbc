@@ -15,7 +15,7 @@ import java.util.List;
 
 public class UserDao {
 
-    private JdbcTemplate<User> jdbcTemplate = new JdbcTemplate<User>() {
+    private JdbcTemplate jdbcTemplate = new JdbcTemplate() {
         @Override
         protected Connection getConnection() {
             return ConnectionManager.getConnection();
@@ -24,7 +24,13 @@ public class UserDao {
 
     public void insert(User user) {
         String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
-        PreparedStatementSetter pss = pstmt -> {
+        PreparedStatementSetter pss = getInsertPreparedInsertStatementSetter(user);
+
+        jdbcTemplate.execute(sql, pss);
+    }
+
+    private PreparedStatementSetter getInsertPreparedInsertStatementSetter(User user) {
+        return pstmt -> {
             try {
                 pstmt.setString(1, user.getUserId());
                 pstmt.setString(2, user.getPassword());
@@ -34,13 +40,17 @@ public class UserDao {
                 throw new InsertSQLException();
             }
         };
-
-        jdbcTemplate.execute(sql, pss);
     }
 
     public void update(User user) {
         String sql = "UPDATE USERS SET password = ?, name = ?, email = ? WHERE userId = ?";
-        PreparedStatementSetter pss = pstmt -> {
+        PreparedStatementSetter pss = getUpdatePreparedStatementSetter(user);
+
+        jdbcTemplate.execute(sql, pss);
+    }
+
+    private PreparedStatementSetter getUpdatePreparedStatementSetter(User user) {
+        return pstmt -> {
             try {
                 pstmt.setString(1, user.getPassword());
                 pstmt.setString(2, user.getName());
@@ -50,8 +60,6 @@ public class UserDao {
                 throw new UpdateSQLException();
             }
         };
-
-        jdbcTemplate.execute(sql, pss);
     }
 
     public List<User> findAll() throws SQLException {

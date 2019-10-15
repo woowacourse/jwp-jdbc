@@ -11,7 +11,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class JdbcTemplate<T> {
+public abstract class JdbcTemplate {
 
     public void execute(String sql, PreparedStatementSetter pss) {
         try (Connection con = getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
@@ -31,79 +31,71 @@ public abstract class JdbcTemplate<T> {
         }
     }
 
-    public List<T> query(String sql, RowMapper<T> rowMapper, PreparedStatementSetter pss) {
-        List<T> result = new ArrayList<>();
+    public <T> List<T> query(String sql, RowMapper<T> rowMapper, PreparedStatementSetter pss) {
         try (Connection con = getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
             pss.setValues(pstmt);
             ResultSet resultSet = pstmt.executeQuery();
 
-            while (resultSet.next()) {
-                result.add(rowMapper.mapRow(resultSet));
-            }
+            return getResults(rowMapper, resultSet);
         } catch (SQLException e) {
             throw new SelectSQLException();
         }
-
-        return result;
     }
 
-    public List<T> query(String sql, RowMapper<T> rowMapper, Object... values) {
-        List<T> result = new ArrayList<>();
+    private <T> List<T> getResults(RowMapper<T> rowMapper, ResultSet resultSet) throws SQLException {
+        List<T> results = new ArrayList<>();
+        while (resultSet.next()) {
+            results.add(rowMapper.mapRow(resultSet));
+        }
+
+        return results;
+    }
+
+    public <T> List<T> query(String sql, RowMapper<T> rowMapper, Object... values) {
         try (Connection con = getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
             setObjects(pstmt, values);
             ResultSet resultSet = pstmt.executeQuery();
 
-            while (resultSet.next()) {
-                result.add(rowMapper.mapRow(resultSet));
-            }
+            return getResults(rowMapper, resultSet);
         } catch (SQLException e) {
             throw new SelectSQLException();
         }
-
-        return result;
     }
 
 
-    public T queryForObject(String sql, RowMapper<T> rowMapper, PreparedStatementSetter pss) {
-        T result = null;
-
+    public <T> T queryForObject(String sql, RowMapper<T> rowMapper, PreparedStatementSetter pss) {
         try (Connection con = getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
             pss.setValues(pstmt);
             ResultSet resultSet = pstmt.executeQuery();
 
-            while (resultSet.next()) {
-                if (result != null) {
-                    throw new NotOnlyResultException();
-                }
-
-                result = rowMapper.mapRow(resultSet);
-            }
+            return getResult(rowMapper, resultSet);
         } catch (SQLException e) {
             throw new SelectSQLException();
+        }
+    }
+
+    private <T> T getResult(RowMapper<T> rowMapper, ResultSet resultSet) throws SQLException {
+        T result = null;
+        while (resultSet.next()) {
+            if (result != null) {
+                throw new NotOnlyResultException();
+            }
+
+            result = rowMapper.mapRow(resultSet);
         }
 
         return result;
     }
 
-    public T queryForObject(String sql, RowMapper<T> rowMapper, Object... values) {
-        T result = null;
-
+    public <T> T queryForObject(String sql, RowMapper<T> rowMapper, Object... values) {
         try (Connection con = getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
             setObjects(pstmt, values);
             ResultSet resultSet = pstmt.executeQuery();
 
-            while (resultSet.next()) {
-                if (result != null) {
-                    throw new NotOnlyResultException();
-                }
-
-                result = rowMapper.mapRow(resultSet);
-            }
+            return getResult(rowMapper, resultSet);
         } catch (SQLException e) {
             throw new SelectSQLException();
         }
-
-        return result;
     }
 
     private void setObjects(PreparedStatement pstmt, Object[] values) throws SQLException {
