@@ -22,7 +22,7 @@ public class JdbcTemplate<T> {
 
     public void update(String sql, Object... arg) {
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement preparedStatement = setPreparedStatement(connection, sql, arg)) {
+             PreparedStatement preparedStatement = setPreparedStatement(connection.prepareStatement(sql), arg)) {
 
             preparedStatement.executeUpdate();
 
@@ -54,7 +54,7 @@ public class JdbcTemplate<T> {
         T object = null;
 
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement preparedStatement = setPreparedStatement(connection, sql, arg);
+             PreparedStatement preparedStatement = setPreparedStatement(connection.prepareStatement(sql), arg);
              ResultSet resultSet = preparedStatement.executeQuery()) {
 
             if (resultSet.next()) {
@@ -68,9 +68,7 @@ public class JdbcTemplate<T> {
         return object;
     }
 
-    private PreparedStatement setPreparedStatement(Connection connection, String sql, Object... arg) throws SQLException {
-        PreparedStatement preparedStatement = connection.prepareStatement(sql);
-
+    private PreparedStatement setPreparedStatement(PreparedStatement preparedStatement, Object... arg) throws SQLException {
         for (int i = 0; i < arg.length; i++) {
             preparedStatement.setObject(i + 1, arg[i]);
         }
