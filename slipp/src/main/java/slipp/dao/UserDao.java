@@ -1,12 +1,10 @@
 package slipp.dao;
 
 import nextstep.jdbc.JdbcTemplate;
-import nextstep.jdbc.RowMapper;
 import slipp.domain.User;
 import slipp.support.db.ConnectionManager;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class UserDao {
@@ -30,7 +28,7 @@ public class UserDao {
 
     public List<User> findAll() {
         final String sql = "SELECT * FROM USERS";
-        final RowMapper<List<User>> rowMapper = rs -> {
+        return jdbcTemplate.executeQuery(sql, rs -> {
             final List<User> result = new ArrayList<>();
             while (rs.next()) {
                 User user = new User(
@@ -41,8 +39,7 @@ public class UserDao {
                 result.add(user);
             }
             return result;
-        };
-        return jdbcTemplate.executeQuery(Collections.EMPTY_LIST, sql, rowMapper);
+        });
     }
 
     public User findByUserId(final String userId) {

@@ -8,6 +8,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.List;
 
 public class JdbcTemplate {
@@ -30,6 +31,10 @@ public class JdbcTemplate {
             logger.error(exception.toString());
             throw new RuntimeSQLException(exception);
         }
+    }
+
+    public <T> T executeQuery(final String sql, final RowMapper<T> rowMapper) {
+        return executeQuery(Collections.emptyList(), sql, rowMapper);
     }
 
     public <T> T executeQuery(final List<Object> params, final String sql, final RowMapper<T> rowMapper) {
