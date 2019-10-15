@@ -28,11 +28,13 @@ public class JdbcTemplate {
         }
     }
 
-    public <T> T executeQuery(ExecuteQuery<T> query) throws SQLException {
+    public <T> T executeQuery(ExecuteQuery query, JdbcMapper<T> mapper) throws SQLException {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            return query.execute(con);
+            pstmt = query.execute(con);
+            rs = pstmt.executeQuery();
+            return mapper.mapped(rs);
         } finally {
             if (rs != null) {
                 rs.close();
