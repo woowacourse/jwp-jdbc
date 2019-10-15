@@ -1,6 +1,7 @@
 package slipp.dao;
 
 import nextstep.jdbc.JdbcTemplate;
+import nextstep.jdbc.RowMapper;
 import slipp.domain.User;
 import slipp.support.db.ConnectionManager;
 
@@ -46,22 +47,11 @@ public class UserDao {
         return users;
     }
 
-    public User findByUserId(String userId) throws SQLException {
+    public User findByUserId(String userId) {
         String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
 
-        try (Connection con = ConnectionManager.getConnection();
-             PreparedStatement pstmt = con.prepareStatement(sql)) {
-            pstmt.setString(1, userId);
-
-            User user = executeQuery(pstmt);
-            return user;
-        }
-    }
-
-    private User executeQuery(final PreparedStatement pstmt) throws SQLException {
-        User user = null;
-
-        try (ResultSet rs = pstmt.executeQuery()) {
+        RowMapper<User> rowMapper = rs -> {
+            User user = null;
             if (rs.next()) {
                 String retrievedUserId = rs.getString("userId");
                 String password = rs.getString("password");
@@ -70,7 +60,9 @@ public class UserDao {
 
                 user = new User(retrievedUserId, password, name, email);
             }
-        }
-        return user;
+            return user;
+        };
+
+        return jdbcTemplate.executeQuery(sql, rowMapper, userId);
     }
 }

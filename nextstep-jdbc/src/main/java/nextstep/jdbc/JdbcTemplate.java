@@ -1,6 +1,7 @@
 package nextstep.jdbc;
 
 import nextstep.jdbc.exception.ConnectionFailedException;
+import nextstep.jdbc.exception.ExecuteQueryFailedException;
 import nextstep.jdbc.exception.ExecuteUpdateFailedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,11 +9,13 @@ import org.slf4j.LoggerFactory;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class JdbcTemplate {
 
     private static final Logger log = LoggerFactory.getLogger(JdbcTemplate.class);
+    private static final int START_INDEX = 1;
     private DataSource dataSource;
 
     public JdbcTemplate(final DataSource dataSource) {
@@ -28,16 +31,40 @@ public class JdbcTemplate {
     }
 
     public void executeUpdate(final String sql, Object... values) {
+        log.debug("executeUpdate sql={}", sql);
+
         try (Connection con = getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
-            for (int index = 1; index <= values.length; index++) {
-                pstmt.setObject(index, values[index - 1]);
-                log.debug("executeUpdate value {}={}", index, values[index - 1]);
-            }
+            setValuesToPreparedStatement(pstmt, values);
 
             pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new ExecuteUpdateFailedException(e);
+        }
+    }
+
+    public <T> T executeQuery(final String sql, RowMapper<T> rowMapper, Object... values) {
+        log.debug("executeQuery sql={}", sql);
+
+        try (Connection con = getConnection();
+             PreparedStatement pstmt = con.prepareStatement(sql)) {
+            setValuesToPreparedStatement(pstmt, values);
+
+            return executeRowMapper(pstmt, rowMapper);
+        } catch (SQLException e) {
+            throw new ExecuteQueryFailedException(e);
+        }
+    }
+
+    private void setValuesToPreparedStatement(final PreparedStatement pstmt, final Object[] values) throws SQLException {
+        for (int index = START_INDEX; index <= values.length; index++) {
+            pstmt.setObject(index, values[index - 1]);
+        }
+    }
+
+    private <T> T executeRowMapper(final PreparedStatement pstmt, final RowMapper<T> rowMapper) throws SQLException {
+        try (ResultSet rs = pstmt.executeQuery()) {
+            return rowMapper.mapRow(rs);
         }
     }
 }
