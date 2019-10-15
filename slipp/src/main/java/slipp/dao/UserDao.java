@@ -65,13 +65,7 @@ public class UserDao {
     public List<User> findAll() throws SQLException {
         String sql = "SELECT * FROM USERS";
         PreparedStatementSetter pss = pstmt -> {};
-        RowMapper<User> rowMapper = resultSet -> {
-            try {
-                return new User(resultSet.getString("userId"), resultSet.getString("password"), resultSet.getString("name"), resultSet.getString("email"));
-            } catch (SQLException e) {
-                throw new ResultMappingException();
-            }
-        };
+        RowMapper<User> rowMapper = getUserRowMapper();
 
         return jdbcTemplate.query(sql, rowMapper, pss);
     }
@@ -79,7 +73,13 @@ public class UserDao {
     public User findByUserId(String userId) throws SQLException {
         String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
         PreparedStatementSetter pss = pstmt -> pstmt.setString(1, userId);
-        RowMapper<User> rowMapper = resultSet -> {
+        RowMapper<User> rowMapper = getUserRowMapper();
+
+        return jdbcTemplate.queryForObject(sql, rowMapper, pss);
+    }
+
+    private RowMapper<User> getUserRowMapper() {
+        return resultSet -> {
             try {
                 return new User(resultSet.getString("userId"),
                         resultSet.getString("password"),
@@ -89,7 +89,5 @@ public class UserDao {
                 throw new ResultMappingException();
             }
         };
-
-        return jdbcTemplate.queryForObject(sql, rowMapper, pss);
     }
 }
