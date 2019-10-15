@@ -1,5 +1,8 @@
 package nextstep.jdbc;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -9,23 +12,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class JdbcTemplate<T> {
+    private static final Logger logger = LoggerFactory.getLogger(JdbcTemplate.class);
+
     private DataSource dataSource;
 
     public JdbcTemplate(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
-    public void executeSql(String sql, Object... arg) {
+    public void update(String sql, Object... arg) {
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+             PreparedStatement preparedStatement = setPreparedStatement(connection, sql, arg)) {
 
-            for (int i = 0; i < arg.length; i++) {
-                preparedStatement.setObject(i + 1, arg[i]);
-            }
             preparedStatement.executeUpdate();
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("{}", e);
         }
     }
 
@@ -42,9 +44,37 @@ public class JdbcTemplate<T> {
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("{}", e);
         }
 
         return objects;
+    }
+
+    public T queryForObject(String sql, RowMapper<T> rowMapper, Object... arg) {
+        T object = null;
+
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement preparedStatement = setPreparedStatement(connection, sql, arg);
+             ResultSet resultSet = preparedStatement.executeQuery()) {
+
+            if (resultSet.next()) {
+                object = rowMapper.mapRow(resultSet);
+            }
+
+        } catch (SQLException e) {
+            logger.error("{}", e);
+        }
+
+        return object;
+    }
+
+    private PreparedStatement setPreparedStatement(Connection connection, String sql, Object... arg) throws SQLException {
+        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+
+        for (int i = 0; i < arg.length; i++) {
+            preparedStatement.setObject(i + 1, arg[i]);
+        }
+
+        return preparedStatement;
     }
 }
