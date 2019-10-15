@@ -43,7 +43,6 @@ public class UserDao {
     }
 
     public void update(User user) {
-        Connection con = ConnectionManager.getConnection();
         String sql = "UPDATE USERS SET password = ?, name = ?, email = ? WHERE userId = ?";
         PreparedStatementSetter pss = pstmt -> {
             try {
@@ -64,7 +63,6 @@ public class UserDao {
     }
 
     public List<User> findAll() throws SQLException {
-        Connection con = ConnectionManager.getConnection();
         String sql = "SELECT * FROM USERS";
         PreparedStatementSetter pss = pstmt -> {};
         RowMapper<User> rowMapper = resultSet -> {
@@ -75,11 +73,10 @@ public class UserDao {
             }
         };
 
-        return jdbcTemplate.query(sql, pss, rowMapper);
+        return jdbcTemplate.query(sql, rowMapper, pss);
     }
 
     public User findByUserId(String userId) throws SQLException {
-        Connection con = ConnectionManager.getConnection();
         String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
         PreparedStatementSetter pss = pstmt -> pstmt.setString(1, userId);
         RowMapper<User> rowMapper = resultSet -> {
@@ -93,6 +90,6 @@ public class UserDao {
             }
         };
 
-        return jdbcTemplate.queryForObject(sql, pss, rowMapper);
+        return jdbcTemplate.queryForObject(sql, rowMapper, pss);
     }
 }
