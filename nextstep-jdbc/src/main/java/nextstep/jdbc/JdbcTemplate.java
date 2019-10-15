@@ -19,7 +19,7 @@ public class JdbcTemplate {
         this.dataSource = dataSource;
     }
 
-    public void update(final List<String> params, final String sql) {
+    public void update(final List<Object> params, final String sql) {
         try (final Connection con = dataSource.getConnection();
              final PreparedStatement pstmt = con.prepareStatement(sql)) {
 
@@ -32,7 +32,7 @@ public class JdbcTemplate {
         }
     }
 
-    public <T> T executeQuery(final List<String> params, final String sql, final RowMapper<T> rowMapper) {
+    public <T> T executeQuery(final List<Object> params, final String sql, final RowMapper<T> rowMapper) {
         try (final Connection con = dataSource.getConnection();
              final PreparedStatement pstmt = con.prepareStatement(sql);
              final ResultSet rs = createResultSet(pstmt, params)) {
@@ -44,14 +44,14 @@ public class JdbcTemplate {
         }
     }
 
-    private ResultSet createResultSet(final PreparedStatement pstmt, final List<String> params) throws SQLException {
+    private ResultSet createResultSet(final PreparedStatement pstmt, final List<Object> params) throws SQLException {
         setPstmtParams(pstmt, params);
         return pstmt.executeQuery();
     }
 
-    private void setPstmtParams(final PreparedStatement pstmt, final List<String> params) throws SQLException {
+    private void setPstmtParams(final PreparedStatement pstmt, final List<Object> params) throws SQLException {
         for (int i = 0; i < params.size(); i++) {
-            pstmt.setString(i + 1, params.get(i));
+            pstmt.setObject(i + 1, params.get(i));
         }
     }
 

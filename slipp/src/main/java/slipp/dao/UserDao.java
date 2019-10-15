@@ -18,13 +18,13 @@ public class UserDao {
 
     public void insert(final User user) {
         final String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
-        final List<String> params = List.of(user.getUserId(), user.getPassword(), user.getName(), user.getEmail());
+        final List<Object> params = List.of(user.getUserId(), user.getPassword(), user.getName(), user.getEmail());
         jdbcTemplate.update(params, sql);
     }
 
     public void update(User user) {
         final String sql = "UPDATE USERS SET password = ?, name = ?, email = ? WHERE userid = ?";
-        final List<String> params = List.of(user.getPassword(), user.getName(), user.getEmail(), user.getUserId());
+        final List<Object> params = List.of(user.getPassword(), user.getName(), user.getEmail(), user.getUserId());
         jdbcTemplate.update(params, sql);
     }
 
@@ -47,7 +47,7 @@ public class UserDao {
 
     public User findByUserId(final String userId) {
         final String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
-        final List<String> params = List.of(userId);
+        final List<Object> params = List.of(userId);
 
         return jdbcTemplate.executeQuery(params, sql, rs -> {
             User user = null;
