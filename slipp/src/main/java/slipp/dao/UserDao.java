@@ -30,34 +30,21 @@ public class UserDao {
     }
 
     public void update(User user) throws SQLException {
-        // TODO 구현 필요함.
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        try {
-            con = ConnectionManager.getConnection();
-            pstmt = con.prepareStatement(createQueryForUpdate());
-            setValuesForUpdate(user, pstmt);
-            pstmt.executeUpdate();
-        } finally {
-            if (pstmt != null) {
-                pstmt.close();
+        UpdateJdbcTemplate updateJdbcTemplate = new UpdateJdbcTemplate() {
+            @Override
+            public String createQueryForUpdate() {
+                return "UPDATE USERS SET (password, name, email) = (?,?,?) WHERE userId = ?";
             }
 
-            if (con != null) {
-                con.close();
+            @Override
+            public void setValuesForUpdate(User user, PreparedStatement pstmt) throws SQLException {
+                pstmt.setString(1, user.getPassword());
+                pstmt.setString(2, user.getName());
+                pstmt.setString(3, user.getEmail());
+                pstmt.setString(4, user.getUserId());
             }
-        }
-    }
-
-    String createQueryForUpdate() {
-        return "UPDATE USERS SET (password, name, email) = (?,?,?) WHERE userId = ?";
-    }
-
-    void setValuesForUpdate(User user, PreparedStatement pstmt) throws SQLException {
-        pstmt.setString(1, user.getPassword());
-        pstmt.setString(2, user.getName());
-        pstmt.setString(3, user.getEmail());
-        pstmt.setString(4, user.getUserId());
+        };
+        updateJdbcTemplate.update(user);
     }
 
     public List<User> findAll() throws SQLException {
