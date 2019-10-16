@@ -15,24 +15,23 @@ public class JdbcTemplate {
         this.dataSource = dataSource;
     }
 
-    public void update(String sql, String... args) {
+    public void update(String sql, Object... args) {
         try (Connection connection = dataSource.getConnection();
              PreparedStatement pstmt = connection.prepareStatement(sql)) {
             for (int i = 0; i < args.length; i++) {
-                pstmt.setString(i + 1, args[i]);
+                pstmt.setObject(i + 1, args[i]);
             }
             pstmt.executeUpdate();
         } catch (SQLException e) {
-            // TODO: 2019-10-15 exception 이름 변경
             throw new JdbcTemplateException(e);
         }
     }
 
-    public <T> T executeQuery(String sql, DataExtractionStrategy<T> dataExtractionStrategy, String... args) {
+    public <T> T executeQuery(String sql, DataExtractionStrategy<T> dataExtractionStrategy, Object... args) {
         try (Connection connection = dataSource.getConnection();
              PreparedStatement pstmt = connection.prepareStatement(sql)) {
             for (int i = 0; i < args.length; i++) {
-                pstmt.setString(i + 1, args[i]);
+                pstmt.setObject(i + 1, args[i]);
             }
 
             try (ResultSet rs = pstmt.executeQuery()) {
@@ -40,7 +39,6 @@ public class JdbcTemplate {
             }
 
         } catch (SQLException e) {
-            // TODO: 2019-10-15 exception 이름 변경
             throw new JdbcTemplateException(e);
         }
     }
