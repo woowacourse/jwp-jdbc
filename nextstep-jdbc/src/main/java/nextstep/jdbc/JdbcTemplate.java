@@ -48,7 +48,7 @@ public class JdbcTemplate {
         return excute(sql, rowMapper, values);
     }
 
-    public <T> List<T> excute(final String sql, RowMapper<T> rowMapper, Object... values) {
+    private <T> List<T> excute(final String sql, RowMapper<T> rowMapper, Object... values) {
         log.debug("execute sql={}", sql);
 
         try (Connection con = getConnection();
