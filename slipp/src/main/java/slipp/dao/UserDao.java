@@ -38,8 +38,7 @@ public class UserDao {
     public List<User> findAll() {
         List<User> users;
         try (JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getConnection())) {
-            users = jdbcTemplate.executeQuery("SELECT * FROM USERS", Collections.emptyMap(),
-                    this::extractUser);
+            users = jdbcTemplate.executeQuery("SELECT * FROM USERS", Collections.emptyMap(), this::extractUser);
         }
 
         return users;
