@@ -18,7 +18,7 @@ public class UserDaoTest {
     @BeforeEach
     public void setup() {
         ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
-        populator.addScript(new ClassPathResource("jwp.sql"));
+        populator.addScript(new ClassPathResource("jwp_test.sql"));
         DatabasePopulatorUtils.execute(populator, ConnectionManager.getDataSource());
     }
 
@@ -53,7 +53,7 @@ public class UserDaoTest {
         List<User> deletedUsers = userDao.findAll();
         assertThat(deletedUsers.size()).isEqualTo(0);
 
-        for (User user:users) {
+        for (User user : users) {
             userDao.insert(user);
         }
     }

@@ -25,7 +25,7 @@ class DispatcherServletTest {
     @BeforeEach
     void setUp() throws Exception {
         ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
-        populator.addScript(new ClassPathResource("jwp.sql"));
+        populator.addScript(new ClassPathResource("jwp_test.sql"));
         DatabasePopulatorUtils.execute(populator, ConnectionManager.getDataSource());
 
         dispatcher = new DispatcherServlet();
