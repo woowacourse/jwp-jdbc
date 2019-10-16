@@ -12,14 +12,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserDao {
+    public static final JdbcTemplate JDBC_TEMPLATE = new JdbcTemplate(ConnectionManager.getDataSource());
+
+
     public void insert(User user) throws SQLException {
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
-        jdbcTemplate.update("INSERT INTO USERS VALUES (?, ?, ?, ?)", user.getUserId(), user.getPassword(), user.getName(), user.getEmail());
+        JDBC_TEMPLATE.update("INSERT INTO USERS VALUES (?, ?, ?, ?)", user.getUserId(), user.getPassword(), user.getName(), user.getEmail());
     }
 
     public void update(User user) throws SQLException {
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
-        jdbcTemplate.update("UPDATE USERS SET password = ?, name = ?, email = ? WHERE userid = ?", user.getPassword(), user.getName(), user.getEmail(), user.getUserId());
+        JDBC_TEMPLATE.update("UPDATE USERS SET password = ?, name = ?, email = ? WHERE userid = ?", user.getPassword(), user.getName(), user.getEmail(), user.getUserId());
     }
 
     public List<User> findAll() throws SQLException {
