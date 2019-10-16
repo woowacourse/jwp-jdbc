@@ -87,11 +87,13 @@ public class JdbcTemplate {
         return dataSource.getConnection();
     }
 
-    private void mappingPreparedStatement(PreparedStatement pstmt, Object[] objects) {
+    private void mappingPreparedStatement(PreparedStatement pstmt, Object... objects) {
         int PREPARED_STATEMENT_FIRST_INDEX = 1;
-        IntStream.rangeClosed(PREPARED_STATEMENT_FIRST_INDEX, objects.length).forEach(index -> {
+        int ARRAY_FIRST_INDEX = 0;
+
+        IntStream.range(ARRAY_FIRST_INDEX, objects.length).forEach(index -> {
             try {
-                pstmt.setObject(index, objects[index - PREPARED_STATEMENT_FIRST_INDEX]);
+                pstmt.setObject(PREPARED_STATEMENT_FIRST_INDEX + index, objects[index]);
             } catch (SQLException | NullPointerException e) {
                 e.printStackTrace();
             }
