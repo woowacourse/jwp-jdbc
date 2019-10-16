@@ -11,6 +11,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class JdbcTemplate {
 
@@ -43,7 +45,7 @@ public class JdbcTemplate {
         }
     }
 
-    public <T> T executeQuery(final String sql, RowMapper<T> rowMapper, Object... values) {
+    public <T> List<T> executeQuery(final String sql, RowMapper<T> rowMapper, Object... values) {
         log.debug("executeQuery sql={}", sql);
 
         try (Connection con = getConnection();
@@ -62,9 +64,13 @@ public class JdbcTemplate {
         }
     }
 
-    private <T> T executeRowMapper(final PreparedStatement pstmt, final RowMapper<T> rowMapper) throws SQLException {
+    private <T> List<T> executeRowMapper(final PreparedStatement pstmt, final RowMapper<T> rowMapper) throws SQLException {
         try (ResultSet rs = pstmt.executeQuery()) {
-            return rowMapper.mapRow(rs);
+            List<T> objects = new ArrayList<>();
+            while (rs.next()) {
+                objects.add(rowMapper.mapRow(rs));
+            }
+            return objects;
         }
     }
 }
