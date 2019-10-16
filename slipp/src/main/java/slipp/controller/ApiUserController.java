@@ -22,6 +22,7 @@ public class ApiUserController {
     private static final Logger logger = LoggerFactory.getLogger(ApiUserController.class);
 
     private ObjectMapper objectMapper = new ObjectMapper();
+    private UserDao userDao = new UserDao();
 
     @RequestMapping(value = "/api/users", method = RequestMethod.POST)
     public ModelAndView create(HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -34,7 +35,6 @@ public class ApiUserController {
                 createdDto.getName(),
                 createdDto.getEmail());
 
-        UserDao userDao = new UserDao();
         userDao.insert(user);
 
         response.setHeader("Location", "/api/users?userId=" + createdDto.getUserId());
@@ -48,8 +48,6 @@ public class ApiUserController {
         String userId = request.getParameter("userId");
         logger.debug("userId : {}", userId);
 
-        UserDao userDao = new UserDao();
-
         ModelAndView mav = new ModelAndView(new JsonView());
         mav.addObject("user", userDao.findByUserId(userId));
         return mav;
@@ -61,8 +59,6 @@ public class ApiUserController {
         logger.debug("userId : {}", userId);
         UserUpdatedDto updateDto = objectMapper.readValue(request.getInputStream(), UserUpdatedDto.class);
         logger.debug("Updated User : {}", updateDto);
-        UserDao userDao = new UserDao();
-
 
         User user = userDao.findByUserId(userId);
         user.update(updateDto);
