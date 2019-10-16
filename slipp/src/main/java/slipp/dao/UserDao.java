@@ -5,6 +5,7 @@ import nextstep.jdbc.PreparedStatementSetter;
 import nextstep.jdbc.RowMapper;
 import nextstep.jdbc.exception.InsertSQLException;
 import nextstep.jdbc.exception.UpdateSQLException;
+import slipp.dao.exception.ObjectNotFoundException;
 import slipp.dao.exception.ResultMappingException;
 import slipp.domain.User;
 
@@ -60,11 +61,9 @@ public class UserDao {
 
     public List<User> findAll() throws SQLException {
         String sql = "SELECT * FROM USERS";
-        PreparedStatementSetter pss = pstmt -> {
-        };
         RowMapper<User> rowMapper = getUserRowMapper();
 
-        return jdbcTemplate.query(sql, rowMapper, pss);
+        return jdbcTemplate.query(sql, rowMapper);
     }
 
     public User findByUserId(String userId) throws SQLException {
@@ -72,7 +71,7 @@ public class UserDao {
         PreparedStatementSetter pss = pstmt -> pstmt.setString(1, userId);
         RowMapper<User> rowMapper = getUserRowMapper();
 
-        return jdbcTemplate.queryForObject(sql, rowMapper, pss);
+        return jdbcTemplate.queryForObject(sql, rowMapper, pss).orElseThrow(ObjectNotFoundException::new);
     }
 
     private RowMapper<User> getUserRowMapper() {

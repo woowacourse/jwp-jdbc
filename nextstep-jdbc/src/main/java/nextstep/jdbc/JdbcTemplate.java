@@ -11,6 +11,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class JdbcTemplate {
 
@@ -37,18 +38,31 @@ public class JdbcTemplate {
         }
     }
 
+    private PreparedStatementSetter getDefaultPreparedStatementSetter(Object[] values) {
+        return pstmt -> {
+            for (int i = 1; i <= values.length; i++) {
+                pstmt.setObject(i, values[i]);
+            }
+        };
+    }
+
     public void execute(String sql, Object... values) {
-        try (Connection con = getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
-            setObjects(pstmt, values);
-            pstmt.executeUpdate();
-        } catch (SQLException e) {
-            throw new ExecuteUpdateSQLException();
-        }
+        execute(sql, getDefaultPreparedStatementSetter(values));
     }
 
     public <T> List<T> query(String sql, RowMapper<T> rowMapper, PreparedStatementSetter pss) {
         try (Connection con = getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
             pss.setValues(pstmt);
+            ResultSet resultSet = pstmt.executeQuery();
+
+            return getResults(rowMapper, resultSet);
+        } catch (SQLException e) {
+            throw new SelectSQLException();
+        }
+    }
+
+    public <T> List<T> query(String sql, RowMapper<T> rowMapper) {
+        try (Connection con = getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
             ResultSet resultSet = pstmt.executeQuery();
 
             return getResults(rowMapper, resultSet);
@@ -67,18 +81,11 @@ public class JdbcTemplate {
     }
 
     public <T> List<T> query(String sql, RowMapper<T> rowMapper, Object... values) {
-        try (Connection con = getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
-            setObjects(pstmt, values);
-            ResultSet resultSet = pstmt.executeQuery();
-
-            return getResults(rowMapper, resultSet);
-        } catch (SQLException e) {
-            throw new SelectSQLException();
-        }
+        return query(sql, rowMapper, getDefaultPreparedStatementSetter(values));
     }
 
 
-    public <T> T queryForObject(String sql, RowMapper<T> rowMapper, PreparedStatementSetter pss) {
+    public <T> Optional<T> queryForObject(String sql, RowMapper<T> rowMapper, PreparedStatementSetter pss) {
         try (Connection con = getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
             pss.setValues(pstmt);
             ResultSet resultSet = pstmt.executeQuery();
@@ -89,34 +96,20 @@ public class JdbcTemplate {
         }
     }
 
-    private <T> T getResult(RowMapper<T> rowMapper, ResultSet resultSet) throws SQLException {
-        T result = null;
+    private <T> Optional<T> getResult(RowMapper<T> rowMapper, ResultSet resultSet) throws SQLException {
+        Optional<T> result = Optional.empty();
         while (resultSet.next()) {
-            if (result != null) {
+            if (result.isPresent()) {
                 throw new NotOnlyResultException();
             }
 
-            result = rowMapper.mapRow(resultSet);
+            result = Optional.of(rowMapper.mapRow(resultSet));
         }
 
         return result;
     }
 
-    public <T> T queryForObject(String sql, RowMapper<T> rowMapper, Object... values) {
-        try (Connection con = getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
-            setObjects(pstmt, values);
-            ResultSet resultSet = pstmt.executeQuery();
-
-            return getResult(rowMapper, resultSet);
-        } catch (SQLException e) {
-            throw new SelectSQLException();
-        }
+    public <T> Optional<T> queryForObject(String sql, RowMapper<T> rowMapper, Object... values) {
+        return queryForObject(sql, rowMapper, getDefaultPreparedStatementSetter(values));
     }
-
-    private void setObjects(PreparedStatement pstmt, Object[] values) throws SQLException {
-        for (int i = 0; i < values.length; i++) {
-            pstmt.setObject(i, values[i]);
-        }
-    }
-
 }
