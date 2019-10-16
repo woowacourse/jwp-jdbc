@@ -25,16 +25,16 @@ public class JdbcTemplate {
         }
     }
 
-    public <T> T executeQuery(String sql, ObjectMapper<T> resultSetTFunction) throws SQLException {
+    public <T> T executeQuery(String sql, ResultSetHandler<T> resultSetHandler) throws SQLException {
         return executeQuery(sql, pstmt -> {
-        }, resultSetTFunction);
+        }, resultSetHandler);
     }
 
-    public <T> T executeQuery(String sql, PreparedStatementMapping mapping, ObjectMapper<T> resultSetTFunction) throws SQLException {
+    public <T> T executeQuery(String sql, PreparedStatementMapping mapping, ResultSetHandler<T> resultSetHandler) throws SQLException {
         try (Connection con = getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
             mapping.adjustTo(pstmt);
             try (ResultSet rs = pstmt.executeQuery()) {
-                return resultSetTFunction.toObject(rs);
+                return resultSetHandler.toObject(rs);
             }
         }
     }
