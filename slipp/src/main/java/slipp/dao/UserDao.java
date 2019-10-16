@@ -21,9 +21,8 @@ public class UserDao {
     };
 
     public void insert(final User user) {
-        final JdbcTemplate template = new JdbcTemplate();
-        template.write(
-                "INSERT INTO USERS VALUES (?, ?, ?, ?)",
+        new JdbcTemplate().write(
+                "INSERT INTO USERS(userId, password, name, email) VALUES (?, ?, ?, ?)",
                 user.getUserId(),
                 user.getPassword(),
                 user.getName(),
@@ -31,20 +30,21 @@ public class UserDao {
     }
 
     public void update(final User user) {
-        final JdbcTemplate template = new JdbcTemplate();
-        template.write(
-                "UPDATE USERS SET password = ?, name = ?, email = ? WHERE userid = ?",
+        new JdbcTemplate().write(
+                "UPDATE USERS SET password = ?, name = ?, email = ? WHERE userId = ?",
                 user.getPassword(),
                 user.getName(),
                 user.getEmail(),
                 user.getUserId());
     }
 
-    public List<User> findAll() throws SQLException {
-        return new JdbcTemplate().findItems("SELECT userId, password, name, email FROM USERS", userMapper);
+    public List<User> findAll() {
+        final String sql = "SELECT userId, password, name, email FROM USERS";
+        return new JdbcTemplate().findItems(sql, userMapper);
     }
 
     public User findByUserId(final String userId) {
-        return new JdbcTemplate().findItem("SELECT userId, password, name, email FROM USERS WHERE userid = ?", userMapper, userId);
+        final String sql = "SELECT userId, password, name, email FROM USERS WHERE userId = ?";
+        return new JdbcTemplate().findItem(sql, userMapper, userId);
     }
 }
