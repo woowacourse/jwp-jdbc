@@ -51,4 +51,6 @@ https://gist.github.com/joshbuchea/6f47e86d2510bce28f8e7f42ae84c716
 - [x] ```JdbcTemplate.executeQuery``` 개선
     - [x] executeQueryForNs는 모든 로우 리턴, executeQueryForN 하면 무조건 최상위 로우 하나만 리턴되게 개선
     - [x] 가져온 로우를 특정 데이터 타입으로 바꿔주는 기능 추가
+- [ ] slipp에 있는 Controller의 ```DataBase``` 사용 부분을 ```UserDao```로 바꾸기
+- [ ] ```UserDao```... 싱글 인스턴스로 만들게...? ㅠㅠ
 
