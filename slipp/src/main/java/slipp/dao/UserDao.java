@@ -1,7 +1,7 @@
 package slipp.dao;
 
 import nextstep.jdbc.JdbcTemplate;
-import nextstep.jdbc.DataExtractionStrategy;
+import slipp.dao.exception.UserNotFoundException;
 import slipp.domain.User;
 import slipp.support.db.ConnectionManager;
 
@@ -14,7 +14,15 @@ import java.util.List;
 public class UserDao {
     private final JdbcTemplate jdbcTemplate;
 
-    public UserDao() {
+    public static UserDao getInstance() {
+        return LazyHolder.USER_DAO;
+    }
+
+    private static class LazyHolder {
+        private static final UserDao USER_DAO = new UserDao();
+    }
+
+    private UserDao() {
         DataSource datasource = ConnectionManager.getDataSource();
         this.jdbcTemplate = new JdbcTemplate(datasource);
     }

@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class UserDaoTest {
     private static final String EXSISTED_USER_ID = "admin";
-    private final UserDao userDao = new UserDao();
+    private final UserDao userDao = UserDao.getInstance();
 
     @BeforeEach
     void setup() {
