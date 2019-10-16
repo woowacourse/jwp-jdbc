@@ -42,13 +42,13 @@ public class JdbcTemplate {
         excute(sql, null, values);
     }
 
-    public <T> T executeQuery(final String sql, RowMapper<T> rowMapper, Object... values) {
+    public <T> List<T> executeQuery(final String sql, RowMapper<T> rowMapper, Object... values) {
         log.debug("executeQuery sql={}", sql);
 
-        return (T) excute(sql, rowMapper, values);
+        return excute(sql, rowMapper, values);
     }
 
-    public <T> Object excute(final String sql, RowMapper<T> rowMapper, Object... values) {
+    public <T> List<T> excute(final String sql, RowMapper<T> rowMapper, Object... values) {
         log.debug("execute sql={}", sql);
 
         try (Connection con = getConnection();

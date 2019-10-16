@@ -5,10 +5,11 @@ import nextstep.jdbc.RowMapper;
 import slipp.domain.User;
 import slipp.support.db.ConnectionManager;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class UserDao {
+
+    private static final int INDEX_OF_SINGLE_ENTITY = 0;
 
     private final JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
 
@@ -25,19 +26,7 @@ public class UserDao {
     public List<User> findAll() {
         String sql = "SELECT * FROM USERS";
 
-        RowMapper<List<User>> rowMapper = rs -> {
-            List<User> users = new ArrayList<>();
-            while (rs.next()) {
-                String retrievedUserId = rs.getString("userId");
-                String password = rs.getString("password");
-                String name = rs.getString("name");
-                String email = rs.getString("email");
-
-                User user = new User(retrievedUserId, password, name, email);
-                users.add(user);
-            }
-            return users;
-        };
+        RowMapper<User> rowMapper = makeRowMapper();
 
         return jdbcTemplate.executeQuery(sql, rowMapper);
     }
@@ -45,19 +34,19 @@ public class UserDao {
     public User findByUserId(String userId) {
         String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
 
-        RowMapper<User> rowMapper = rs -> {
-            User user = null;
-            if (rs.next()) {
-                String retrievedUserId = rs.getString("userId");
-                String password = rs.getString("password");
-                String name = rs.getString("name");
-                String email = rs.getString("email");
+        RowMapper<User> rowMapper = makeRowMapper();
 
-                user = new User(retrievedUserId, password, name, email);
-            }
-            return user;
+        return jdbcTemplate.executeQuery(sql, rowMapper, userId).get(INDEX_OF_SINGLE_ENTITY);
+    }
+
+    private RowMapper<User> makeRowMapper() {
+        return rs -> {
+            String retrievedUserId = rs.getString("userId");
+            String password = rs.getString("password");
+            String name = rs.getString("name");
+            String email = rs.getString("email");
+
+            return new User(retrievedUserId, password, name, email);
         };
-
-        return jdbcTemplate.executeQuery(sql, rowMapper, userId);
     }
 }

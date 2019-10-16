@@ -7,6 +7,8 @@ import org.slf4j.LoggerFactory;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class EntityJdbcQueryExecutor implements JdbcQueryExecutor {
     private static final Logger log = LoggerFactory.getLogger(EntityJdbcQueryExecutor.class);
@@ -18,7 +20,7 @@ public class EntityJdbcQueryExecutor implements JdbcQueryExecutor {
     }
 
     @Override
-    public Object execute(PreparedStatement pstmt, RowMapper rowMapper) {
+    public <T> List<T> execute(PreparedStatement pstmt, RowMapper<T> rowMapper) {
         try {
             return executeRowMapper(pstmt, rowMapper);
         } catch (SQLException e) {
@@ -27,9 +29,13 @@ public class EntityJdbcQueryExecutor implements JdbcQueryExecutor {
         return null;
     }
 
-    private <T> T executeRowMapper(final PreparedStatement pstmt, final RowMapper<T> rowMapper) throws SQLException {
+    private <T> List<T> executeRowMapper(final PreparedStatement pstmt, final RowMapper<T> rowMapper) throws SQLException {
         try (ResultSet rs = pstmt.executeQuery()) {
-            return rowMapper.mapRow(rs);
+            List<T> objects = new ArrayList<>();
+            while(rs.next()) {
+                objects.add(rowMapper.mapRow(rs));
+            }
+            return objects;
         }
     }
 }

@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.List;
 
 public class UpdateJdbcQueryExecutor implements JdbcQueryExecutor {
     private static final Logger log = LoggerFactory.getLogger(UpdateJdbcQueryExecutor.class);
@@ -17,7 +18,7 @@ public class UpdateJdbcQueryExecutor implements JdbcQueryExecutor {
     }
 
     @Override
-    public Object execute(PreparedStatement ps, RowMapper rowMapper) {
+    public <T> List<T> execute(PreparedStatement ps, RowMapper<T> rowMapper) {
         try {
             ps.executeUpdate();
         } catch (SQLException e) {
