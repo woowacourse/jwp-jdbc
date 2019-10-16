@@ -13,10 +13,6 @@ import java.util.List;
 public class UserDao {
     public void insert(User user) throws SQLException {
         JdbcTemplate jdbcTemplate = new JdbcTemplate() {
-            @Override
-            public String createQuery() {
-                return "INSERT INTO USERS VALUES (?, ?, ?, ?)";
-            }
 
             @Override
             public void setValues(PreparedStatement pstmt) throws SQLException {
@@ -27,15 +23,11 @@ public class UserDao {
             }
         };
 
-        jdbcTemplate.update();
+        jdbcTemplate.update("INSERT INTO USERS VALUES (?, ?, ?, ?)");
     }
 
     public void update(User user) throws SQLException {
         JdbcTemplate jdbcTemplate = new JdbcTemplate() {
-            @Override
-            public String createQuery() {
-                return "UPDATE USERS SET (password, name, email) = (?,?,?) WHERE userId = ?";
-            }
 
             @Override
             public void setValues(PreparedStatement pstmt) throws SQLException {
@@ -45,7 +37,7 @@ public class UserDao {
                 pstmt.setString(4, user.getUserId());
             }
         };
-        jdbcTemplate.update();
+        jdbcTemplate.update("UPDATE USERS SET (password, name, email) = (?,?,?) WHERE userId = ?");
     }
 
     public List<User> findAll() throws SQLException {
