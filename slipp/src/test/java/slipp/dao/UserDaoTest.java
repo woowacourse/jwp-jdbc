@@ -14,8 +14,14 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class UserDaoTest {
+    private static final String DB_DRIVER = "org.h2.Driver";
+    private static final String DB_URL = "jdbc:h2:mem:jwp-framework";
+    private static final String DB_USERNAME = "sa";
+    private static final String DB_PW = "";
+
     @BeforeEach
     public void setup() {
+        ConnectionManager.initialize(DB_DRIVER, DB_URL, DB_USERNAME, DB_PW);
         ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
         populator.addScript(new ClassPathResource("jwp.sql"));
         DatabasePopulatorUtils.execute(populator, ConnectionManager.getDataSource());
