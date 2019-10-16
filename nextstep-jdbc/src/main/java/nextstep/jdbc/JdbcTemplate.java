@@ -1,7 +1,6 @@
 package nextstep.jdbc;
 
-import nextstep.jdbc.exception.SQLSelectException;
-import nextstep.jdbc.exception.SQLUpdateException;
+import nextstep.jdbc.exception.DataBaseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,9 +11,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class JdbcTemplate<T> {
     private static final Logger logger = LoggerFactory.getLogger(JdbcTemplate.class);
+    private static final String TAG = "JdbcTemplate";
 
     private DataSource dataSource;
 
@@ -22,23 +23,36 @@ public class JdbcTemplate<T> {
         this.dataSource = dataSource;
     }
 
-    public void update(String sql, Object... arg) {
+    public List<T> execute(String sql, RowMapper<T> rowMapper, SqlExecuteStrategy sqlExecuteStrategy) {
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement preparedStatement = setPreparedStatement(connection.prepareStatement(sql), arg)) {
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
-            preparedStatement.executeUpdate();
+            if (sqlExecuteStrategy != null) {
+                sqlExecuteStrategy.setValues(preparedStatement);
+            }
+
+            if (preparedStatement.execute()) {
+                return createList(rowMapper, preparedStatement);
+            }
+
+            return null;
 
         } catch (SQLException e) {
-            logger.error("{}", e);
-            throw new SQLUpdateException();
+            logger.error("{}.queryForList >> {}", TAG, e);
+            throw new DataBaseException();
         }
     }
 
-    public List<T> queryForList(String sql, RowMapper<T> rowMapper) {
-        try (Connection connection = dataSource.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(sql);
-             ResultSet resultSet = preparedStatement.executeQuery()) {
+    public List<T> execute(String sql, SqlExecuteStrategy sqlExecuteStrategy) {
+        return execute(sql, null, sqlExecuteStrategy);
+    }
 
+    public List<T> execute(String sql, RowMapper<T> rowMapper) {
+        return execute(sql, rowMapper, null);
+    }
+
+    private List<T> createList(final RowMapper<T> rowMapper, final PreparedStatement preparedStatement) throws SQLException {
+        try (ResultSet resultSet = preparedStatement.getResultSet()) {
             List<T> objects = new ArrayList<>();
 
             while (resultSet.next()) {
@@ -47,35 +61,18 @@ public class JdbcTemplate<T> {
             }
 
             return objects;
-
-        } catch (SQLException e) {
-            logger.error("{}", e);
-            throw new SQLSelectException();
         }
     }
 
-    public T queryForObject(String sql, RowMapper<T> rowMapper, Object... arg) {
-        try (Connection connection = dataSource.getConnection();
-             PreparedStatement preparedStatement = setPreparedStatement(connection.prepareStatement(sql), arg);
-             ResultSet resultSet = preparedStatement.executeQuery()) {
-
-            if (resultSet.next()) {
-                return rowMapper.mapRow(resultSet);
-            }
-
-            return null;
-
-        } catch (SQLException e) {
-            logger.error("{}", e);
-            throw new SQLSelectException();
-        }
+    public Optional<T> queryForObject(String sql, RowMapper<T> rowMapper, SqlExecuteStrategy sqlExecuteStrategy) {
+        return getObject(execute(sql, rowMapper, sqlExecuteStrategy));
     }
 
-    private PreparedStatement setPreparedStatement(PreparedStatement preparedStatement, Object... arg) throws SQLException {
-        for (int i = 0; i < arg.length; i++) {
-            preparedStatement.setObject(i + 1, arg[i]);
+    private Optional<T> getObject(List<T> lists) {
+        if (lists.isEmpty()) {
+            return Optional.empty();
         }
 
-        return preparedStatement;
+        return Optional.of(lists.get(0));
     }
 }
