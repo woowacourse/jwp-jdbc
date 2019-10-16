@@ -4,21 +4,14 @@ import nextstep.jdbc.JdbcTemplate;
 import nextstep.jdbc.RowMapper;
 import slipp.domain.User;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.List;
 
 public class UserDao {
-    private final RowMapper<User> userMapper = new RowMapper<User>() {
-        @Override
-        public User mapRow(final ResultSet resultSet) throws SQLException {
-            return new User(
-                    resultSet.getString("userId"),
-                    resultSet.getString("password"),
-                    resultSet.getString("name"),
-                    resultSet.getString("email"));
-        }
-    };
+    private final RowMapper<User> userMapper = resultSet -> new User(
+            resultSet.getString("userId"),
+            resultSet.getString("password"),
+            resultSet.getString("name"),
+            resultSet.getString("email"));
 
     public void insert(final User user) {
         new JdbcTemplate().write(

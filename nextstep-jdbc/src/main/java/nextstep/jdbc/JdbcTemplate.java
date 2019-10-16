@@ -10,16 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class JdbcTemplate {
-    public void write(final String sql, final Object... parameters) {
-        try (final Connection connection = ConnectionManager.getConnection();
-             final PreparedStatement statement = connection.prepareStatement(sql)) {
-            setPreparedStatements(statement, parameters);
-            statement.executeUpdate();
-        } catch (final SQLException exception) {
-            throw new DbAccessException(exception);
-        }
-    }
-
     public <T> T findItem(final String sql, final RowMapper<T> mapper, final Object... parameters) {
         try (final Connection connection = ConnectionManager.getConnection();
              final PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -40,6 +30,16 @@ public class JdbcTemplate {
                 result.add(mapper.mapRow(resultSet));
             }
             return result;
+        } catch (final SQLException exception) {
+            throw new DbAccessException(exception);
+        }
+    }
+
+    public void write(final String sql, final Object... parameters) {
+        try (final Connection connection = ConnectionManager.getConnection();
+             final PreparedStatement statement = connection.prepareStatement(sql)) {
+            setPreparedStatements(statement, parameters);
+            statement.executeUpdate();
         } catch (final SQLException exception) {
             throw new DbAccessException(exception);
         }
