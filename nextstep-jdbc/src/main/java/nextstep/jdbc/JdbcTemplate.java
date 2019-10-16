@@ -26,7 +26,7 @@ public class JdbcTemplate<T> {
             }
         } catch (SQLException e) {
             log.debug(e.getMessage());
-            throw new DataAccessException(e.getMessage());
+            throw new DataAccessException(e);
         }
         return list;
     }
@@ -44,7 +44,7 @@ public class JdbcTemplate<T> {
             pstmt.executeUpdate();
         } catch (SQLException e) {
             log.debug(e.getMessage());
-            throw new DataAccessException(e.getMessage());
+            throw new DataAccessException(e);
         }
     }
 
@@ -61,7 +61,7 @@ public class JdbcTemplate<T> {
             return execute(pstmt, rowMapper);
         } catch (SQLException e) {
             log.debug(e.getMessage());
-            throw new DataAccessException(e.getMessage());
+            throw new DataAccessException(e);
         }
     }
 
@@ -78,7 +78,7 @@ public class JdbcTemplate<T> {
             return null;
         } catch (SQLException e) {
             log.debug(e.getMessage());
-            throw new DataAccessException(e.getMessage());
+            throw new DataAccessException(e);
         }
     }
 
