@@ -27,19 +27,19 @@ public class UserDaoTest {
         populator.addScript(new ClassPathResource("jwp.sql"));
         DatabasePopulatorUtils.execute(populator, ConnectionManager.getDataSource());
 
-        userDao = new UserDao();
+        userDao = UserDao.getInstance();
     }
 
     @Test
     public void crud() {
         User expected = new User("userId", "password", "name", "javajigi@email.com");
         userDao.insert(expected);
-        User actual = userDao.findByUserId(expected.getUserId());
+        User actual = userDao.findUserById(expected.getUserId());
         assertThat(actual).isEqualTo(expected);
 
         expected.update(new UserUpdatedDto("password2", "name2", "sanjigi@email.com"));
         userDao.update(expected);
-        actual = userDao.findByUserId(expected.getUserId());
+        actual = userDao.findUserById(expected.getUserId());
         assertThat(actual).isEqualTo(expected);
     }
 
@@ -61,6 +61,6 @@ public class UserDaoTest {
     @Test
     @DisplayName("없는 User를 조회하면 예외가 발생한다")
     void findByUserId_notFound() {
-        assertThrows(UserNotFoundException.class, () -> userDao.findByUserId("userId"));
+        assertThrows(UserNotFoundException.class, () -> userDao.findUserById("userId"));
     }
 }

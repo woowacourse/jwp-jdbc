@@ -16,6 +16,17 @@ public class UserDao {
     private static final Logger log = LoggerFactory.getLogger(UserDao.class);
     private final JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
 
+    private UserDao() {
+    }
+
+    private static class LazyHolder {
+        static final UserDao INSTANCE = new UserDao();
+    }
+
+    public static UserDao getInstance() {
+        return LazyHolder.INSTANCE;
+    }
+
     public void insert(User user) {
         String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
         jdbcTemplate.executeUpdate(sql, user.getUserId(), user.getPassword(), user.getName(), user.getEmail());
@@ -33,7 +44,7 @@ public class UserDao {
         return jdbcTemplate.executeQuery(sql, rowMapper);
     }
 
-    public User findByUserId(String userId) {
+    public User findUserById(String userId) {
         String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
 
         RowMapper<User> rowMapper = generateUserRowMapper();
