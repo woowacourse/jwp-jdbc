@@ -7,20 +7,16 @@ import nextstep.jdbc.exception.InsertSQLException;
 import nextstep.jdbc.exception.UpdateSQLException;
 import slipp.dao.exception.ResultMappingException;
 import slipp.domain.User;
-import slipp.support.db.ConnectionManager;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
 public class UserDao {
+    private final JdbcTemplate jdbcTemplate;
 
-    private JdbcTemplate jdbcTemplate = new JdbcTemplate() {
-        @Override
-        protected Connection getConnection() {
-            return ConnectionManager.getConnection();
-        }
-    };
+    public UserDao(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
 
     public void insert(User user) {
         String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
