@@ -13,9 +13,17 @@ public class UserDao {
     private JdbcTemplate jdbcTemplate;
     private ResultSetMapper<User> resultSetMapper;
 
-    public UserDao() {
+    private UserDao() {
         this.jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
         this.resultSetMapper = new ResultSetMapper<>(User.class);
+    }
+
+    private static class UserDaoLazyHolder {
+        private static final UserDao INSTANCE = new UserDao();
+    }
+
+    public static UserDao getInstance() {
+        return UserDaoLazyHolder.INSTANCE;
     }
 
     public void insert(User user) {
