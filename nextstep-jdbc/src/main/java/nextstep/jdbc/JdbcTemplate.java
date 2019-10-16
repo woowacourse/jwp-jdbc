@@ -3,9 +3,10 @@ package nextstep.jdbc;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class JdbcTemplate {
+public class JdbcTemplate<T> {
     private DataSource dataSource;
 
     public JdbcTemplate(DataSource dataSource) {
@@ -18,6 +19,18 @@ public class JdbcTemplate {
 
             preparedStatement.executeUpdate();
         }
+    }
+
+    public T read(RowMapper<T> rowMapper, String sql, Object... values) throws SQLException {
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement preparedStatement = createPreparedStatement(connection, sql, values);
+             ResultSet resultSet = preparedStatement.executeQuery()) {
+
+            if(resultSet.next()) {
+                return rowMapper.mapRow(resultSet);
+            }
+        }
+        return null;
     }
 
     private PreparedStatement createPreparedStatement(Connection connection, String sql, Object... values) throws SQLException {
