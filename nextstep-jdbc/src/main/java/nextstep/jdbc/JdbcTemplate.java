@@ -17,32 +17,32 @@ public class JdbcTemplate {
         this.dataSource = dataSource;
     }
 
-    public void executeUpdate(String sql) throws SQLException {
-        executeUpdate(sql, pstmt -> {
+    public void update(String sql) throws SQLException {
+        update(sql, pstmt -> {
         });
     }
 
-    public void executeUpdate(String sql, Object... objects) throws SQLException { //executeUpdate
-        executeUpdate(sql, pstmt -> mappingPreparedStatement(pstmt, objects));
+    public void update(String sql, Object... objects) throws SQLException { //update
+        update(sql, pstmt -> mappingPreparedStatement(pstmt, objects));
     }
 
-    public void executeUpdate(String sql, PreparedStatementMapping consumer) throws SQLException {
+    public void update(String sql, PreparedStatementMapping consumer) throws SQLException {
         try (Connection con = getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
             consumer.adjustTo(pstmt);
             pstmt.executeUpdate();
         }
     }
 
-    public <T> T executeQuery(String sql, ResultSetHandler<T> resultSetHandler) throws SQLException {
-        return executeQuery(sql, pstmt -> {
+    public <T> T query(String sql, ResultSetHandler<T> resultSetHandler) throws SQLException {
+        return query(sql, pstmt -> {
         }, resultSetHandler);
     }
 
-    public <T> T executeQuery(String sql, Object[] objects, ResultSetHandler<T> resultSetHandler) throws SQLException { //executeQuery
-        return executeQuery(sql, pstmt -> mappingPreparedStatement(pstmt, objects), resultSetHandler);
+    public <T> T query(String sql, Object[] objects, ResultSetHandler<T> resultSetHandler) throws SQLException { //query
+        return query(sql, pstmt -> mappingPreparedStatement(pstmt, objects), resultSetHandler);
     }
 
-    public <T> T executeQuery(String sql, PreparedStatementMapping mapping, ResultSetHandler<T> resultSetHandler) throws SQLException {
+    public <T> T query(String sql, PreparedStatementMapping mapping, ResultSetHandler<T> resultSetHandler) throws SQLException {
         try (Connection con = getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
             mapping.adjustTo(pstmt);
             try (ResultSet rs = pstmt.executeQuery()) {
@@ -51,30 +51,30 @@ public class JdbcTemplate {
         }
     }
 
-    public <T> Optional<T> executeQueryForObject(String sql, ObjectMapper<T> objectMapper) throws SQLException {
-        return executeQueryForObject(sql, pstmt -> {
+    public <T> Optional<T> queryForObject(String sql, ObjectMapper<T> objectMapper) throws SQLException {
+        return queryForObject(sql, pstmt -> {
         }, objectMapper);
     }
 
-    public <T> Optional<T> executeQueryForObject(String sql, Object[] objects, ObjectMapper<T> objectMapper) throws SQLException { // executeQueryForObject
-        return executeQueryForObject(sql, pstmt -> mappingPreparedStatement(pstmt, objects), objectMapper); //executeQuery
+    public <T> Optional<T> queryForObject(String sql, Object[] objects, ObjectMapper<T> objectMapper) throws SQLException { // queryForObject
+        return queryForObject(sql, pstmt -> mappingPreparedStatement(pstmt, objects), objectMapper); //query
     }
 
-    public <T> Optional<T> executeQueryForObject(String sql, PreparedStatementMapping mapping, ObjectMapper<T> objectMapper) throws SQLException {
-        return executeQueryForObjects(sql, mapping, objectMapper).stream().findFirst();
+    public <T> Optional<T> queryForObject(String sql, PreparedStatementMapping mapping, ObjectMapper<T> objectMapper) throws SQLException {
+        return queryForObjects(sql, mapping, objectMapper).stream().findFirst();
     }
 
-    public <T> List<T> executeQueryForObjects(String sql, ObjectMapper<T> objectMapper) throws SQLException {
-        return executeQueryForObjects(sql, pstmt -> {
+    public <T> List<T> queryForObjects(String sql, ObjectMapper<T> objectMapper) throws SQLException {
+        return queryForObjects(sql, pstmt -> {
         }, objectMapper);
     }
 
-    public <T> List<T> executeQueryForObjects(String sql, Object[] objects, ObjectMapper<T> objectMapper) throws SQLException { //executeQueryForObject
-        return executeQueryForObjects(sql, pstmt -> mappingPreparedStatement(pstmt, objects), objectMapper);
+    public <T> List<T> queryForObjects(String sql, Object[] objects, ObjectMapper<T> objectMapper) throws SQLException { //queryForObject
+        return queryForObjects(sql, pstmt -> mappingPreparedStatement(pstmt, objects), objectMapper);
     }
 
-    public <T> List<T> executeQueryForObjects(String sql, PreparedStatementMapping mapping, ObjectMapper<T> objectMapper) throws SQLException {
-        return executeQuery(sql, mapping, rs -> {
+    public <T> List<T> queryForObjects(String sql, PreparedStatementMapping mapping, ObjectMapper<T> objectMapper) throws SQLException {
+        return query(sql, mapping, rs -> {
             List<T> objects = new ArrayList<>();
             while (rs.next()) {
                 objects.add(objectMapper.toObject(rs));
