@@ -15,7 +15,9 @@ public class JdbcTemplate {
              final PreparedStatement statement = connection.prepareStatement(sql)) {
             setPreparedStatements(statement, parameters);
             statement.executeUpdate();
-        } catch (final SQLException ignored) {}
+        } catch (final SQLException exception) {
+            throw new DbAccessException(exception);
+        }
     }
 
     public <T> T findItem(final String sql, final RowMapper<T> mapper, final Object... parameters) {
@@ -24,8 +26,8 @@ public class JdbcTemplate {
             setPreparedStatements(statement, parameters);
             final ResultSet resultSet = statement.executeQuery();
             return resultSet.next() ? mapper.mapRow(resultSet) : null;
-        } catch (final SQLException ignored) {
-            return null;
+        } catch (final SQLException exception) {
+            throw new DbAccessException(exception);
         }
     }
 
@@ -38,8 +40,8 @@ public class JdbcTemplate {
                 result.add(mapper.mapRow(resultSet));
             }
             return result;
-        } catch (final SQLException ignored) {
-            return null;
+        } catch (final SQLException exception) {
+            throw new DbAccessException(exception);
         }
     }
 

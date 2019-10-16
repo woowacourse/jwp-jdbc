@@ -22,7 +22,7 @@ class UserDaoTest {
     }
 
     @Test
-    void crud() throws Exception {
+    void crud() {
         User expected = new User("userId", "password", "name", "javajigi@email.com");
         UserDao userDao = new UserDao();
         userDao.insert(expected);
@@ -36,7 +36,7 @@ class UserDaoTest {
     }
 
     @Test
-    void findAll() throws Exception {
+    void findAll() {
         UserDao userDao = new UserDao();
         List<User> users = userDao.findAll();
         assertThat(users).hasSize(1);
