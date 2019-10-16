@@ -5,6 +5,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 public class JdbcTemplate {
     private final DataSource dataSource;
@@ -38,6 +41,37 @@ public class JdbcTemplate {
             }
         }
     }
+
+    public <T> List<T> executeQueryForObjects(String sql, ObjectMapper<T> objectMapper) throws SQLException {
+        return executeQuery(sql, pstmt -> {
+        }, rs -> {
+            List<T> objects = new ArrayList<>();
+            while (rs.next()) {
+                objects.add(objectMapper.toObject(rs));
+            }
+            return objects;
+        });
+    }
+
+    public <T> List<T> executeQueryForObjects(String sql, PreparedStatementMapping mapping, ObjectMapper<T> objectMapper) throws SQLException {
+        return executeQuery(sql, mapping, rs -> {
+            List<T> objects = new ArrayList<>();
+            while (rs.next()) {
+                objects.add(objectMapper.toObject(rs));
+            }
+            return objects;
+        });
+    }
+
+    public <T> Optional<T> executeQueryForObject(String sql, ObjectMapper<T> objectMapper) throws SQLException {
+        return executeQuery(sql, pstmt -> {
+        }, rs -> Optional.ofNullable(rs.next() ? objectMapper.toObject(rs) : null));
+    }
+
+    public <T> Optional<T> executeQueryForObject(String sql, PreparedStatementMapping mapping, ObjectMapper<T> objectMapper) throws SQLException {
+        return executeQuery(sql, mapping, rs -> Optional.ofNullable(rs.next() ? objectMapper.toObject(rs) : null));
+    }
+
 
     private Connection getConnection() throws SQLException {
         return dataSource.getConnection();

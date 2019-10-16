@@ -5,7 +5,6 @@ import slipp.domain.User;
 import slipp.support.db.ConnectionManager;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class UserDao {
@@ -33,27 +32,16 @@ public class UserDao {
 
     public List<User> findAll() throws SQLException {
         String sql = "SELECT userId, password, name, email FROM USERS";
-        return jdbcTemplate.executeQuery(sql, rs -> {
-            List<User> users = new ArrayList<>();
-            while (rs.next()) {
-                User user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
-                    rs.getString("email"));
-                users.add(user);
-            }
-            return users;
-        });
+        return jdbcTemplate.executeQueryForObjects(sql, rs -> new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
+            rs.getString("email")));
     }
 
     public User findByUserId(String userId) throws SQLException {
         String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
-        return jdbcTemplate.executeQuery(sql, pstmt -> pstmt.setString(1, userId), rs -> {
-            User user = null;
-            if (rs.next()) {
-                user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
-                    rs.getString("email"));
-            }
-            return user;
-        });
+        return jdbcTemplate.executeQueryForObject(sql, pstmt -> pstmt.setString(1, userId),
+            rs -> new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
+                rs.getString("email")))
+            .orElse(null);
     }
 
     public void deleteAll() throws SQLException {
