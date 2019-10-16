@@ -11,9 +11,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserDao {
+    Connection con = null;
+    PreparedStatement pstmt = null;
+    ResultSet rs = null;
+
+
     public void insert(User user) throws SQLException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
         try {
             con = ConnectionManager.getConnection();
             String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
@@ -37,8 +40,6 @@ public class UserDao {
 
     public void update(User user) throws SQLException {
         // TODO 구현 필요함.
-        Connection con = null;
-        PreparedStatement pstmt = null;
         try {
             con = ConnectionManager.getConnection();
             String sql = "UPDATE USERS " +
@@ -67,9 +68,6 @@ public class UserDao {
         // TODO 구현 필요함.
         List<User> users = new ArrayList<User>();
         ;
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
 
         try {
             con = ConnectionManager.getConnection();
@@ -101,9 +99,6 @@ public class UserDao {
     }
 
     public User findByUserId(String userId) throws SQLException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
         try {
             con = ConnectionManager.getConnection();
             String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
