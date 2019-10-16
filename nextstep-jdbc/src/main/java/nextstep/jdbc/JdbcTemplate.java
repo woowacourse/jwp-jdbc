@@ -43,12 +43,12 @@ public class JdbcTemplate {
         }
     }
 
-    public static List query(String sql, RowMapper rowMapper) {
+    public static <T> List<T> query(String sql, RowMapper<T> rowMapper) {
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
 
             ResultSet resultSet = pstmt.executeQuery();
-            List<Object> results = new ArrayList<>();
+            List<T> results = new ArrayList<>();
             while (resultSet.next()) {
                 results.add(rowMapper.mapRow(resultSet));
             }
@@ -59,13 +59,13 @@ public class JdbcTemplate {
         }
     }
 
-    public static List query(String sql, RowMapper rowMapper, PreparedStatementSetter pstmtSetter) {
+    public static <T> List<T> query(String sql, RowMapper<T> rowMapper, PreparedStatementSetter pstmtSetter) {
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
             pstmtSetter.setValues(pstmt);
 
             ResultSet resultSet = pstmt.executeQuery();
-            List<Object> results = new ArrayList<>();
+            List<T> results = new ArrayList<>();
             while (resultSet.next()) {
                 results.add(rowMapper.mapRow(resultSet));
             }
@@ -76,13 +76,13 @@ public class JdbcTemplate {
         }
     }
 
-    public static List query(String sql, RowMapper rowMapper, Object... objects) {
+    public static <T> List<T> query(String sql, RowMapper<T> rowMapper, Object... objects) {
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
             setValues(pstmt, objects);
 
             ResultSet resultSet = pstmt.executeQuery();
-            List<Object> results = new ArrayList<>();
+            List<T> results = new ArrayList<>();
             while (resultSet.next()) {
                 results.add(rowMapper.mapRow(resultSet));
             }
@@ -93,13 +93,13 @@ public class JdbcTemplate {
         }
     }
 
-    public static Object queryForObject(String sql, RowMapper rowMapper, PreparedStatementSetter pstmtSetter) {
+    public static <T> T queryForObject(String sql, RowMapper<T> rowMapper, PreparedStatementSetter pstmtSetter) {
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
             pstmtSetter.setValues(pstmt);
 
             ResultSet resultSet = pstmt.executeQuery();
-            List<Object> results = new ArrayList<>();
+            List<T> results = new ArrayList<>();
             while (resultSet.next()) {
                 results.add(rowMapper.mapRow(resultSet));
             }
@@ -111,13 +111,13 @@ public class JdbcTemplate {
         }
     }
 
-    public static Object queryForObject(String sql, RowMapper rowMapper, Object... objects) {
+    public static <T> T queryForObject(String sql, RowMapper<T> rowMapper, Object... objects) {
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
             setValues(pstmt, objects);
 
             ResultSet resultSet = pstmt.executeQuery();
-            List<Object> results = new ArrayList<>();
+            List<T> results = new ArrayList<>();
             while (resultSet.next()) {
                 results.add(rowMapper.mapRow(resultSet));
             }
