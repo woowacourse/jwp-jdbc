@@ -9,17 +9,17 @@ import nextstep.web.annotation.RequestMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import slipp.dao.UserDao;
 import slipp.domain.User;
 import slipp.dto.UserCreatedDto;
 import slipp.dto.UserUpdatedDto;
-import slipp.support.db.DataBase;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 @Controller
 public class ApiUserController {
-    private static final Logger logger = LoggerFactory.getLogger( ApiUserController.class );
+    private static final Logger logger = LoggerFactory.getLogger(ApiUserController.class);
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
@@ -28,12 +28,14 @@ public class ApiUserController {
         UserCreatedDto createdDto = objectMapper.readValue(request.getInputStream(), UserCreatedDto.class);
         logger.debug("Created User : {}", createdDto);
 
-
-        DataBase.addUser(new User(
+        User user = new User(
                 createdDto.getUserId(),
                 createdDto.getPassword(),
                 createdDto.getName(),
-                createdDto.getEmail()));
+                createdDto.getEmail());
+
+        UserDao userDao = new UserDao();
+        userDao.insert(user);
 
         response.setHeader("Location", "/api/users?userId=" + createdDto.getUserId());
         response.setStatus(HttpStatus.CREATED.value());
@@ -46,8 +48,10 @@ public class ApiUserController {
         String userId = request.getParameter("userId");
         logger.debug("userId : {}", userId);
 
+        UserDao userDao = new UserDao();
+
         ModelAndView mav = new ModelAndView(new JsonView());
-        mav.addObject("user", DataBase.findUserById(userId));
+        mav.addObject("user", userDao.findByUserId(userId));
         return mav;
     }
 
@@ -57,9 +61,13 @@ public class ApiUserController {
         logger.debug("userId : {}", userId);
         UserUpdatedDto updateDto = objectMapper.readValue(request.getInputStream(), UserUpdatedDto.class);
         logger.debug("Updated User : {}", updateDto);
+        UserDao userDao = new UserDao();
 
-        User user = DataBase.findUserById(userId);
+
+        User user = userDao.findByUserId(userId);
         user.update(updateDto);
+
+        userDao.update(user);
 
         return new ModelAndView(new JsonView());
     }
