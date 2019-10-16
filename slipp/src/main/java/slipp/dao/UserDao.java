@@ -13,6 +13,15 @@ public class UserDao {
 
     private final JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
 
+    private static class LazyHolder {
+        private static final UserDao userDao = new UserDao();
+    }
+
+    public static UserDao getInstance() {
+        return LazyHolder.userDao;
+
+    }
+
     public void insert(User user) {
         String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
         jdbcTemplate.executeUpdate(sql, user.getUserId(), user.getPassword(), user.getName(), user.getEmail());
