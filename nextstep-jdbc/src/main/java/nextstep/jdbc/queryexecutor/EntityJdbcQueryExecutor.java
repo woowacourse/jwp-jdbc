@@ -1,6 +1,7 @@
 package nextstep.jdbc.queryexecutor;
 
 import nextstep.jdbc.RowMapper;
+import nextstep.jdbc.exception.ExecuteQueryFailedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,8 +26,8 @@ public class EntityJdbcQueryExecutor implements JdbcQueryExecutor {
             return executeRowMapper(pstmt, rowMapper);
         } catch (SQLException e) {
             log.debug(e.getMessage());
+            throw new ExecuteQueryFailedException(e);
         }
-        return null;
     }
 
     private <T> List<T> executeRowMapper(final PreparedStatement pstmt, final RowMapper<T> rowMapper) throws SQLException {

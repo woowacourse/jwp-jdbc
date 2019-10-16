@@ -1,6 +1,7 @@
 package nextstep.jdbc.queryexecutor;
 
 import nextstep.jdbc.RowMapper;
+import nextstep.jdbc.exception.ExecuteUpdateFailedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,9 +22,11 @@ public class UpdateJdbcQueryExecutor implements JdbcQueryExecutor {
     public <T> List<T> execute(PreparedStatement ps, RowMapper<T> rowMapper) {
         try {
             ps.executeUpdate();
+            return null;
         } catch (SQLException e) {
             log.error(e.getMessage());
+            throw new ExecuteUpdateFailedException(e);
         }
-        return null;
+
     }
 }
