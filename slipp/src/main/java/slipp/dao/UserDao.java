@@ -1,5 +1,7 @@
 package slipp.dao;
 
+import nextstep.jdbc.InsertJdbcTemplate;
+import nextstep.jdbc.UpdateJdbcTemplate;
 import slipp.domain.User;
 import slipp.support.db.ConnectionManager;
 
@@ -13,42 +15,13 @@ import java.util.List;
 public class UserDao {
 
     public void insert(User user) throws SQLException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        try {
-            con = ConnectionManager.getConnection();
-            String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
-            pstmt = con.prepareStatement(sql);
-            setValuesForInsert(user, pstmt);
-            pstmt.executeUpdate();
-        } finally {
-            if (pstmt != null) {
-                pstmt.close();
-            }
-
-            if (con != null) {
-                con.close();
-            }
-        }
+        InsertJdbcTemplate insertJdbcTemplate = new InsertJdbcTemplate();
+        insertJdbcTemplate.insert(user,this);
     }
 
     public void update(User user) throws SQLException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        try {
-            con = ConnectionManager.getConnection();
-            String sql = "UPDATE USERS SET password=?, email=?, name=? WHERE userId=?";
-            pstmt = con.prepareStatement(sql);
-            setValuesForUpdate(user, pstmt);
-            pstmt.executeUpdate();
-        } finally {
-            if (pstmt != null) {
-                pstmt.close();
-            }
-            if (con != null) {
-                con.close();
-            }
-        }
+        UpdateJdbcTemplate updateJdbcTemplate = new UpdateJdbcTemplate();
+        updateJdbcTemplate.update(user, this);
     }
 
     public List<User> findAll() throws SQLException {
