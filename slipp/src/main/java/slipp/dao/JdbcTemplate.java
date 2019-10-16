@@ -1,5 +1,7 @@
 package slipp.dao;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import slipp.support.db.ConnectionManager;
 
 import java.sql.Connection;
@@ -10,82 +12,52 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class JdbcTemplate {
-    public void update(String query, PreparedStatementSetter setter) throws SQLException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        try {
-            con = ConnectionManager.getConnection();
-            pstmt = con.prepareStatement(query);
+    private static final Logger log = LoggerFactory.getLogger(JdbcTemplate.class);
+
+    public void update(String query, PreparedStatementSetter setter) {
+        try (Connection con = ConnectionManager.getConnection();
+             PreparedStatement pstmt = con.prepareStatement(query)) {
             setter.values(pstmt);
             pstmt.executeUpdate();
-        } finally {
-            if (pstmt != null) {
-                pstmt.close();
-            }
-
-            if (con != null) {
-                con.close();
-            }
+        } catch (SQLException e) {
+            log.error(e.getMessage());
+            throw new DataAccessException();
         }
     }
 
-    List<Object> query(String query, RowMapper rowMapper, PreparedStatementSetter setter) throws SQLException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        try {
-            con = ConnectionManager.getConnection();
-            pstmt = con.prepareStatement(query);
+    List<Object> query(String query, RowMapper rowMapper, PreparedStatementSetter setter) {
+        try (Connection con = ConnectionManager.getConnection();
+             PreparedStatement pstmt = con.prepareStatement(query)) {
             setter.values(pstmt);
-            rs = pstmt.executeQuery();
-            List<Object> results = new ArrayList<>();
+            try (ResultSet rs = pstmt.executeQuery()) {
+                List<Object> results = new ArrayList<>();
 
-            while (rs.next()) {
-                results.add(rowMapper.mapRow(rs));
+                while (rs.next()) {
+                    results.add(rowMapper.mapRow(rs));
+                }
+                return results;
             }
-
-            return results;
-        } finally {
-            if (rs != null) {
-                rs.close();
-            }
-            if (pstmt != null) {
-                pstmt.close();
-            }
-            if (con != null) {
-                con.close();
-            }
+        } catch (SQLException e) {
+            log.error(e.getMessage());
+            throw new DataAccessException();
         }
-
     }
 
-    Object queryForObject(String query, RowMapper rowMapper, PreparedStatementSetter setter) throws SQLException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        try {
-            con = ConnectionManager.getConnection();
-            String sql = query;
-            pstmt = con.prepareStatement(sql);
+    Object queryForObject(String query, RowMapper rowMapper, PreparedStatementSetter setter) {
+        try (Connection con = ConnectionManager.getConnection();
+             PreparedStatement pstmt = con.prepareStatement(query)) {
             setter.values(pstmt);
-            rs = pstmt.executeQuery();
+            try (ResultSet rs = pstmt.executeQuery()) {
+                Object result = null;
+                if (rs.next()) {
+                    result = rowMapper.mapRow(rs);
+                }
 
-            Object result = null;
-            if (rs.next()) {
-                result = rowMapper.mapRow(rs);
+                return result;
             }
-
-            return result;
-        } finally {
-            if (rs != null) {
-                rs.close();
-            }
-            if (pstmt != null) {
-                pstmt.close();
-            }
-            if (con != null) {
-                con.close();
-            }
+        } catch (SQLException e) {
+            log.error(e.getMessage());
+            throw new DataAccessException();
         }
     }
 }
