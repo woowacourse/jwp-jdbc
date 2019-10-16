@@ -42,15 +42,18 @@ public class JdbcTemplate {
         }
     }
 
+    public <T> Optional<T> executeQueryForObject(String sql, ObjectMapper<T> objectMapper) throws SQLException {
+        return executeQueryForObject(sql, pstmt -> {
+        }, objectMapper);
+    }
+
+    public <T> Optional<T> executeQueryForObject(String sql, PreparedStatementMapping mapping, ObjectMapper<T> objectMapper) throws SQLException {
+        return executeQuery(sql, mapping, rs -> Optional.ofNullable(rs.next() ? objectMapper.toObject(rs) : null));
+    }
+
     public <T> List<T> executeQueryForObjects(String sql, ObjectMapper<T> objectMapper) throws SQLException {
-        return executeQuery(sql, pstmt -> {
-        }, rs -> {
-            List<T> objects = new ArrayList<>();
-            while (rs.next()) {
-                objects.add(objectMapper.toObject(rs));
-            }
-            return objects;
-        });
+        return executeQueryForObjects(sql, pstmt -> {
+        }, objectMapper);
     }
 
     public <T> List<T> executeQueryForObjects(String sql, PreparedStatementMapping mapping, ObjectMapper<T> objectMapper) throws SQLException {
@@ -61,15 +64,6 @@ public class JdbcTemplate {
             }
             return objects;
         });
-    }
-
-    public <T> Optional<T> executeQueryForObject(String sql, ObjectMapper<T> objectMapper) throws SQLException {
-        return executeQuery(sql, pstmt -> {
-        }, rs -> Optional.ofNullable(rs.next() ? objectMapper.toObject(rs) : null));
-    }
-
-    public <T> Optional<T> executeQueryForObject(String sql, PreparedStatementMapping mapping, ObjectMapper<T> objectMapper) throws SQLException {
-        return executeQuery(sql, mapping, rs -> Optional.ofNullable(rs.next() ? objectMapper.toObject(rs) : null));
     }
 
 
