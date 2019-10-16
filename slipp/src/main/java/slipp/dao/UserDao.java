@@ -34,6 +34,11 @@ public class UserDao {
             .orElse(null);
     }
 
+    public void deleteByUserId(String userId) throws SQLException {
+        String sql = "DELETE FROM USERS WHERE userId=?";
+        jdbcTemplate.update(sql, userId);
+    }
+
     public void deleteAll() throws SQLException {
         String sql = "DELETE FROM USERS";
         jdbcTemplate.update(sql);

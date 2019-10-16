@@ -3,6 +3,10 @@ package slipp;
 import org.apache.catalina.startup.Tomcat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
+import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
+import slipp.support.db.ConnectionManager;
 
 import java.io.File;
 
@@ -10,6 +14,8 @@ public class WebServerLauncher {
     private static final Logger logger = LoggerFactory.getLogger(WebServerLauncher.class);
 
     public static void main(String[] args) throws Exception {
+        initializeDBResource();
+
         String webappDirLocation = "./slipp/webapp/";
         Tomcat tomcat = new Tomcat();
         tomcat.setPort(8080);
@@ -19,5 +25,11 @@ public class WebServerLauncher {
 
         tomcat.start();
         tomcat.getServer().await();
+    }
+
+    private static void initializeDBResource() {
+        ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
+        populator.addScript(new ClassPathResource("jwp.sql"));
+        DatabasePopulatorUtils.execute(populator, ConnectionManager.getDataSource());
     }
 }
