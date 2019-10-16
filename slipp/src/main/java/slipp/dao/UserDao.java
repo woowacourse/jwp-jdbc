@@ -19,35 +19,42 @@ public class UserDao {
 
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
+            List<Object> parameters = new ArrayList<>();
+            parameters.add(user.getUserId());
+            parameters.add(user.getPassword());
+            parameters.add(user.getName());
+            parameters.add(user.getEmail());
 
-            pstmt.setString(1, user.getUserId());
-            pstmt.setString(2, user.getPassword());
-            pstmt.setString(3, user.getName());
-            pstmt.setString(4, user.getEmail());
-
-            pstmt.executeUpdate();
+            executeQuery(pstmt, parameters);
         }
+    }
+
+    private void executeQuery(PreparedStatement pstmt, List<Object> parameters) throws SQLException {
+        int index = 1;
+        for (Object parameter : parameters) {
+            pstmt.setObject(index, parameter);
+            index++;
+        }
+
+        pstmt.executeUpdate();
     }
 
     public void update(User user) throws SQLException {
         String sql = "UPDATE USERS " +
                 "SET password=?, name=?, email=? " +
                 "WHERE userId=?";
-        // TODO 구현 필요함.
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
-
-            pstmt.setString(1, user.getPassword());
-            pstmt.setString(2, user.getName());
-            pstmt.setString(3, user.getEmail());
-            pstmt.setString(4, user.getUserId());
-
-            pstmt.executeUpdate();
+            List<Object> parameters = new ArrayList<>();
+            parameters.add(user.getPassword());
+            parameters.add(user.getName());
+            parameters.add(user.getEmail());
+            parameters.add(user.getUserId());
+            executeQuery(pstmt, parameters);
         }
     }
 
     public List<User> findAll() throws SQLException {
-        // TODO 구현 필요함.
         List<User> users = new ArrayList<User>();
         ;
         String sql = "SELECT userId, password, name, email FROM USERS";
@@ -55,7 +62,7 @@ public class UserDao {
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
 
-            ResultSet rs = pstmt.executeQuery();
+            ResultSet rs = executeQueryThatHasResult(pstmt, new ArrayList<>());
             User user;
             while (rs.next()) {
                 user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
@@ -75,9 +82,10 @@ public class UserDao {
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
 
-            pstmt.setString(1, userId);
+            List<Object> parameters = new ArrayList<>();
+            parameters.add(userId);
 
-            rs = pstmt.executeQuery();
+            rs = executeQueryThatHasResult(pstmt, parameters);
             User user = null;
             if (rs.next()) {
                 user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
@@ -90,5 +98,15 @@ public class UserDao {
                 rs.close();
             }
         }
+    }
+
+    private ResultSet executeQueryThatHasResult(PreparedStatement pstmt, List<Object> parameters) throws SQLException {
+        int index = 1;
+        for (Object parameter : parameters) {
+            pstmt.setObject(index, parameter);
+            index++;
+        }
+
+        return pstmt.executeQuery();
     }
 }
