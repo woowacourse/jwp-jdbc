@@ -32,7 +32,7 @@ public class EntityJdbcQueryExecutor implements JdbcQueryExecutor {
     private <T> List<T> executeRowMapper(final PreparedStatement pstmt, final RowMapper<T> rowMapper) throws SQLException {
         try (ResultSet rs = pstmt.executeQuery()) {
             List<T> objects = new ArrayList<>();
-            while(rs.next()) {
+            while (rs.next()) {
                 objects.add(rowMapper.mapRow(rs));
             }
             return objects;

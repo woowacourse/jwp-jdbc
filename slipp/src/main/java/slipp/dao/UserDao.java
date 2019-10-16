@@ -25,17 +25,13 @@ public class UserDao {
 
     public List<User> findAll() {
         String sql = "SELECT * FROM USERS";
-
         RowMapper<User> rowMapper = makeRowMapper();
-
         return jdbcTemplate.executeQuery(sql, rowMapper);
     }
 
     public User findByUserId(String userId) {
         String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
-
         RowMapper<User> rowMapper = makeRowMapper();
-
         return jdbcTemplate.executeQuery(sql, rowMapper, userId).get(INDEX_OF_SINGLE_ENTITY);
     }
 
