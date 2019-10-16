@@ -15,20 +15,23 @@ public class JdbcTemplate<T> {
     private static final Logger log = LoggerFactory.getLogger(JdbcTemplate.class);
 
     public List<T> select(String query, RowMapper<T> rowMapper, PreparedStatementSetter pstmtSetter) {
-        List<T> list = new ArrayList<>();
-
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = con.prepareStatement(query);
              ResultSet resultSet = pstmt.executeQuery()) {
             pstmtSetter.setValues(pstmt);
-            while (resultSet.next()) {
-                list.add(rowMapper.mapRow(resultSet));
-            }
+            return getResults(rowMapper, resultSet);
         } catch (SQLException e) {
             log.debug(e.getMessage());
             throw new DataAccessException(e);
         }
-        return list;
+    }
+
+    private List<T> getResults(RowMapper<T> rowMapper, ResultSet resultSet) throws SQLException {
+        List<T> results = new ArrayList<>();
+        while (resultSet.next()) {
+            results.add(rowMapper.mapRow(resultSet));
+        }
+        return results;
     }
 
     public List<T> select(String query, RowMapper<T> rowMapper, Object... values) {
