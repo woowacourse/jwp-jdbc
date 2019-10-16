@@ -26,7 +26,7 @@ public class JdbcTemplate {
         update(sql, pstmt -> mappingPreparedStatement(pstmt, objects));
     }
 
-    public void update(String sql, PreparedStatementMapping consumer) throws SQLException {
+    private void update(String sql, PreparedStatementMapping consumer) throws SQLException {
         try (Connection con = getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
             consumer.adjustTo(pstmt);
             pstmt.executeUpdate();
@@ -42,7 +42,7 @@ public class JdbcTemplate {
         return query(sql, pstmt -> mappingPreparedStatement(pstmt, objects), resultSetHandler);
     }
 
-    public <T> T query(String sql, PreparedStatementMapping mapping, ResultSetHandler<T> resultSetHandler) throws SQLException {
+    private <T> T query(String sql, PreparedStatementMapping mapping, ResultSetHandler<T> resultSetHandler) throws SQLException {
         try (Connection con = getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
             mapping.adjustTo(pstmt);
             try (ResultSet rs = pstmt.executeQuery()) {
@@ -60,7 +60,7 @@ public class JdbcTemplate {
         return queryForObject(sql, pstmt -> mappingPreparedStatement(pstmt, objects), objectMapper); //query
     }
 
-    public <T> Optional<T> queryForObject(String sql, PreparedStatementMapping mapping, ObjectMapper<T> objectMapper) throws SQLException {
+    private <T> Optional<T> queryForObject(String sql, PreparedStatementMapping mapping, ObjectMapper<T> objectMapper) throws SQLException {
         return queryForObjects(sql, mapping, objectMapper).stream().findFirst();
     }
 
@@ -73,7 +73,7 @@ public class JdbcTemplate {
         return queryForObjects(sql, pstmt -> mappingPreparedStatement(pstmt, objects), objectMapper);
     }
 
-    public <T> List<T> queryForObjects(String sql, PreparedStatementMapping mapping, ObjectMapper<T> objectMapper) throws SQLException {
+    private <T> List<T> queryForObjects(String sql, PreparedStatementMapping mapping, ObjectMapper<T> objectMapper) throws SQLException {
         return query(sql, mapping, rs -> {
             List<T> objects = new ArrayList<>();
             while (rs.next()) {
