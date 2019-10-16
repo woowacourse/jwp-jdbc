@@ -28,6 +28,7 @@ public class JdbcTemplate {
         try {
             return dataSource.getConnection();
         } catch (SQLException e) {
+            log.error(e.getMessage());
             throw new ConnectionFailedException(e);
         }
     }
@@ -41,6 +42,7 @@ public class JdbcTemplate {
 
             pstmt.executeUpdate();
         } catch (SQLException e) {
+            log.error(e.getMessage());
             throw new ExecuteUpdateFailedException(e);
         }
     }
@@ -54,6 +56,7 @@ public class JdbcTemplate {
 
             return executeRowMapper(pstmt, rowMapper);
         } catch (SQLException e) {
+            log.error(e.getMessage());
             throw new ExecuteQueryFailedException(e);
         }
     }
