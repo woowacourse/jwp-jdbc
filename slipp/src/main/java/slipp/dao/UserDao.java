@@ -1,17 +1,21 @@
 package slipp.dao;
 
 import nextstep.jdbc.JdbcTemplate;
+import nextstep.jdbc.ResultSetMapper;
 import slipp.domain.User;
 import slipp.support.db.ConnectionManager;
 
 import java.util.List;
+import java.util.Optional;
 
 public class UserDao {
 
     private JdbcTemplate jdbcTemplate;
+    private ResultSetMapper<User> resultSetMapper;
 
     public UserDao() {
         this.jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+        this.resultSetMapper = new ResultSetMapper<>(User.class);
     }
 
     public void insert(User user) {
@@ -26,11 +30,12 @@ public class UserDao {
 
     public List<User> findAll() {
         return jdbcTemplate.executeQuery("SELECT userId, password, name, email FROM USERS",
-                User.class);
+                resultSetMapper::mapList);
     }
 
-    public User findByUserId(String userId) {
-        return jdbcTemplate.executeQuery("SELECT userId, password, name, email FROM USERS WHERE userid=?",
-                User.class, userId);
+    public Optional<User> findByUserId(String userId) {
+        User user = jdbcTemplate.executeQuery("SELECT userId, password, name, email FROM USERS WHERE userId=?",
+                resultSetMapper::mapObject, userId);
+        return Optional.ofNullable(user);
     }
 }
