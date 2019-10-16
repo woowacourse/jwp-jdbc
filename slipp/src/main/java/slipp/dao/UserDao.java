@@ -1,7 +1,7 @@
 package slipp.dao;
 
 import slipp.domain.User;
-import slipp.support.db.JdbcTemplate;
+import nextstep.jdbc.JdbcTemplate;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

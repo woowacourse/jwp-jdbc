@@ -1,4 +1,4 @@
-package slipp.support.db;
+package nextstep.jdbc;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;

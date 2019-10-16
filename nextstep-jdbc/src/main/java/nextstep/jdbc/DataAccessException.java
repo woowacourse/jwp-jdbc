@@ -1,4 +1,4 @@
-package slipp.support.db;
+package nextstep.jdbc;
 
 public class DataAccessException extends RuntimeException {
     public DataAccessException(String message) {
