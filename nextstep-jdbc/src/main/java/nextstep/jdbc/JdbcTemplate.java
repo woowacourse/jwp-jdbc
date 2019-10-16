@@ -24,12 +24,12 @@ public class JdbcTemplate {
         }
     }
 
-    public User queryForObject(String userId, PreparedStatementSetter pss, RowMapper rm) {
+    public User queryForObject(String userId, PreparedStatementSetter pss, RowMapper<User> rm) {
         String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
         try (Connection con = ConnectionManager.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
             pss.setValues(pstmt);
             try (ResultSet rs = pstmt.executeQuery()) {
-                return (User) rm.mapRow(rs);
+                return rm.mapRow(rs);
             }
         } catch (SQLException e) {
             log.debug(e.getMessage(), e.getCause());
@@ -37,10 +37,10 @@ public class JdbcTemplate {
         }
     }
 
-    public List<User> query(String query, RowMapper rm) {
+    public List<User> query(String query, RowMapper<List<User>> rm) {
         try (Connection con = ConnectionManager.getConnection(); PreparedStatement pstmt = con.prepareStatement(query)) {
             try (ResultSet rs = pstmt.executeQuery()) {
-                List<User> users = (List<User>) rm.mapRow(rs);
+                List<User> users = rm.mapRow(rs);
                 return users;
             }
         } catch (SQLException e) {

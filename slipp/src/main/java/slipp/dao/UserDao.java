@@ -42,7 +42,7 @@ public class UserDao {
     }
 
     public List<User> findAll() throws SQLException {
-        RowMapper rm = rs -> {
+        RowMapper<List<User>> rm = rs -> {
             List<User> users = new ArrayList<>();
             while (rs.next()) {
                 String userId = rs.getString("userId");
@@ -62,7 +62,7 @@ public class UserDao {
     public User findByUserId(String userId) throws SQLException {
         PreparedStatementSetter pss = pstmt -> pstmt.setString(1, userId);
 
-        RowMapper rm = rs -> {
+        RowMapper<User> rm = rs -> {
             if (rs.next()) {
                 return new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
                         rs.getString("email"));
