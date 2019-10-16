@@ -9,7 +9,6 @@ import slipp.domain.User;
 import slipp.dto.UserUpdatedDto;
 import slipp.support.db.ConnectionManager;
 
-import java.sql.SQLException;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -23,7 +22,7 @@ public class UserDaoTest {
     }
 
     @Test
-    public void crud() throws Exception {
+    public void crud() {
         User expected = new User("userId", "password", "name", "javajigi@email.com");
         UserDao userDao = new UserDao();
         userDao.insert(expected);
@@ -37,14 +36,14 @@ public class UserDaoTest {
     }
 
     @Test
-    public void findAll() throws Exception {
+    public void findAll() {
         UserDao userDao = new UserDao();
         List<User> users = userDao.findAll();
         assertThat(users).hasSize(1);
     }
 
     @Test
-    void deleteAll() throws SQLException {
+    void deleteAll() {
         UserDao userDao = new UserDao();
         List<User> users = userDao.findAll();
         assertThat(users.size() > 0).isTrue();
