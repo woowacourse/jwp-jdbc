@@ -1,7 +1,6 @@
 package slipp.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import nextstep.jdbc.JdbcTemplate;
 import nextstep.mvc.JsonView;
 import nextstep.mvc.ModelAndView;
 import nextstep.web.annotation.Controller;
@@ -10,11 +9,11 @@ import nextstep.web.annotation.RequestMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import slipp.controller.exception.UserNotFoundException;
 import slipp.dao.UserDao;
 import slipp.domain.User;
 import slipp.dto.UserCreatedDto;
 import slipp.dto.UserUpdatedDto;
-import slipp.support.db.DataBase;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -49,7 +48,9 @@ public class ApiUserController {
         logger.debug("userId : {}", userId);
 
         ModelAndView mav = new ModelAndView(new JsonView());
-        mav.addObject("user", userDao.findByUserId(userId));
+        User user = userDao.findByUserId(userId)
+                .orElseThrow(UserNotFoundException::new);
+        mav.addObject("user", user);
         return mav;
     }
 
@@ -63,6 +64,7 @@ public class ApiUserController {
         User user = userDao.findByUserId(userId)
                 .orElseThrow(() -> new IllegalArgumentException("유저가 없어요."));
         user.update(updateDto);
+        userDao.update(user);
 
         return new ModelAndView(new JsonView());
     }
