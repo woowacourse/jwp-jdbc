@@ -1,5 +1,6 @@
 package slipp.dao;
 
+import nextstep.jdbc.JdbcTemplate;
 import slipp.domain.User;
 import slipp.support.db.ConnectionManager;
 
@@ -11,47 +12,34 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserDao {
-    ResultSet rs = null;
-
+    private ResultSet rs = null;
+    private JdbcTemplate jdbcTemplate = new JdbcTemplate();
 
     public void insert(User user) throws SQLException {
         String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
 
-        try (Connection con = ConnectionManager.getConnection();
-             PreparedStatement pstmt = con.prepareStatement(sql)) {
-            List<Object> parameters = new ArrayList<>();
-            parameters.add(user.getUserId());
-            parameters.add(user.getPassword());
-            parameters.add(user.getName());
-            parameters.add(user.getEmail());
+        List<Object> parameters = new ArrayList<>();
+        parameters.add(user.getUserId());
+        parameters.add(user.getPassword());
+        parameters.add(user.getName());
+        parameters.add(user.getEmail());
 
-            executeQuery(pstmt, parameters);
-        }
-    }
+        jdbcTemplate.executeQuery(sql, parameters);
 
-    private void executeQuery(PreparedStatement pstmt, List<Object> parameters) throws SQLException {
-        int index = 1;
-        for (Object parameter : parameters) {
-            pstmt.setObject(index, parameter);
-            index++;
-        }
-
-        pstmt.executeUpdate();
     }
 
     public void update(User user) throws SQLException {
         String sql = "UPDATE USERS " +
                 "SET password=?, name=?, email=? " +
                 "WHERE userId=?";
-        try (Connection con = ConnectionManager.getConnection();
-             PreparedStatement pstmt = con.prepareStatement(sql)) {
-            List<Object> parameters = new ArrayList<>();
-            parameters.add(user.getPassword());
-            parameters.add(user.getName());
-            parameters.add(user.getEmail());
-            parameters.add(user.getUserId());
-            executeQuery(pstmt, parameters);
-        }
+
+        List<Object> parameters = new ArrayList<>();
+        parameters.add(user.getPassword());
+        parameters.add(user.getName());
+        parameters.add(user.getEmail());
+        parameters.add(user.getUserId());
+        jdbcTemplate.executeQuery(sql, parameters);
+
     }
 
     public List<User> findAll() throws SQLException {
@@ -64,6 +52,7 @@ public class UserDao {
 
             ResultSet rs = executeQueryThatHasResult(pstmt, new ArrayList<>());
             User user;
+
             while (rs.next()) {
                 user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
                         rs.getString("email"));
