@@ -13,6 +13,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class JdbcTemplate {
 
@@ -61,6 +62,20 @@ public class JdbcTemplate {
         }
     }
 
+    public <T> Optional<T> executeQueryWithUniqueResult(final String sql, RowMapper<T> rowMapper, Object... values) {
+        log.debug("executeQueryWithUniqueResult sql={}", sql);
+
+        try (Connection con = getConnection();
+             PreparedStatement pstmt = con.prepareStatement(sql)) {
+            setValuesToPreparedStatement(pstmt, values);
+
+            return Optional.ofNullable(executeRowMapperWithUniqueResult(pstmt, rowMapper));
+        } catch (SQLException e) {
+            log.error(e.getMessage());
+            throw new ExecuteQueryFailedException(e);
+        }
+    }
+
     private void setValuesToPreparedStatement(final PreparedStatement pstmt, final Object[] values) throws SQLException {
         for (int index = START_INDEX; index <= values.length; index++) {
             pstmt.setObject(index, values[index - 1]);
@@ -74,6 +89,12 @@ public class JdbcTemplate {
                 objects.add(rowMapper.mapRow(rs));
             }
             return objects;
+        }
+    }
+
+    private <T> T executeRowMapperWithUniqueResult(final PreparedStatement pstmt, final RowMapper<T> rowMapper) throws SQLException {
+        try (ResultSet rs = pstmt.executeQuery()) {
+            return (rs.next()) ? rowMapper.mapRow(rs) : null;
         }
     }
 }

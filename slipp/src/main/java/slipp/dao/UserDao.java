@@ -2,8 +2,6 @@ package slipp.dao;
 
 import nextstep.jdbc.JdbcTemplate;
 import nextstep.jdbc.RowMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import slipp.domain.User;
 import slipp.exception.UserNotFoundException;
 import slipp.support.db.ConnectionManager;
@@ -12,8 +10,6 @@ import java.util.List;
 
 public class UserDao {
 
-    private static final int UNIQUE_VALUE_INDEX = 0;
-    private static final Logger log = LoggerFactory.getLogger(UserDao.class);
     private final JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
 
     private UserDao() {
@@ -45,16 +41,11 @@ public class UserDao {
     }
 
     public User findUserById(String userId) {
-        String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
+        String sql = "SELECT userId, password, name, email FROM USERS WHERE userId=?";
 
         RowMapper<User> rowMapper = generateUserRowMapper();
-        List<User> users = jdbcTemplate.executeQuery(sql, rowMapper, userId);
-
-        if (users.isEmpty()) {
-            log.debug("user not found : userId={}", userId);
-            throw new UserNotFoundException();
-        }
-        return users.get(UNIQUE_VALUE_INDEX);
+        return jdbcTemplate.executeQueryWithUniqueResult(sql, rowMapper, userId)
+                .orElseThrow(UserNotFoundException::new);
     }
 
     private RowMapper<User> generateUserRowMapper() {
