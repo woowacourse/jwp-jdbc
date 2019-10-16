@@ -38,7 +38,7 @@ public class JdbcTemplate {
         }, resultSetHandler);
     }
 
-    public <T> T query(String sql, Object[] objects, ResultSetHandler<T> resultSetHandler) throws SQLException { //query
+    public <T> T query(String sql, ResultSetHandler<T> resultSetHandler, Object... objects) throws SQLException { //query
         return query(sql, pstmt -> mappingPreparedStatement(pstmt, objects), resultSetHandler);
     }
 
@@ -56,7 +56,7 @@ public class JdbcTemplate {
         }, objectMapper);
     }
 
-    public <T> Optional<T> queryForObject(String sql, Object[] objects, ObjectMapper<T> objectMapper) throws SQLException { // queryForObject
+    public <T> Optional<T> queryForObject(String sql, ObjectMapper<T> objectMapper, Object... objects) throws SQLException { // queryForObject
         return queryForObject(sql, pstmt -> mappingPreparedStatement(pstmt, objects), objectMapper); //query
     }
 
@@ -69,7 +69,7 @@ public class JdbcTemplate {
         }, objectMapper);
     }
 
-    public <T> List<T> queryForObjects(String sql, Object[] objects, ObjectMapper<T> objectMapper) throws SQLException { //queryForObject
+    public <T> List<T> queryForObjects(String sql, ObjectMapper<T> objectMapper, Object... objects) throws SQLException { //queryForObject
         return queryForObjects(sql, pstmt -> mappingPreparedStatement(pstmt, objects), objectMapper);
     }
 

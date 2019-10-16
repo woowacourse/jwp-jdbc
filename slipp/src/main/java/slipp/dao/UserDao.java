@@ -28,9 +28,9 @@ public class UserDao {
 
     public User findByUserId(String userId) throws SQLException {
         String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
-        return jdbcTemplate.queryForObject(sql, new Object[]{userId},
+        return jdbcTemplate.queryForObject(sql,
             rs -> new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
-                rs.getString("email")))
+                rs.getString("email")), userId)
             .orElse(null);
     }
 
