@@ -5,15 +5,18 @@ import nextstep.jdbc.RowMapper;
 import slipp.domain.User;
 import slipp.support.db.ConnectionManager;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class UserDao {
-    public static final JdbcTemplate<User> JDBC_TEMPLATE = new JdbcTemplate<>(ConnectionManager.getDataSource());
+    private static final JdbcTemplate<User> JDBC_TEMPLATE = new JdbcTemplate<>(ConnectionManager.getDataSource());
+    private static final RowMapper<User> ROW_MAPPER = resultSet -> {
+        String userId = resultSet.getString("userId");
+        String password = resultSet.getString("password");
+        String name = resultSet.getString("name");
+        String email = resultSet.getString("email");
+        return new User(userId, password, name, email);
+    };
 
     public void insert(User user) throws SQLException {
         JDBC_TEMPLATE.update("INSERT INTO USERS VALUES (?, ?, ?, ?)", user.getUserId(), user.getPassword(), user.getName(), user.getEmail());
@@ -24,48 +27,10 @@ public class UserDao {
     }
 
     public List<User> findAll() throws SQLException {
-        List<User> users = new ArrayList<>();
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        try {
-            con = ConnectionManager.getConnection();
-            String sql = "SELECT userId, password, name, email FROM USERS";
-            pstmt = con.prepareStatement(sql);
-
-            rs = pstmt.executeQuery();
-
-            while (rs.next()) {
-                User user = new User(rs.getString("userId"),
-                        rs.getString("password"),
-                        rs.getString("name"),
-                        rs.getString("email"));
-
-                users.add(user);
-            }
-
-            return users;
-        } finally {
-            if (rs != null) {
-                rs.close();
-            }
-            if (pstmt != null) {
-                pstmt.close();
-            }
-            if (con != null) {
-                con.close();
-            }
-        }
+        return JDBC_TEMPLATE.readForList(ROW_MAPPER, "SELECT userId, password, name, email FROM USERS");
     }
 
     public User findByUserId(String id) throws SQLException {
-        RowMapper<User> rowMapper = resultSet -> {
-            String userId = resultSet.getString("userId");
-            String password = resultSet.getString("password");
-            String name = resultSet.getString("name");
-            String email = resultSet.getString("email");
-            return new User(userId, password, name, email);
-        };
-        return JDBC_TEMPLATE.read(rowMapper, "SELECT userId, password, name, email FROM USERS WHERE userId = ?", id);
+        return JDBC_TEMPLATE.readForObject(ROW_MAPPER, "SELECT userId, password, name, email FROM USERS WHERE userId = ?", id);
     }
 }
