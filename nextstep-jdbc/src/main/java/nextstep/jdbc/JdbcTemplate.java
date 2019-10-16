@@ -35,7 +35,7 @@ public class JdbcTemplate<T> {
     }
 
     public List<T> select(String query, RowMapper<T> rowMapper, Object... values) {
-        PreparedStatementSetter pstmtSetter = createPreparedStatementSetter(values);
+        PreparedStatementSetter pstmtSetter = new VarargsPreparedStatementSetter(values);
 
         return select(query, rowMapper, pstmtSetter);
     }
@@ -52,7 +52,7 @@ public class JdbcTemplate<T> {
     }
 
     public void update(String query, Object... values) {
-        PreparedStatementSetter pstmtSetter = createPreparedStatementSetter(values);
+        PreparedStatementSetter pstmtSetter = new VarargsPreparedStatementSetter(values);
 
         update(query, pstmtSetter);
     }
@@ -69,7 +69,7 @@ public class JdbcTemplate<T> {
     }
 
     public T queryForObject(String query, RowMapper<T> rowMapper, Object... values) {
-        PreparedStatementSetter pstmtSetter = createPreparedStatementSetter(values);
+        PreparedStatementSetter pstmtSetter = new VarargsPreparedStatementSetter(values);
         return queryForObject(query, rowMapper, pstmtSetter);
     }
 
@@ -83,13 +83,5 @@ public class JdbcTemplate<T> {
             log.debug(e.getMessage());
             throw new DataAccessException(e);
         }
-    }
-
-    private PreparedStatementSetter createPreparedStatementSetter(Object... values) {
-        return pstmt -> {
-            for (int i = 0; i < values.length; i++) {
-                pstmt.setObject(i + 1, values[i]);
-            }
-        };
     }
 }
