@@ -8,9 +8,6 @@ import slipp.support.db.ConnectionManager;
 import java.util.List;
 
 public class UserDao {
-
-    private static final int INDEX_OF_SINGLE_ENTITY = 0;
-
     private final JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
 
     private static class LazyHolder {
@@ -35,13 +32,13 @@ public class UserDao {
     public List<User> findAll() {
         String sql = "SELECT * FROM USERS";
         RowMapper<User> rowMapper = makeRowMapper();
-        return jdbcTemplate.executeQuery(sql, rowMapper);
+        return jdbcTemplate.queryForMultipleEntities(sql, rowMapper);
     }
 
     public User findByUserId(String userId) {
         String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
         RowMapper<User> rowMapper = makeRowMapper();
-        return jdbcTemplate.executeQuery(sql, rowMapper, userId).get(INDEX_OF_SINGLE_ENTITY);
+        return jdbcTemplate.queryForSingleEntity(sql, rowMapper, userId);
     }
 
     private RowMapper<User> makeRowMapper() {

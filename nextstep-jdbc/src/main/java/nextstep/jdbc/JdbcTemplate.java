@@ -19,6 +19,7 @@ public class JdbcTemplate {
 
     private static final Logger log = LoggerFactory.getLogger(JdbcTemplate.class);
     private static final int START_INDEX = 1;
+    private static final int INDEX_OF_SINGLE_ENTITY = 0;
 
     private DataSource dataSource;
     private List<JdbcQueryExecutor> jdbcQueryExecutors;
@@ -42,8 +43,13 @@ public class JdbcTemplate {
         excute(sql, null, values);
     }
 
-    public <T> List<T> executeQuery(final String sql, RowMapper<T> rowMapper, Object... values) {
-        log.debug("executeQuery sql={}", sql);
+    public <T> T queryForSingleEntity(String sql, RowMapper<T> rowMapper, String userId) {
+        List<T> entities = queryForMultipleEntities(sql, rowMapper, userId);
+        return entities.get(INDEX_OF_SINGLE_ENTITY);
+    }
+
+    public <T> List<T> queryForMultipleEntities(final String sql, RowMapper<T> rowMapper, Object... values) {
+        log.debug("queryForMultipleEntities sql={}", sql);
 
         return excute(sql, rowMapper, values);
     }
@@ -75,4 +81,6 @@ public class JdbcTemplate {
             pstmt.setObject(index, values[index - 1]);
         }
     }
+
+
 }
