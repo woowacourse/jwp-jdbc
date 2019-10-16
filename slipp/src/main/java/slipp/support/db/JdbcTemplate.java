@@ -3,7 +3,6 @@ package slipp.support.db;
 import nextstep.jdbc.ConnectionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import slipp.domain.User;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -12,61 +11,74 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class JdbcTemplate {
+public class JdbcTemplate {
     private static final Logger log = LoggerFactory.getLogger(JdbcTemplate.class);
+    private static final int FIRST_INDEX = 0;
 
-    public void update(String query) {
+    public void update(String query, Object... values) {
+        update(query, pstmt -> createPreparedStatementSetter(pstmt, values));
+    }
+
+    private void update(String query, PreparedStatementSetter pstmtSetter) {
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = con.prepareStatement(query)) {
-            setValues(pstmt);
+            pstmtSetter.values(pstmt);
             pstmt.execute();
         } catch (SQLException e) {
             log.error("SQLException : {}", e.getMessage());
         }
     }
 
-    public List<Object> query(String query) {
-        try (Connection con = ConnectionManager.getConnection();
-             PreparedStatement pstmt = con.prepareStatement(query);
-             ResultSet rs = pstmt.executeQuery()) {
-
-            List<Object> users = new ArrayList<>();
-
-            while (rs.next()) {
-                users.add(new User(rs.getString("userId"),
-                        rs.getString("password"),
-                        rs.getString("name"),
-                        rs.getString("email"))
-                );
-            }
-
-            return users;
-        } catch (SQLException e) {
-            log.error("SQLException : {}", e.getMessage());
-            throw new IllegalArgumentException("유저가 없습니다.");
-        }
+    public <T> T queryForObject(String query, RowMapper<T> rowMapper, Object... values) {
+        return queryForObject(query, pstmt -> createPreparedStatementSetter(pstmt, values), rowMapper);
     }
 
-    public Object queryForObject(String query) {
+    private <T> T queryForObject(String query, PreparedStatementSetter pstmtSetter, RowMapper<T> rowMapper) {
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = con.prepareStatement(query)) {
-            setValues(pstmt);
-
-            ResultSet rs = pstmt.executeQuery();
-            User user = null;
-            if (rs.next()) {
-                user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
-                        rs.getString("email"));
-            }
-            rs.close();
-            return user;
+            pstmtSetter.values(pstmt);
+            return execute(pstmt, rowMapper).get(FIRST_INDEX);
         } catch (SQLException e) {
             log.error("SQLException : {}", e.getMessage());
-            throw new IllegalArgumentException("찾는 유저가 없습니다.");
+            throw new DataAccessException("찾는 유저가 없습니다.");
         }
     }
 
-    protected abstract void setValues(PreparedStatement pstmt) throws SQLException;
+    public <T> List<T> query(String query, RowMapper<T> rowMapper, Object... values) {
+        return query(query, pstmt -> createPreparedStatementSetter(pstmt, values), rowMapper);
+    }
 
-    protected abstract Object mapRow(ResultSet rs);
+    private <T> List<T> query(String query, PreparedStatementSetter pstmtSetter, RowMapper<T> rowMapper) {
+        try (Connection con = ConnectionManager.getConnection();
+             PreparedStatement pstmt = con.prepareStatement(query)) {
+            pstmtSetter.values(pstmt);
+            return execute(pstmt, rowMapper);
+        } catch (SQLException e) {
+            log.error("SQLException : {}", e.getMessage());
+            throw new DataAccessException("유저가 없습니다.");
+        }
+    }
+
+    private <T> List<T> execute(PreparedStatement pstmt, RowMapper<T> rowMapper) {
+        try (ResultSet rs = pstmt.executeQuery()) {
+            List<T> list = new ArrayList<>();
+            while (rs.next()) {
+                list.add(rowMapper.mapRow(rs));
+            }
+            return list;
+        } catch (SQLException e) {
+            log.error("SQLException : {}", e.getMessage());
+            throw new DataAccessException("찾는 유저가 없습니다.");
+        }
+    }
+
+    private void createPreparedStatementSetter(PreparedStatement pstmt, Object[] values) throws SQLException {
+        if (values == null) {
+            return;
+        }
+
+        for (int index = 0; index < values.length; index++) {
+            pstmt.setObject(index + 1, values[index]);
+        }
+    }
 }

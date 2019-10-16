@@ -3,80 +3,47 @@ package slipp.dao;
 import slipp.domain.User;
 import slipp.support.db.JdbcTemplate;
 
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class UserDao {
+    private final JdbcTemplate jdbcTemplate;
+
+    public UserDao() {
+        this.jdbcTemplate = new JdbcTemplate();
+    }
+
     public void insert(User user) {
-        JdbcTemplate jdbcTemplate = new JdbcTemplate() {
-            @Override
-            protected void setValues(PreparedStatement pstmt) throws SQLException {
-                pstmt.setString(1, user.getUserId());
-                pstmt.setString(2, user.getPassword());
-                pstmt.setString(3, user.getName());
-                pstmt.setString(4, user.getEmail());
-            }
+        String query = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
 
-            @Override
-            protected Object mapRow(ResultSet rs) {
-                return null;
-            }
-        };
-
-        jdbcTemplate.update("INSERT INTO USERS VALUES (?, ?, ?, ?)");
+        jdbcTemplate.update(query, user.getUserId(),
+                user.getPassword(), user.getName(), user.getEmail());
     }
 
     public void update(User user) {
-        JdbcTemplate jdbcTemplate = new JdbcTemplate() {
-            @Override
-            protected void setValues(PreparedStatement pstmt) throws SQLException {
-                pstmt.setString(1, user.getPassword());
-                pstmt.setString(2, user.getName());
-                pstmt.setString(3, user.getEmail());
-                pstmt.setString(4, user.getUserId());
-            }
+        String query = "UPDATE USERS SET password=?, name=?, email=? WHERE userId=?";
 
-            @Override
-            protected Object mapRow(ResultSet rs) {
-                return null;
-            }
-        };
-
-        jdbcTemplate.update("UPDATE USERS SET password=?, name=?, email=? WHERE userId=?");
+        jdbcTemplate.update(query, user.getPassword(),
+                user.getName(), user.getEmail(), user.getUserId());
     }
 
     public List<User> findAll() {
-        JdbcTemplate jdbcTemplate = new JdbcTemplate() {
-            @Override
-            protected void setValues(PreparedStatement pstmt) throws SQLException { }
+        String query = "SELECT userId, password, name, email FROM USERS";
 
-            @Override
-            protected Object mapRow(ResultSet rs) {
-                return null;
-            }
-        };
-
-        return jdbcTemplate.query("SELECT userId, password, name, email FROM USERS")
-                .stream()
-                .map(object -> (User) object)
-                .collect(Collectors.toList());
+        return jdbcTemplate.query(query, this::getUser);
     }
 
     public User findByUserId(String userId) {
-        JdbcTemplate jdbcTemplate = new JdbcTemplate() {
-            @Override
-            protected void setValues(PreparedStatement pstmt) throws SQLException {
-                pstmt.setString(1, userId);
-            }
+        String query = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
 
-            @Override
-            protected Object mapRow(ResultSet rs) {
-                return null;
-            }
-        };
-        return (User) jdbcTemplate.queryForObject("SELECT userId, password, name, email FROM USERS WHERE userid=?");
+        return jdbcTemplate.queryForObject(query, this::getUser, userId);
+    }
+
+    private User getUser(ResultSet rs) throws SQLException {
+        return new User(rs.getString("userId"),
+                rs.getString("password"),
+                rs.getString("name"),
+                rs.getString("email"));
     }
 }
