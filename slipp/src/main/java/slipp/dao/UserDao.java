@@ -5,7 +5,6 @@ import nextstep.jdbc.RowMapper;
 import slipp.domain.User;
 import slipp.support.db.ConnectionManager;
 
-import java.sql.SQLException;
 import java.util.List;
 
 public class UserDao {
@@ -18,19 +17,19 @@ public class UserDao {
         return new User(userId, password, name, email);
     };
 
-    public void insert(User user) throws SQLException {
+    public void insert(User user) {
         JDBC_TEMPLATE.update("INSERT INTO USERS VALUES (?, ?, ?, ?)", user.getUserId(), user.getPassword(), user.getName(), user.getEmail());
     }
 
-    public void update(User user) throws SQLException {
+    public void update(User user) {
         JDBC_TEMPLATE.update("UPDATE USERS SET password = ?, name = ?, email = ? WHERE userid = ?", user.getPassword(), user.getName(), user.getEmail(), user.getUserId());
     }
 
-    public List<User> findAll() throws SQLException {
+    public List<User> findAll() {
         return JDBC_TEMPLATE.readForList(ROW_MAPPER, "SELECT userId, password, name, email FROM USERS");
     }
 
-    public User findByUserId(String id) throws SQLException {
+    public User findByUserId(String id) {
         return JDBC_TEMPLATE.readForObject(ROW_MAPPER, "SELECT userId, password, name, email FROM USERS WHERE userId = ?", id);
     }
 }
