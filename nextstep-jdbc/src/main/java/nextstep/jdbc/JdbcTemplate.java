@@ -1,9 +1,11 @@
 package nextstep.jdbc;
 
+import nextstep.jdbc.exception.DBConnectException;
 import nextstep.jdbc.exception.ExecuteUpdateSQLException;
 import nextstep.jdbc.exception.NotOnlyResultException;
 import nextstep.jdbc.exception.SelectSQLException;
 
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -11,7 +13,13 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class JdbcTemplate<T> {
+public class JdbcTemplate<T> {
+
+    private final DataSource dataSource;
+
+    public JdbcTemplate(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
 
     public void execute(String sql, PreparedStatementSetter pss) {
         try (Connection con = getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
@@ -112,6 +120,12 @@ public abstract class JdbcTemplate<T> {
         }
     }
 
-    protected abstract Connection getConnection();
+    private Connection getConnection() {
+        try {
+            return dataSource.getConnection();
+        } catch (SQLException e) {
+            throw new DBConnectException();
+        }
+    }
 
 }

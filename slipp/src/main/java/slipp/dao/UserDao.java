@@ -9,18 +9,12 @@ import slipp.dao.exception.ResultMappingException;
 import slipp.domain.User;
 import slipp.support.db.ConnectionManager;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
 public class UserDao {
 
-    private JdbcTemplate<User> jdbcTemplate = new JdbcTemplate<User>() {
-        @Override
-        protected Connection getConnection() {
-            return ConnectionManager.getConnection();
-        }
-    };
+    private JdbcTemplate<User> jdbcTemplate = new JdbcTemplate<User>(ConnectionManager.getDataSource());
 
     public void insert(User user) {
         String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
