@@ -58,7 +58,7 @@ public class JdbcTemplate<T> {
         update(query, pstmtSetter);
     }
 
-    public T queryForObject(String query, RowMapper<T> rowMapper, PreparedStatementSetter pstmtSetter) {
+    public T selectForObject(String query, RowMapper<T> rowMapper, PreparedStatementSetter pstmtSetter) {
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = con.prepareStatement(query)) {
             pstmtSetter.setValues(pstmt);
@@ -69,9 +69,9 @@ public class JdbcTemplate<T> {
         }
     }
 
-    public T queryForObject(String query, RowMapper<T> rowMapper, Object... values) {
+    public T selectForObject(String query, RowMapper<T> rowMapper, Object... values) {
         PreparedStatementSetter pstmtSetter = new VarargsPreparedStatementSetter(values);
-        return queryForObject(query, rowMapper, pstmtSetter);
+        return selectForObject(query, rowMapper, pstmtSetter);
     }
 
     private T execute(PreparedStatement pstmt, RowMapper<T> rowMapper) {
