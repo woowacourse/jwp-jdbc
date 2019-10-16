@@ -40,8 +40,8 @@ public class JdbcTemplate {
 
     private PreparedStatementSetter getDefaultPreparedStatementSetter(Object[] values) {
         return pstmt -> {
-            for (int i = 1; i <= values.length; i++) {
-                pstmt.setObject(i, values[i]);
+            for (int i = 0; i < values.length; i++) {
+                pstmt.setObject(i + 1, values[i]);
             }
         };
     }

@@ -3,8 +3,6 @@ package slipp.dao;
 import nextstep.jdbc.JdbcTemplate;
 import nextstep.jdbc.PreparedStatementSetter;
 import nextstep.jdbc.RowMapper;
-import nextstep.jdbc.exception.InsertSQLException;
-import nextstep.jdbc.exception.UpdateSQLException;
 import slipp.dao.exception.ObjectNotFoundException;
 import slipp.dao.exception.ResultMappingException;
 import slipp.domain.User;
@@ -21,52 +19,24 @@ public class UserDao {
 
     public void insert(User user) {
         String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
-        PreparedStatementSetter pss = getInsertPreparedInsertStatementSetter(user);
 
-        jdbcTemplate.execute(sql, pss);
-    }
-
-    private PreparedStatementSetter getInsertPreparedInsertStatementSetter(User user) {
-        return pstmt -> {
-            try {
-                pstmt.setString(1, user.getUserId());
-                pstmt.setString(2, user.getPassword());
-                pstmt.setString(3, user.getName());
-                pstmt.setString(4, user.getEmail());
-            } catch (SQLException e) {
-                throw new InsertSQLException();
-            }
-        };
+        jdbcTemplate.execute(sql, user.getUserId(), user.getPassword(), user.getName(), user.getEmail());
     }
 
     public void update(User user) {
         String sql = "UPDATE USERS SET password = ?, name = ?, email = ? WHERE userId = ?";
-        PreparedStatementSetter pss = getUpdatePreparedStatementSetter(user);
 
-        jdbcTemplate.execute(sql, pss);
+        jdbcTemplate.execute(sql, user.getPassword(), user.getName(), user.getEmail(), user.getUserId());
     }
 
-    private PreparedStatementSetter getUpdatePreparedStatementSetter(User user) {
-        return pstmt -> {
-            try {
-                pstmt.setString(1, user.getPassword());
-                pstmt.setString(2, user.getName());
-                pstmt.setString(3, user.getEmail());
-                pstmt.setString(4, user.getUserId());
-            } catch (SQLException e) {
-                throw new UpdateSQLException();
-            }
-        };
-    }
-
-    public List<User> findAll() throws SQLException {
+    public List<User> findAll() {
         String sql = "SELECT * FROM USERS";
         RowMapper<User> rowMapper = getUserRowMapper();
 
         return jdbcTemplate.query(sql, rowMapper);
     }
 
-    public User findByUserId(String userId) throws SQLException {
+    public User findByUserId(String userId) {
         String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
         PreparedStatementSetter pss = pstmt -> pstmt.setString(1, userId);
         RowMapper<User> rowMapper = getUserRowMapper();
