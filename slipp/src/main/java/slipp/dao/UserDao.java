@@ -5,6 +5,7 @@ import nextstep.jdbc.RowMapper;
 import slipp.domain.User;
 
 import java.util.List;
+import java.util.Optional;
 
 public class UserDao {
 
@@ -32,12 +33,12 @@ public class UserDao {
         return JdbcTemplate.query(sql, rowMapper);
     }
 
-    public User findByUserId(String userId) {
+    public Optional<User> findByUserId(String userId) {
         String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
 
-        RowMapper rowMapper = rs -> new User(rs.getString("userId"), rs.getString("password"),
+        RowMapper<User> rowMapper = rs -> new User(rs.getString("userId"), rs.getString("password"),
                 rs.getString("name"), rs.getString("email"));
 
-        return (User) JdbcTemplate.queryForObject(sql, rowMapper, userId);
+        return JdbcTemplate.queryForObject(sql, rowMapper, userId);
     }
 }
