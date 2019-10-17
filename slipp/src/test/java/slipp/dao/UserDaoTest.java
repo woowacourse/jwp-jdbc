@@ -33,14 +33,12 @@ class UserDaoTest {
     void crud() throws Exception {
         User expected = new User("userId", "password", "name", "javajigi@email.com");
         userDao.insert(expected);
-        User actual = userDao.findByUserId(expected.getUserId())
-                .orElseThrow(() -> new IllegalArgumentException("유저가 없습니다."));
+        User actual = userDao.findUserById(expected.getUserId());
         assertThat(actual).isEqualTo(expected);
 
         expected.update(new UserUpdatedDto("password2", "name2", "sanjigi@email.com"));
         userDao.update(expected);
-        actual = userDao.findByUserId(expected.getUserId())
-                .orElseThrow(() -> new IllegalArgumentException("유저가 없습니다."));
+        actual = userDao.findUserById(expected.getUserId());
         ;
         assertThat(actual).isEqualTo(expected);
     }
