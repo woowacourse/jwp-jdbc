@@ -30,20 +30,28 @@ public class JdbcTemplate {
         try (Connection connection = dataSource.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
-            if (sqlExecuteStrategy != null) {
-                sqlExecuteStrategy.setValues(preparedStatement);
-            }
+            setValues(sqlExecuteStrategy, preparedStatement);
 
-            if (preparedStatement.execute()) {
-                return extractData(resultSetExtractor, preparedStatement);
-            }
-
-            return Optional.empty();
+            return getResult(resultSetExtractor, preparedStatement);
 
         } catch (SQLException e) {
             logger.error("{}.queryForList >> {}", TAG, e);
             throw new DataBaseException();
         }
+    }
+
+    private void setValues(final SqlExecuteStrategy sqlExecuteStrategy, final PreparedStatement preparedStatement) throws SQLException {
+        if (sqlExecuteStrategy != null) {
+            sqlExecuteStrategy.setValues(preparedStatement);
+        }
+    }
+
+    private <T> Optional<T> getResult(final ResultSetExtractor<T> resultSetExtractor, final PreparedStatement preparedStatement) throws SQLException {
+        if (preparedStatement.execute()) {
+            return extractData(resultSetExtractor, preparedStatement);
+        }
+
+        return Optional.empty();
     }
 
     private <T> Optional<T> extractData(final ResultSetExtractor<T> resultSetExtractor,
