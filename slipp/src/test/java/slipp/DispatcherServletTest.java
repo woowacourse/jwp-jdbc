@@ -27,7 +27,7 @@ class DispatcherServletTest {
         ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
         populator.addScript(new ClassPathResource("jwp.sql"));
         DatabasePopulatorUtils.execute(populator, ConnectionManager.getDataSource());
-        
+
         dispatcher = new DispatcherServlet();
         dispatcher.addHandlerMpping(new ManualHandlerMapping());
         dispatcher.addHandlerMpping(new AnnotationHandlerMapping("slipp.controller"));
