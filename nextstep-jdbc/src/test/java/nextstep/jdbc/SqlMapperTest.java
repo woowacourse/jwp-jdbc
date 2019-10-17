@@ -1,5 +1,6 @@
 package nextstep.jdbc;
 
+import nextstep.jdbc.query.SqlMapper;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

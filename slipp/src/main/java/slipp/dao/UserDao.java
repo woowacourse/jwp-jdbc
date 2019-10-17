@@ -1,9 +1,9 @@
 package slipp.dao;
 
 import nextstep.jdbc.JdbcTemplate;
-import nextstep.jdbc.ListMapper;
-import nextstep.jdbc.ObjectMapper;
-import nextstep.jdbc.SqlMapper;
+import nextstep.jdbc.mapper.ListMapper;
+import nextstep.jdbc.mapper.ObjectMapper;
+import nextstep.jdbc.query.SqlMapper;
 import slipp.domain.User;
 import slipp.support.db.ConnectionManager;
 
