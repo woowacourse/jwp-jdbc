@@ -6,10 +6,16 @@ import nextstep.mvc.tobe.AnnotationHandlerMapping;
 import nextstep.mvc.tobe.HandlerExecutionHandlerAdapter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
+import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import slipp.controller.UserSessionUtils;
 import slipp.domain.User;
+import slipp.support.db.ConnectionManager;
+
+import javax.servlet.ServletRegistration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -23,6 +29,10 @@ class DispatcherServletTest {
         dispatcher = new DispatcherServlet();
         dispatcher.addHandlerMpping(new ManualHandlerMapping());
         dispatcher.addHandlerMpping(new AnnotationHandlerMapping("slipp.controller"));
+
+        ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
+        populator.addScript(new ClassPathResource("jwp.sql"));
+        DatabasePopulatorUtils.execute(populator, ConnectionManager.getDataSource());
 
         dispatcher.addHandlerAdapter(new HandlerExecutionHandlerAdapter());
         dispatcher.addHandlerAdapter(new ControllerHandlerAdapter());
@@ -75,7 +85,7 @@ class DispatcherServletTest {
 
         dispatcher.service(secondRequest, secondResponse);
 
-        assertThat(secondResponse.getRedirectedUrl()).isEqualTo("/");
         assertThat(UserSessionUtils.getUserFromSession(secondRequest.getSession())).isNotNull();
+        assertThat(secondResponse.getRedirectedUrl()).isEqualTo("/");
     }
 }
