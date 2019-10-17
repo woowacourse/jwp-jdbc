@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class JdbcTemplate<T> {
+    private static final int START_SET_VALUE_INDEX = 1;
     private final Logger logger = LoggerFactory.getLogger(JdbcTemplate.class);
 
     private final JdbcExecutor jdbcExecutor;
@@ -28,8 +29,8 @@ public class JdbcTemplate<T> {
     }
 
     private void setValues(PreparedStatement pstmt, Object[] objects) {
-        for (int index = 1; index <= objects.length; index++) {
-            setString(pstmt, objects[index - 1], index);
+        for (int index = START_SET_VALUE_INDEX; index <= objects.length; index++) {
+            setString(pstmt, objects[index - START_SET_VALUE_INDEX], index);
         }
     }
 
