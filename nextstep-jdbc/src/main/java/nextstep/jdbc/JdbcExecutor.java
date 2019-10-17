@@ -7,8 +7,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-public class JdbcConnector {
-    private static final Logger logger = LoggerFactory.getLogger(JdbcConnector.class);
+public class JdbcExecutor {
+    private static final Logger logger = LoggerFactory.getLogger(JdbcExecutor.class);
 
     public static <T> T execute(String sql, Handler<T> handler) {
         try (Connection con = ConnectionManager.getConnection();
