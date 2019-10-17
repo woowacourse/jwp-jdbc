@@ -9,10 +9,17 @@ import java.util.Optional;
 
 public class UserDao {
 
-    private final JdbcTemplate<User> jdbcTemplate;
+    private final JdbcTemplate<User> jdbcTemplate = new JdbcTemplate<>();
 
-    public UserDao() {
-        this.jdbcTemplate = new JdbcTemplate<>();
+    private UserDao() {
+    }
+
+    public static UserDao getInstance() {
+        return UserDaoHolder.INSTANCE;
+    }
+
+    private static class UserDaoHolder {
+        private static final UserDao INSTANCE = new UserDao();
     }
 
     public void insert(User user) {

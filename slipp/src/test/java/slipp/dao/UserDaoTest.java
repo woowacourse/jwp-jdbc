@@ -19,6 +19,7 @@ class UserDaoTest {
     private static final String DB_URL = "jdbc:h2:mem:jwp-framework";
     private static final String DB_USERNAME = "sa";
     private static final String DB_PW = "";
+    private static final UserDao userDao = UserDao.getInstance();
 
     @BeforeEach
     void setup() {
@@ -31,7 +32,6 @@ class UserDaoTest {
     @Test
     void crud() throws Exception {
         User expected = new User("userId", "password", "name", "javajigi@email.com");
-        UserDao userDao = new UserDao();
         userDao.insert(expected);
         User actual = userDao.findByUserId(expected.getUserId())
                 .orElseThrow(() -> new IllegalArgumentException("유저가 없습니다."));
@@ -47,7 +47,6 @@ class UserDaoTest {
 
     @Test
     void findAll() throws Exception {
-        UserDao userDao = new UserDao();
         List<User> users = userDao.findAll();
         assertThat(users).hasSize(1);
     }
