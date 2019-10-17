@@ -76,7 +76,7 @@ public class ResultSetMapper<T> {
         field.set(object, getObject(resultSet, field));
     }
 
-    private Object getObject(ResultSet resultSet, Field field) throws SQLException, IllegalAccessException {
+    private Object getObject(ResultSet resultSet, Field field) throws SQLException {
         Class<?> fieldType = field.getType();
         if (FieldType.isPrimitiveOrWrapped(fieldType)) {
             return resultSet.getObject(field.getName());
