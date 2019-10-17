@@ -38,7 +38,7 @@ public class UserDaoTest {
 
     @Test
     @DisplayName("사용자 생성 및 조회")
-    void cr() {
+    void createAndRead() {
         userDao.insert(expected);
         User actual = userDao.findByUserId(expected.getUserId());
 
@@ -47,7 +47,7 @@ public class UserDaoTest {
 
     @Test
     @DisplayName("사용자 변경")
-    void u() {
+    void update() {
         userDao.insert(expected);
 
         expected.update(new UserUpdatedDto("password2", "name2", "sanjigi@email.com"));
@@ -60,7 +60,7 @@ public class UserDaoTest {
 
     @Test
     @DisplayName("사용자 삭제")
-    void r() {
+    void remove() {
         userDao.insert(expected);
 
         userDao.remove(expected.getUserId());

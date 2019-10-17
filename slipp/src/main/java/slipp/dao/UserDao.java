@@ -39,7 +39,7 @@ public class UserDao {
     public List<User> findAll() {
         String sql = "SELECT * FROM USERS";
 
-        return jdbcTemplate.query(sql, createRowMapper());
+        return jdbcTemplate.queryForList(sql, createRowMapper());
     }
 
     public User findByUserId(String userId) {
