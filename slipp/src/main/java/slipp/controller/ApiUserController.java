@@ -62,7 +62,7 @@ public class ApiUserController {
         logger.debug("Updated User : {}", updateDto);
 
         User user = userDao.findByUserId(userId)
-                .orElseThrow(() -> new IllegalArgumentException("유저가 없어요."));
+                .orElseThrow(UserNotFoundException::new);
         user.update(updateDto);
         userDao.update(user);
 
