@@ -9,11 +9,11 @@ public abstract class ObjectMapper<T> implements JdbcMapper {
     public T mapped(ResultSet resultSet) throws SQLException {
         T object = null;
         if (resultSet.next()) {
-            object = createRow();
+            object = createRow(resultSet);
         }
 
         return object;
     }
 
-    protected abstract T createRow();
+    protected abstract T createRow(ResultSet resultSet) throws SQLException;
 }
