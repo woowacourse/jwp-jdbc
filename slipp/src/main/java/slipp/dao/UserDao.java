@@ -17,12 +17,9 @@ public class UserDao {
         PreparedStatement pstmt = null;
         try {
             con = ConnectionManager.getConnection();
-            String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
+            String sql = createSql();
             pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, user.getUserId());
-            pstmt.setString(2, user.getPassword());
-            pstmt.setString(3, user.getName());
-            pstmt.setString(4, user.getEmail());
+            setParameters(user, pstmt);
 
             pstmt.executeUpdate();
         } finally {
@@ -34,6 +31,17 @@ public class UserDao {
                 con.close();
             }
         }
+    }
+
+    private void setParameters(User user, PreparedStatement pstmt) throws SQLException {
+        pstmt.setString(1, user.getUserId());
+        pstmt.setString(2, user.getPassword());
+        pstmt.setString(3, user.getName());
+        pstmt.setString(4, user.getEmail());
+    }
+
+    private String createSql() {
+        return "INSERT INTO USERS VALUES (?, ?, ?, ?)";
     }
 
     public void update(User user) throws SQLException {
