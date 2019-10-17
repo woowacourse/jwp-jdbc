@@ -3,16 +3,11 @@ package slipp.dao;
 
 import nextstep.jdbc.ConnectionMaker;
 import nextstep.jdbc.JdbcTemplate;
-import nextstep.jdbc.PrepareStatementSetter;
 import nextstep.jdbc.RowMapper;
 import slipp.domain.User;
-import slipp.support.db.ConnectionManager;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class UserDao {
@@ -24,13 +19,13 @@ public class UserDao {
     public void insert(User user) throws SQLException {
         String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
         JdbcTemplate jdbcTemplate = createJdbcTemplate();
-        jdbcTemplate.insert(sql, user.getUserId(), user.getPassword(), user.getName(), user.getEmail());
+        jdbcTemplate.update(sql, user.getUserId(), user.getPassword(), user.getName(), user.getEmail());
     }
 
     public void update(User user) throws SQLException {
         String sql = "UPDATE USERS SET password=?,name=?,email=? WHERE userId=?";
         JdbcTemplate jdbcTemplate = createJdbcTemplate();
-        jdbcTemplate.insert(sql, user.getPassword(), user.getName(), user.getEmail(), user.getUserId());
+        jdbcTemplate.update(sql, user.getPassword(), user.getName(), user.getEmail(), user.getUserId());
     }
 
     public List<User> findAll() throws SQLException {
@@ -55,7 +50,7 @@ public class UserDao {
         };
 
         JdbcTemplate jdbcTemplate = createJdbcTemplate();
-        return jdbcTemplate.objectQuery(sql , rowMapper, userId);
+        return jdbcTemplate.singleObjectQuery(sql , rowMapper, userId);
     }
 
     private JdbcTemplate createJdbcTemplate() {

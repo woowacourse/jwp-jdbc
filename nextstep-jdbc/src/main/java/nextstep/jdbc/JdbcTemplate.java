@@ -1,8 +1,8 @@
 package nextstep.jdbc;
 
-import slipp.support.db.ConnectionManager;
+import nextstep.jdbc.exception.SelectQueryException;
+import nextstep.jdbc.exception.SqlUpdateException;
 
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -17,40 +17,46 @@ public class JdbcTemplate {
         this.connection = connection;
     }
 
-    public void insert(String sql, PrepareStatementSetter prepareStatementSetter) throws SQLException {
+    public void update(String sql, PrepareStatementSetter prepareStatementSetter) {
         try (PreparedStatement preparedStatement = this.connection.prepareStatement(sql)) {
             prepareStatementSetter.setParameters(preparedStatement);
             preparedStatement.executeUpdate();
+        }catch (SQLException e) {
+            throw new SqlUpdateException();
         }
     }
 
-    public void insert(String sql, Object... args) throws SQLException {
+    public void update(String sql, Object... args) {
         PrepareStatementSetter prepareStatementSetter = getPrepareStatementSetter(args);
-        insert(sql, prepareStatementSetter);
+        update(sql, prepareStatementSetter);
     }
 
-    public <T> T objectQuery(String sql, RowMapper<T> rowMapper, PrepareStatementSetter prepareStatementSetter) throws SQLException {
+    public <T> T singleObjectQuery(String sql, RowMapper<T> rowMapper, PrepareStatementSetter prepareStatementSetter) {
         try (ResultSet resultSet = getResultSet(sql, prepareStatementSetter, this.connection)) {
             return rowMapper.mapRow(resultSet);
+        }catch (SQLException e) {
+            throw new SelectQueryException();
         }
     }
 
-    public <T> T objectQuery(String sql, RowMapper<T> rowMapper, Object... args) throws SQLException {
+    public <T> T singleObjectQuery(String sql, RowMapper<T> rowMapper, Object... args) {
         PrepareStatementSetter prepareStatementSetter = getPrepareStatementSetter(args);
-        return objectQuery(sql, rowMapper, prepareStatementSetter);
+        return singleObjectQuery(sql, rowMapper, prepareStatementSetter);
     }
 
-    public <T> List<T> listQuery(String sql, RowMapper<T> rowMapper, Object... args) throws SQLException {
+    public <T> List<T> listQuery(String sql, RowMapper<T> rowMapper, Object... args) {
         PrepareStatementSetter prepareStatementSetter = getPrepareStatementSetter(args);
         return listQuery(sql, rowMapper, prepareStatementSetter);
     }
 
-    public <T> List<T> listQuery(String sql, RowMapper<T> rowMapper, PrepareStatementSetter prepareStatementSetter) throws SQLException {
+    public <T> List<T> listQuery(String sql, RowMapper<T> rowMapper, PrepareStatementSetter prepareStatementSetter) {
         List<T> objects = new ArrayList<>();
         try (ResultSet resultSet = getResultSet(sql, prepareStatementSetter, this.connection)) {
             while (resultSet.next()) {
                 objects.add(rowMapper.mapRow(resultSet));
             }
+        } catch (SQLException e) {
+            throw new SelectQueryException();
         }
         return objects;
     }
