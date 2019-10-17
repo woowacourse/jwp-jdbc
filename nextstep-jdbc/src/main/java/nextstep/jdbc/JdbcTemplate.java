@@ -7,7 +7,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class JdbcTemplate {
@@ -18,56 +17,35 @@ public class JdbcTemplate {
     }
 
     public void update(String sql, Object... args) {
-        try (Connection connection = dataSource.getConnection();
-             PreparedStatement pstmt = connection.prepareStatement(sql)) {
-            for (int i = 0; i < args.length; i++) {
-                pstmt.setObject(i + 1, args[i]);
-            }
-            pstmt.executeUpdate();
-        } catch (SQLException e) {
-            throw new JdbcTemplateException(e);
-        }
+        execute(sql, null, args);
     }
 
     public <T> List<T> executeQuery(String sql, RowMapper<T> rowMapper, Object... args) {
+        return execute(sql, new MultipleResultSetExtractionStrategy<>(rowMapper), args);
+    }
+
+    public <T> T executeQueryForObject(String sql, RowMapper<T> rowMapper, Object... args) {
+        return execute(sql, new SingleResultSetExtractionStrategy<>(rowMapper), args);
+    }
+
+    private <T> T execute(String sql, ResultSetExtractionStrategy<T> strategy, Object... args) {
         try (Connection connection = dataSource.getConnection();
              PreparedStatement pstmt = connection.prepareStatement(sql)) {
             for (int i = 0; i < args.length; i++) {
                 pstmt.setObject(i + 1, args[i]);
             }
-
-            List<T> results = new ArrayList<>();
-            try (ResultSet rs = pstmt.executeQuery()) {
-                while (rs.next()) {
-                    results.add(rowMapper.mapRow(rs));
-                }
-
-                return results;
-            }
-
+            return extractEntity(strategy, pstmt);
         } catch (SQLException e) {
             throw new JdbcTemplateException(e);
         }
     }
 
-    public <T> T executeQueryForSingleObject(String sql, RowMapper<T> rowMapper, Object... args) {
-        try (Connection connection = dataSource.getConnection();
-             PreparedStatement pstmt = connection.prepareStatement(sql)) {
-            for (int i = 0; i < args.length; i++) {
-                pstmt.setObject(i + 1, args[i]);
+    private <T> T extractEntity(ResultSetExtractionStrategy<T> strategy, PreparedStatement pstmt) throws SQLException {
+        if (pstmt.execute() && strategy != null) {
+            try (ResultSet rs = pstmt.getResultSet()) {
+                return strategy.extract(rs);
             }
-
-            T result = null;
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    result = (rowMapper.mapRow(rs));
-                }
-
-                return result;
-            }
-
-        } catch (SQLException e) {
-            throw new JdbcTemplateException(e);
         }
+        return null;
     }
 }

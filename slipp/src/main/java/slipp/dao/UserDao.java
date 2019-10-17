@@ -37,19 +37,18 @@ public class UserDao {
 
     public List<User> findAll() {
         String sql = "SELECT * FROM USERS";
-        return jdbcTemplate.executeQuery(sql, this::getUser);
+        return jdbcTemplate.executeQuery(sql, this::extractUser);
     }
 
     public User findByUserId(String userId) {
-        String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
-        return jdbcTemplate.executeQueryForSingleObject(sql, this::getUser, userId);
+        String sql = "SELECT userId, password, name, email FROM USERS WHERE userId=?";
+        return jdbcTemplate.executeQueryForObject(sql, this::extractUser, userId);
     }
 
-    private User getUser(ResultSet rs) throws SQLException {
+    private User extractUser(ResultSet rs) throws SQLException {
         return new User(rs.getString("userId"),
                 rs.getString("password"),
                 rs.getString("name"),
                 rs.getString("email"));
     }
-
 }
