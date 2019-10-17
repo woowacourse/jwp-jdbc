@@ -5,6 +5,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class JdbcTemplate {
     private final DataSource dataSource;
@@ -18,17 +20,32 @@ public class JdbcTemplate {
     }
 
     public <T> T select(FunctionThrowingSQLException<ResultSet, T> rowMapper, String query, Object... params) {
-        try (final Connection con = this.dataSource.getConnection();
-             final PreparedStatement pstmt = prepareStatement(con, query, params);
-             final ResultSet resultSet = pstmt.executeQuery()) {
-            return rowMapper.apply(resultSet);
+        try (final ResultSet resultSet = getResultSet(query, params)) {
+            if (resultSet.next()) {
+                return rowMapper.apply(resultSet);
+            }
+            return null;
         } catch (SQLException e) {
             throw new QueryFailedException(e);
         }
     }
 
-    public <T> T selectAll(FunctionThrowingSQLException<ResultSet, T> rowMapper, String query) {
-        return select(rowMapper, query);
+    public <T> List<T> selectAll(FunctionThrowingSQLException<ResultSet, T> rowMapper, String query) {
+        try (final ResultSet resultSet = getResultSet(query)) {
+            List<T> objects = new ArrayList<>();
+            while (resultSet.next()) {
+                objects.add(rowMapper.apply(resultSet));
+            }
+            return objects;
+        } catch (SQLException e) {
+            throw new QueryFailedException(e);
+        }
+    }
+
+    private ResultSet getResultSet(String query, Object... params) throws SQLException {
+        final Connection con = this.dataSource.getConnection();
+        final PreparedStatement pstmt = prepareStatement(con, query, params);
+        return pstmt.executeQuery();
     }
 
     public void update(String query, Object... params) {
