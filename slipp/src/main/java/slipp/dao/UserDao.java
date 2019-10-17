@@ -9,7 +9,8 @@ public class UserDao {
 
     public void insert(User user) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate();
-        jdbcTemplate.update("INSERT INTO USERS VALUES (?, ?, ?, ?)", pstmt -> {
+        String query = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
+        jdbcTemplate.update(query, pstmt -> {
             pstmt.setString(1, user.getUserId());
             pstmt.setString(2, user.getPassword());
             pstmt.setString(3, user.getName());
@@ -19,7 +20,8 @@ public class UserDao {
 
     public void update(User user) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate();
-        jdbcTemplate.update("UPDATE USERS SET (password, name, email) = (?,?,?) WHERE userId = ?",
+        String query = "UPDATE USERS SET (password, name, email) = (?,?,?) WHERE userId = ?";
+        jdbcTemplate.update(query,
                 user.getPassword(),
                 user.getName(),
                 user.getEmail(),
@@ -30,7 +32,8 @@ public class UserDao {
     public List<User> findAll() {
         JdbcTemplate jdbcTemplate = new JdbcTemplate();
 
-        return jdbcTemplate.query("SELECT userId, password, name, email FROM USERS",
+        String query = "SELECT userId, password, name, email FROM USERS";
+        return jdbcTemplate.query(query,
                 rs -> new User(rs.getString("userId"),
                         rs.getString("password"),
                         rs.getString("name"),
@@ -44,7 +47,8 @@ public class UserDao {
 
     public User findByUserId(String userId) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate();
-        return (User) jdbcTemplate.queryForObject("SELECT userId, password, name, email FROM USERS WHERE userid=?",
+        String query = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
+        return (User) jdbcTemplate.queryForObject(query,
                 rs -> new User(rs.getString("userId"),
                         rs.getString("password"),
                         rs.getString("name"),
