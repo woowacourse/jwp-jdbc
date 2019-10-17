@@ -47,7 +47,6 @@ public class DispatcherServlet extends HttpServlet {
                 return;
             }
 
-
             ModelAndView mav = handlerExecutor.handle(req, resp, maybeHandler.get());
             render(mav, req, resp);
         } catch (Throwable e) {
