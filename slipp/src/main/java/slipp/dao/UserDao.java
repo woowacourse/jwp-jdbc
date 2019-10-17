@@ -42,7 +42,7 @@ public class UserDao {
 
         return jdbcTemplate.query("SELECT userId, password, name, email FROM USERS", new RowMapper() {
             @Override
-            public Object mapRow(ResultSet rs) throws SQLException {
+            public User mapRow(ResultSet rs) throws SQLException {
                 return new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
                         rs.getString("email"));
             }
@@ -62,7 +62,7 @@ public class UserDao {
 
         return (User) jdbcTemplate.queryForObject("SELECT userId, password, name, email FROM USERS WHERE userid=?", new RowMapper() {
             @Override
-            public Object mapRow(ResultSet rs) throws SQLException {
+            public User mapRow(ResultSet rs) throws SQLException {
                 return new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"), rs.getString("email"));
             }
         }, new PreparedStatementSetter() {
