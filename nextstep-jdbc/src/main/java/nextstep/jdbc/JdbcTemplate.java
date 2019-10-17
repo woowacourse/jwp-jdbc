@@ -29,6 +29,7 @@ public class JdbcTemplate {
             pstmt.execute();
         } catch (SQLException e) {
             log.error("SQLException : {}", e.getMessage());
+            throw new DataAccessException("쿼리문을 업데이트 할 수 없습니다!");
         }
     }
 
