@@ -50,6 +50,14 @@ public class UserDao {
         ).orElseThrow(UserNotFoundException::new);
     }
 
+    public void remove(String userId) {
+        String sql = "DELETE FROM USERS WHERE userId=?";
+
+        jdbcTemplate.query(sql, preparedStatement -> {
+            preparedStatement.setString(1, userId);
+        });
+    }
+
     private RowMapper<User> createRowMapper() {
         return (resultSet) ->
                 new User(
