@@ -1,43 +1,50 @@
 package nextstep.jdbc;
 
-import slipp.support.db.ConnectionManager;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 
 public class JdbcTemplate {
-    public <T> T findItem(final String sql, final RowMapper<T> mapper, final Object... parameters) {
-        try (final Connection connection = ConnectionManager.getConnection();
-             final PreparedStatement statement = connection.prepareStatement(sql)) {
-            setPreparedStatements(statement, parameters);
-            final ResultSet resultSet = statement.executeQuery();
-            return resultSet.next() ? mapper.mapRow(resultSet) : null;
-        } catch (final SQLException exception) {
-            throw new DbAccessException(exception);
+    private final Connection connection;
+
+    public JdbcTemplate(final Connection connection) {
+        if (Objects.isNull(connection)) {
+            throw new DbAccessException();
         }
+        this.connection = connection;
     }
 
-    public <T> List<T> findItems(final String sql, final RowMapper<T> mapper) {
-        try (final Connection connection = ConnectionManager.getConnection();
-             final PreparedStatement statement = connection.prepareStatement(sql)) {
-            final ResultSet resultSet = statement.executeQuery();
-            final List<T> result = new ArrayList<>();
-            while (resultSet.next()) {
-                result.add(mapper.mapRow(resultSet));
-            }
-            return result;
+    public <T> T findItem(final String sql, final RowMapper<T> mapper, final Object... parameters) {
+        final ResultSet resultSet = getResultSet(sql, parameters);
+        return new ResultSetIterator<>(resultSet, mapper).next();
+    }
+
+    public <T> List<T> findItems(final String sql, final RowMapper<T> mapper, final Object... parameters) {
+        final ResultSet resultSet = getResultSet(sql, parameters);
+        final List<T> result = new ArrayList<>();
+        for (final ResultSetIterator<T> item = new ResultSetIterator<>(resultSet, mapper); item.hasNext(); ) {
+            result.add(item.next());
+        }
+        return result;
+    }
+
+    private ResultSet getResultSet(final String sql, final Object[] parameters) {
+        try {
+            final PreparedStatement statement = connection.prepareStatement(sql);
+            setPreparedStatements(statement, parameters);
+            return statement.executeQuery();
         } catch (final SQLException exception) {
             throw new DbAccessException(exception);
         }
     }
 
     public void write(final String sql, final Object... parameters) {
-        try (final Connection connection = ConnectionManager.getConnection();
-             final PreparedStatement statement = connection.prepareStatement(sql)) {
+        try (final PreparedStatement statement = connection.prepareStatement(sql)) {
             setPreparedStatements(statement, parameters);
             statement.executeUpdate();
         } catch (final SQLException exception) {
@@ -48,6 +55,41 @@ public class JdbcTemplate {
     private void setPreparedStatements(final PreparedStatement statement, final Object[] parameters) throws SQLException {
         for (int i = 0; i < parameters.length; i++) {
             statement.setObject(i + 1, parameters[i]);
+        }
+    }
+
+    private static class ResultSetIterator<T> implements Iterator<T> {
+        final ResultSet resultSet;
+        final RowMapper<T> mapper;
+        private T item;
+
+        ResultSetIterator(final ResultSet resultSet, final RowMapper<T> mapper) {
+            this.resultSet = resultSet;
+            this.mapper = mapper;
+            this.item = getNext();
+        }
+
+        private T getNext() {
+            try {
+                if (resultSet.next()) {
+                    return mapper.mapRow(resultSet);
+                }
+                return null;
+            } catch (final SQLException e) {
+                throw new DbAccessException(e);
+            }
+        }
+
+        @Override
+        public boolean hasNext() {
+            return Objects.nonNull(item);
+        }
+
+        @Override
+        public T next() {
+            final T result = item;
+            item = getNext();
+            return result;
         }
     }
 }
