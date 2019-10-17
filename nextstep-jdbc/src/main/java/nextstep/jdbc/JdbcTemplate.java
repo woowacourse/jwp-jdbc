@@ -1,21 +1,29 @@
 package nextstep.jdbc;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class JdbcTemplate {
+    private static final Logger log = LoggerFactory.getLogger(JdbcTemplate.class);
+
     private ConnectionManager cm;
 
     public JdbcTemplate(DBConnection dbConnection) {
         this.cm = new ConnectionManager(dbConnection);
     }
 
-    public void execute(String sql, Object... objects) throws SQLException {
+    public void execute(String sql, Object... objects) {
         try (Connection con = cm.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
             setValues(pstmt, objects);
             pstmt.executeUpdate();
+        } catch (SQLException e) {
+            log.debug(e.getMessage(), e.getCause());
+            throw new DataAccessException();
         }
     }
 
@@ -25,7 +33,8 @@ public class JdbcTemplate {
                 return rm.mapRow(rs);
             }
         } catch (SQLException e) {
-            throw new IllegalArgumentException();
+            log.debug(e.getMessage(), e.getCause());
+            throw new DataAccessException();
         }
     }
 
@@ -36,7 +45,8 @@ public class JdbcTemplate {
                 return rm.mapRow(rs);
             }
         } catch (SQLException e) {
-            throw new IllegalArgumentException();
+            log.debug(e.getMessage(), e.getCause());
+            throw new DataAccessException();
         }
     }
 

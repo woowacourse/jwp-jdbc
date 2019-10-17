@@ -5,7 +5,6 @@ import nextstep.jdbc.JdbcTemplate;
 import nextstep.jdbc.RowMapper;
 import slipp.domain.User;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,19 +15,19 @@ public class UserDao {
         this.template = new JdbcTemplate(dbConnection);
     }
 
-    public void insert(User user) throws SQLException {
+    public void insert(User user) {
         String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
         Object[] values = {user.getUserId(), user.getPassword(), user.getName(), user.getEmail()};
         template.execute(sql, values);
     }
 
-    public void update(User user) throws SQLException {
+    public void update(User user) {
         String sql = "UPDATE users SET password = ?, name = ?, email = ? WHERE userId = ?";
         Object[] values = {user.getPassword(), user.getName(), user.getEmail(), user.getUserId()};
         template.execute(sql, values);
     }
 
-    public List<User> findAll() throws SQLException {
+    public List<User> findAll() {
         String sql = "SELECT * FROM users";
 
         RowMapper<List<User>> rm = rs -> {
@@ -46,7 +45,7 @@ public class UserDao {
     }
 
 
-    public User findByUserId(String userId) throws SQLException {
+    public User findByUserId(String userId) {
         String sql = "SELECT * FROM users WHERE userId = ?";
         Object[] values = {userId};
 
