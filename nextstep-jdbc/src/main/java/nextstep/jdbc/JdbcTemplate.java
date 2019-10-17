@@ -23,7 +23,7 @@ public class JdbcTemplate {
             setParams(psmt, args);
             psmt.executeUpdate();
         } catch (SQLException e) {
-            throw new IllegalArgumentException();
+            throw new DataAccessException(e);
         }
     }
 
@@ -55,7 +55,7 @@ public class JdbcTemplate {
             }
             throw new IllegalArgumentException();
         } catch (SQLException e) {
-            throw new IllegalArgumentException();
+            throw new DataAccessException(e);
         }
     }
 
@@ -65,7 +65,7 @@ public class JdbcTemplate {
             ResultSet rs = psmt.executeQuery();
             return mapResultSet(strategy, rs);
         } catch (SQLException e) {
-            throw new IllegalArgumentException();
+            throw new DataAccessException(e);
         }
     }
 
