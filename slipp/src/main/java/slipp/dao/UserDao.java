@@ -2,11 +2,12 @@ package slipp.dao;
 
 import nextstep.jdbc.JdbcTemplate;
 import slipp.domain.User;
+import slipp.support.db.DataBaseManager;
 
 import java.util.List;
 
 public class UserDao {
-    private JdbcTemplate jdbcTemplate = JdbcTemplate.getInstance();
+    private JdbcTemplate jdbcTemplate = DataBaseManager.getJdbcTemplate();
 
     public void insert(User user) {
         String query = "INSERT INTO USERS VALUES (?, ?, ?, ?)";

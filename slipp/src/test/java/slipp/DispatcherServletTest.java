@@ -10,6 +10,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import slipp.controller.UserSessionUtils;
 import slipp.domain.User;
+import support.test.DataBaseUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -20,9 +21,11 @@ class DispatcherServletTest {
 
     @BeforeEach
     void setUp() throws Exception {
+        DataBaseUtils.initialize();
+
         dispatcher = new DispatcherServlet();
-        dispatcher.addHandlerMpping(new ManualHandlerMapping());
-        dispatcher.addHandlerMpping(new AnnotationHandlerMapping("slipp.controller"));
+        dispatcher.addHandlerMapping(new ManualHandlerMapping());
+        dispatcher.addHandlerMapping(new AnnotationHandlerMapping("slipp.controller"));
 
         dispatcher.addHandlerAdapter(new HandlerExecutionHandlerAdapter());
         dispatcher.addHandlerAdapter(new ControllerHandlerAdapter());
@@ -32,6 +35,7 @@ class DispatcherServletTest {
         request = new MockHttpServletRequest();
         response = new MockHttpServletResponse();
     }
+
 
     @Test
     void annotation_user_list() throws Exception {

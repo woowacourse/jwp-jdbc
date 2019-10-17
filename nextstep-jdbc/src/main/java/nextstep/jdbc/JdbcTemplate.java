@@ -4,6 +4,7 @@ import nextstep.jdbc.exception.DataAccessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -14,19 +15,14 @@ import java.util.List;
 public class JdbcTemplate {
     private static final Logger log = LoggerFactory.getLogger(JdbcTemplate.class);
 
-    private JdbcTemplate() {
-    }
+    private DataSource dataSource;
 
-    private static class LazyHolder {
-        private static final JdbcTemplate INSTANCE = new JdbcTemplate();
-    }
-
-    public static JdbcTemplate getInstance() {
-        return LazyHolder.INSTANCE;
+    public JdbcTemplate(DataSource dataSource) {
+        this.dataSource = dataSource;
     }
 
     public <T> List<T> select(String query, RowMapper<T> rowMapper, PreparedStatementSetter pstmtSetter) {
-        try (Connection con = ConnectionManager.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement pstmt = con.prepareStatement(query)) {
             pstmtSetter.setValues(pstmt);
             return getResults(rowMapper, pstmt);
@@ -53,7 +49,7 @@ public class JdbcTemplate {
     }
 
     public void update(String query, PreparedStatementSetter pstmtSetter) {
-        try (Connection con = ConnectionManager.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement pstmt = con.prepareStatement(query)) {
             pstmtSetter.setValues(pstmt);
             pstmt.executeUpdate();
@@ -70,7 +66,7 @@ public class JdbcTemplate {
     }
 
     public <T> T selectForObject(String query, RowMapper<T> rowMapper, PreparedStatementSetter pstmtSetter) {
-        try (Connection con = ConnectionManager.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement pstmt = con.prepareStatement(query)) {
             pstmtSetter.setValues(pstmt);
             return execute(pstmt, rowMapper);

@@ -1,5 +1,6 @@
 package nextstep.jdbc;
 
+import org.apache.commons.dbcp2.BasicDataSource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
@@ -17,7 +18,7 @@ class JdbcTemplateTest {
     private static final String updateQuery =
             "UPDATE test_users SET password=?, name=?, email=? WHERE userId=?";
 
-    private JdbcTemplate jdbcTemplate = JdbcTemplate.getInstance();
+    private JdbcTemplate jdbcTemplate;
     private RowMapper<TestUser> rowMapper = resultSet ->
             new TestUser(resultSet.getString("userId"),
                     resultSet.getString("password"),
@@ -26,9 +27,17 @@ class JdbcTemplateTest {
 
     @BeforeEach
     void setUp() {
+        BasicDataSource dataSource = new BasicDataSource();
+        dataSource.setDriverClassName("org.h2.Driver");
+        dataSource.setUrl("jdbc:h2:mem:jwp-framework");
+        dataSource.setUsername("sa");
+        dataSource.setPassword("");
+
         ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
         populator.addScript(new ClassPathResource("test.sql"));
-        DatabasePopulatorUtils.execute(populator, ConnectionManager.getDataSource());
+        DatabasePopulatorUtils.execute(populator, dataSource);
+
+        jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
     @Test
