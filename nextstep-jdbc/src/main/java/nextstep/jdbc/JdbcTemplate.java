@@ -47,7 +47,7 @@ public class JdbcTemplate {
         }
     }
 
-    public <T> List<T> query(String query, Class<?> clazz, Object... objects) {
+    public <T> List<T> query(String query, Class<T> clazz, Object... objects) {
         List<T> results = new ArrayList<>();
         try (Connection con = dataSource.getConnection();
              PreparedStatement pstmt = createPreparedStatement(con, query, objects);
@@ -93,7 +93,7 @@ public class JdbcTemplate {
         return results;
     }
 
-    public <T> T queryForObject(String query, Class<?> clazz, Object... objects) {
+    public <T> T queryForObject(String query, Class<T> clazz, Object... objects) {
         T result = null;
         try (Connection con = dataSource.getConnection();
              PreparedStatement pstmt = createPreparedStatement(con, query, objects);
@@ -145,10 +145,10 @@ public class JdbcTemplate {
         return pstmt;
     }
 
-    private <T> T getResult(ResultSet rs, Class<?> clazz) throws Exception {
+    private <T> T getResult(ResultSet rs, Class<T> clazz) throws Exception {
         Object instance = clazz.getDeclaredConstructor().newInstance();
         Arrays.stream(clazz.getDeclaredFields()).forEach(field -> setField(rs, instance, field));
-        return (T) instance;
+        return clazz.cast(instance);
     }
 
     private void setField(ResultSet rs, Object instance, Field field) {
