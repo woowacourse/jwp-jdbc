@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 public class UserDao {
+
     public void insert(User user) {
         try (JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getConnection())) {
             Map<String, Object> params = createUserParams(user);

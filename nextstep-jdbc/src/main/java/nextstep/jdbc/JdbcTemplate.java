@@ -22,6 +22,23 @@ public class JdbcTemplate implements AutoCloseable {
         this.conn = Objects.requireNonNull(conn);
     }
 
+    public <T> T executeQueryForSingleObject(String query, Map<String, Object> params, ResultSetMapper<T> mapper) {
+        try (PreparedStatement pstmt = getStatement(query, params);
+             ResultSet rs = pstmt.executeQuery()) {
+            List<T> result = iterateResultSet(mapper, rs);
+            ensureSingleResult(result);
+            return result.get(0);
+        } catch (SQLException e) {
+            throw new JdbcTemplateException(e);
+        }
+    }
+
+    private <T> void ensureSingleResult(List<T> result) {
+        if (result.size() != 1) {
+            throw new JdbcTemplateException("Invalid result size: " + result.size());
+        }
+    }
+
     public <T> List<T> executeQuery(String query, Map<String, Object> params, ResultSetMapper<T> mapper) {
         try (PreparedStatement pstmt = getStatement(query, params);
              ResultSet rs = pstmt.executeQuery()) {
@@ -32,7 +49,7 @@ public class JdbcTemplate implements AutoCloseable {
     }
 
     private PreparedStatement getStatement(String query, Map<String, Object> params) throws SQLException {
-        return conn.prepareStatement(QueryUtil.parseQueryParams(query, params));
+        return QueryUtil.mapQueryParams(conn, query, params);
     }
 
     private <T> List<T> iterateResultSet(ResultSetMapper<T> mapper, ResultSet rs) throws SQLException {

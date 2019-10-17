@@ -1,5 +1,6 @@
 package nextstep.jdbc;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
@@ -16,11 +17,19 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class JdbcTemplateTest {
 
+    private JdbcTemplate jdbcTemplate;
+
     @BeforeEach
     public void setup() {
         ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
         populator.addScript(new ClassPathResource("jwp.sql"));
         DatabasePopulatorUtils.execute(populator, ConnectionManager.getDataSource());
+        jdbcTemplate = new JdbcTemplate(ConnectionManager.getConnection());
+    }
+
+    @AfterEach
+    public void cleanup() {
+        jdbcTemplate.close();
     }
 
     @Test
@@ -30,16 +39,13 @@ class JdbcTemplateTest {
         params.put("questionId", 1);
 
         // when
-        try (JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getConnection())) {
-            List<Long> results = jdbcTemplate.executeQuery("SELECT * FROM questions WHERE questionId=:questionId",
-                    params,
-                    resultSet -> resultSet.getLong("questionId"));
+        List<Long> results = jdbcTemplate.executeQuery("SELECT * FROM questions WHERE questionId=:questionId",
+                params,
+                resultSet -> resultSet.getLong("questionId"));
 
-            // then
-            assertThat(results).hasSize(1);
-            assertThat(results.get(0)).isEqualTo(1);
-        }
-
+        // then
+        assertThat(results).hasSize(1);
+        assertThat(results.get(0)).isEqualTo(1);
     }
 
     @Test
@@ -52,22 +58,18 @@ class JdbcTemplateTest {
         params.put("email", "ehem@ehem.com");
 
         // when
-        try (JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getConnection())) {
-            int affected = jdbcTemplate.executeUpdate("INSERT INTO users VALUES(:userId, :password, :name, :email);", params);
+        int affected = jdbcTemplate.executeUpdate("INSERT INTO users VALUES(:userId, :password, :name, :email);", params);
 
-            // then
-            assertThat(affected).isEqualTo(1);
-        }
+        // then
+        assertThat(affected).isEqualTo(1);
     }
 
     @Test
     void invalid_query() {
         // when
-        try (JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getConnection())) {
-            // then
-            assertThrows(JdbcTemplateException.class,
-                    () -> jdbcTemplate.executeUpdate("abcdefg", Collections.emptyMap()));
-        }
+        // then
+        assertThrows(JdbcTemplateException.class,
+                () -> jdbcTemplate.executeUpdate("abcdefg", Collections.emptyMap()));
     }
 
 }
