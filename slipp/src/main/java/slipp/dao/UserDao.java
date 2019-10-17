@@ -4,12 +4,15 @@ import nextstep.jdbc.JdbcTemplate;
 import nextstep.jdbc.RowMapper;
 import slipp.dao.exception.UserNotFoundException;
 import slipp.domain.User;
-import slipp.support.db.ConnectionManager;
 
 import java.util.List;
 
 public class UserDao {
-    private JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+    private final JdbcTemplate jdbcTemplate;
+
+    public UserDao(final JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
 
     public void insert(User user) {
         String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
