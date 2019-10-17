@@ -7,6 +7,7 @@ import javax.sql.DataSource;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class JdbcTemplate {
     private static final Logger log = LoggerFactory.getLogger(JdbcTemplate.class);
@@ -38,14 +39,10 @@ public class JdbcTemplate {
     }
 
     private <T> T queryForObject(String query, PreparedStatementSetter pstmtSetter, RowMapper<T> rowMapper) {
-        try (Connection con = getConnection();
-             PreparedStatement pstmt = con.prepareStatement(query)) {
-            pstmtSetter.setPreparedStatement(pstmt);
-            return execute(pstmt, rowMapper).get(FIRST_INDEX);
-        } catch (SQLException e) {
-            log.error("SQLException : {}", e.getMessage());
-            throw new DataAccessException("해당 데이터를 찾을 수 없습니다!");
-        }
+        return Optional.of(query(query, pstmtSetter, rowMapper))
+                .filter(list -> list.size() == 1)
+                .map(list -> list.get(FIRST_INDEX))
+                .orElseThrow(() -> new DataAccessException("데이터가 없거나 여러개 입니다."));
     }
 
     public <T> List<T> query(String query, RowMapper<T> rowMapper, Object... values) {
