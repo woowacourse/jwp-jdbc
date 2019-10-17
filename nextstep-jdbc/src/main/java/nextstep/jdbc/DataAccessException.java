@@ -1,4 +1,4 @@
-package slipp.dao;
+package nextstep.jdbc;
 
 public class DataAccessException extends RuntimeException {
 

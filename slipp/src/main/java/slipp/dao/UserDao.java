@@ -1,5 +1,6 @@
 package slipp.dao;
 
+import nextstep.jdbc.JdbcTemplate;
 import slipp.domain.User;
 
 import java.util.List;
