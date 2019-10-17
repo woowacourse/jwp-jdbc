@@ -17,7 +17,7 @@ public class ResultSetHelper {
         try (ResultSet resultSet = pstmt.executeQuery()) {
             List<T> results = new ArrayList<>();
             while (resultSet.next()) {
-                results.add(rowMapper.mapRow(resultSet));
+                results.add(rowMapper.getInstance(resultSet));
             }
             return results;
         } catch (SQLException e) {

@@ -9,6 +9,7 @@ import java.util.List;
 public class UserDao {
 
     private final JdbcTemplate<User> jdbcTemplate = new JdbcTemplate<>();
+    private final RowMapper<User> rowMapper = new RowMapper<>(User.class);
 
     private UserDao() {
     }
@@ -33,24 +34,11 @@ public class UserDao {
 
     public List<User> findAll() {
         String sql = "SELECT * FROM USERS";
-
-        RowMapper<User> rowMapper = rs -> {
-            String id = rs.getString("userId");
-            String password = rs.getString("password");
-            String name = rs.getString("name");
-            String email = rs.getString("email");
-            return new User(id, password, name, email);
-        };
-
-        return jdbcTemplate.query(sql, rowMapper);
+        return jdbcTemplate.query(sql, this.rowMapper);
     }
 
     public User findUserById(String userId) {
         String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
-
-        RowMapper<User> rowMapper = rs -> new User(rs.getString("userId"), rs.getString("password"),
-                rs.getString("name"), rs.getString("email"));
-
         return jdbcTemplate.queryForObject(sql, rowMapper, userId)
                 .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다."));
     }
