@@ -1,5 +1,6 @@
 package nextstep.jdbc;
 
+import nextstep.jdbc.exception.DatabaseAccessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,7 +22,7 @@ public class ResultSetHelper {
             return results;
         } catch (SQLException e) {
             logger.error(e.getMessage(), e);
-            throw new RuntimeException();
+            throw new DatabaseAccessException(e);
         }
     }
 }
