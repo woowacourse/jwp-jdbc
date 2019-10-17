@@ -12,6 +12,12 @@ import java.sql.SQLException;
 import java.util.List;
 
 public class UserDao {
+    private UserDao() {}
+
+    public static UserDao getInstance() {
+        return UserDaoHolder.instance;
+    }
+
     public void insert(User user) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getConnection());
         SqlMapper sqlMapper = new SqlMapper("INSERT INTO USERS VALUES (?, ?, ?, ?)");
@@ -67,5 +73,9 @@ public class UserDao {
                         resultSet.getString("email"));
             }
         });
+    }
+
+    private static class UserDaoHolder {
+        static UserDao instance = new UserDao();
     }
 }
