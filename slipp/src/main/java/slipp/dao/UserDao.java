@@ -1,7 +1,7 @@
 package slipp.dao;
 
 
-import nextstep.jdbc.ConnectionMaker;
+import nextstep.jdbc.ConnectionGenerator;
 import nextstep.jdbc.JdbcTemplate;
 import nextstep.jdbc.RowMapper;
 import slipp.domain.User;
@@ -48,7 +48,6 @@ public class UserDao {
     }
 
     private JdbcTemplate createJdbcTemplate() {
-        Connection connection = ConnectionMaker.getConnection(DB_DRIVER, DB_URL, DB_USERNAME, DB_PW);
-        return new JdbcTemplate(connection);
+        return new JdbcTemplate(ConnectionGenerator.getDataSource(DB_DRIVER, DB_URL, DB_USERNAME, DB_PW));
     }
 }

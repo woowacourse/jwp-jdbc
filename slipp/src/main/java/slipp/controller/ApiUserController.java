@@ -9,6 +9,7 @@ import nextstep.web.annotation.RequestMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import slipp.dao.UserDao;
 import slipp.domain.User;
 import slipp.dto.UserCreatedDto;
 import slipp.dto.UserUpdatedDto;
@@ -27,14 +28,16 @@ public class ApiUserController {
     public ModelAndView create(HttpServletRequest request, HttpServletResponse response) throws Exception {
         UserCreatedDto createdDto = objectMapper.readValue(request.getInputStream(), UserCreatedDto.class);
         logger.debug("Created User : {}", createdDto);
-
-
-        DataBase.addUser(new User(
+        UserDao userDao = new UserDao();
+        User user = new User(
             createdDto.getUserId(),
             createdDto.getPassword(),
             createdDto.getName(),
-            createdDto.getEmail()));
+            createdDto.getEmail());
 
+        userDao.insert(user);
+
+        //DataBase.addUser(user);
         response.setHeader("Location", "/api/users?userId=" + createdDto.getUserId());
         response.setStatus(HttpStatus.CREATED.value());
 
@@ -47,7 +50,9 @@ public class ApiUserController {
         logger.debug("userId : {}", userId);
 
         ModelAndView mav = new ModelAndView(new JsonView());
-        mav.addObject("user", DataBase.findUserById(userId));
+        UserDao userDao = new UserDao();
+        //User user = DataBase.findUserById(userId);
+        mav.addObject("user", userDao.findByUserId(userId));
         return mav;
     }
 
@@ -57,9 +62,10 @@ public class ApiUserController {
         logger.debug("userId : {}", userId);
         UserUpdatedDto updateDto = objectMapper.readValue(request.getInputStream(), UserUpdatedDto.class);
         logger.debug("Updated User : {}", updateDto);
-
-        User user = DataBase.findUserById(userId);
+        UserDao userDao = new UserDao();
+        User user = userDao.findByUserId(userId);
         user.update(updateDto);
+        userDao.update(user);
 
         return new ModelAndView(new JsonView());
     }

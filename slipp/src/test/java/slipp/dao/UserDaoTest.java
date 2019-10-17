@@ -1,6 +1,6 @@
 package slipp.dao;
 
-import nextstep.jdbc.ConnectionMaker;
+import nextstep.jdbc.ConnectionGenerator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
@@ -22,7 +22,7 @@ public class UserDaoTest {
     public void setup() {
         ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
         populator.addScript(new ClassPathResource("jwp.sql"));
-        DatabasePopulatorUtils.execute(populator, ConnectionMaker.getDataSource(DB_DRIVER, DB_URL, DB_USERNAME, DB_PW));
+        DatabasePopulatorUtils.execute(populator, ConnectionGenerator.getDataSource(DB_DRIVER, DB_URL, DB_USERNAME, DB_PW));
     }
 
     @Test

@@ -1,12 +1,13 @@
 package nextstep.jdbc;
 
+
 import org.apache.commons.dbcp2.BasicDataSource;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-public class ConnectionMaker {
+public class ConnectionGenerator {
     public static DataSource getDataSource(String driverName, String url, String userName, String password) {
         BasicDataSource ds = new BasicDataSource();
         ds.setDriverClassName(driverName);

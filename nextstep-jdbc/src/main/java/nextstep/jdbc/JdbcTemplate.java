@@ -3,6 +3,7 @@ package nextstep.jdbc;
 import nextstep.jdbc.exception.SelectQueryException;
 import nextstep.jdbc.exception.SqlUpdateException;
 
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -12,14 +13,15 @@ import java.util.List;
 import java.util.Optional;
 
 public class JdbcTemplate {
-    private final Connection connection;
+    private final DataSource dataSource;
 
-    public JdbcTemplate(Connection connection) {
-        this.connection = connection;
+    public JdbcTemplate(DataSource dataSource) {
+        this.dataSource = dataSource;
     }
 
     private void update(String sql, PrepareStatementSetter prepareStatementSetter) {
-        try (PreparedStatement preparedStatement = this.connection.prepareStatement(sql)) {
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             prepareStatementSetter.setParameters(preparedStatement);
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
@@ -49,7 +51,8 @@ public class JdbcTemplate {
 
     private <T> List<T> listQuery(String sql, RowMapper<T> rowMapper, PrepareStatementSetter prepareStatementSetter) {
         List<T> objects = new ArrayList<>();
-        try (ResultSet resultSet = getResultSet(sql, prepareStatementSetter, this.connection)) {
+        try (Connection connection = dataSource.getConnection();
+             ResultSet resultSet = getResultSet(sql, prepareStatementSetter, connection)) {
             while (resultSet.next()) {
                 objects.add(rowMapper.mapRow(resultSet));
             }
