@@ -10,108 +10,91 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class JdbcTemplate {
+public class JdbcTemplate<T> {
     private static final Logger log = LoggerFactory.getLogger(JdbcTemplate.class);
 
-    public void update(String query, PreparedStatementSetter setter) {
+    public int update(String query, PreparedStatementSetter setter) {
+        return executeQuery(query, pstmt -> {
+            setter.values(pstmt);
+            return pstmt.executeUpdate();
+        });
+    }
+
+    public int update(String query, Object... objects) {
+        return executeQuery(query, pstmt -> {
+            createPreparedStatementSetter(objects).values(pstmt);
+            return pstmt.executeUpdate();
+        });
+    }
+
+    public List<T> query(String query, RowMapper<T> rowMapper, PreparedStatementSetter setter) {
+        return executeQuery(query, pstmt -> {
+            setter.values(pstmt);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                List<T> results = new ArrayList<>();
+                while (rs.next()) {
+                    results.add(rowMapper.mapRow(rs));
+                }
+                return results;
+            }
+        });
+    }
+
+    public List<T> query(String query, RowMapper<T> rowMapper, Object... objects) {
+        return executeQuery(query, pstmt -> {
+            createPreparedStatementSetter(objects).values(pstmt);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                List<T> results = new ArrayList<>();
+
+                while (rs.next()) {
+                    results.add(rowMapper.mapRow(rs));
+                }
+                return results;
+            }
+        });
+    }
+
+    public Object queryForObject(String query, RowMapper rowMapper, PreparedStatementSetter setter) {
+        return executeQuery(query, pstmt -> {
+            setter.values(pstmt);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                Object result = null;
+                if (rs.next()) {
+                    result = rowMapper.mapRow(rs);
+                }
+                return result;
+            }
+        });
+    }
+
+    public Object queryForObject(String query, RowMapper rowMapper, Object... objects) {
+        return executeQuery(query, pstmt -> {
+            createPreparedStatementSetter(objects).values(pstmt);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                Object result = null;
+                if (rs.next()) {
+                    result = rowMapper.mapRow(rs);
+                }
+                return result;
+            }
+        });
+    }
+
+    private <T> T executeQuery(String query, JdbcExecutor<T> executor) {
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = con.prepareStatement(query)) {
-            setter.values(pstmt);
-            pstmt.executeUpdate();
+            return executor.execute(pstmt);
         } catch (SQLException e) {
             log.error(e.getMessage());
             throw new DataAccessException();
         }
     }
 
-    public PreparedStatementSetter createPreparedStatementSetter(Object... objects) {
+    private PreparedStatementSetter createPreparedStatementSetter(Object... objects) {
         return pstmt -> {
             for (int i = 0; i < objects.length; ++i) {
                 pstmt.setObject(i + 1, objects[i]);
             }
         };
-    }
-
-    public void update(String query, Object... objects) {
-        try (Connection con = ConnectionManager.getConnection();
-             PreparedStatement pstmt = con.prepareStatement(query)) {
-            createPreparedStatementSetter(objects).values(pstmt);
-
-            pstmt.executeUpdate();
-        } catch (SQLException e) {
-            log.error(e.getMessage());
-            throw new DataAccessException();
-        }
-    }
-
-    public List<Object> query(String query, RowMapper rowMapper, PreparedStatementSetter setter) {
-        try (Connection con = ConnectionManager.getConnection();
-             PreparedStatement pstmt = con.prepareStatement(query)) {
-            setter.values(pstmt);
-            try (ResultSet rs = pstmt.executeQuery()) {
-                List<Object> results = new ArrayList<>();
-
-                while (rs.next()) {
-                    results.add(rowMapper.mapRow(rs));
-                }
-                return results;
-            }
-        } catch (SQLException e) {
-            log.error(e.getMessage());
-            throw new DataAccessException();
-        }
-    }
-
-    public List<Object> query(String query, RowMapper rowMapper, Object... objects) {
-        try (Connection con = ConnectionManager.getConnection();
-             PreparedStatement pstmt = con.prepareStatement(query)) {
-            createPreparedStatementSetter(objects).values(pstmt);
-            try (ResultSet rs = pstmt.executeQuery()) {
-                List<Object> results = new ArrayList<>();
-
-                while (rs.next()) {
-                    results.add(rowMapper.mapRow(rs));
-                }
-                return results;
-            }
-        } catch (SQLException e) {
-            log.error(e.getMessage());
-            throw new DataAccessException();
-        }
-    }
-
-    public Object queryForObject(String query, RowMapper rowMapper, PreparedStatementSetter setter) {
-        try (Connection con = ConnectionManager.getConnection();
-             PreparedStatement pstmt = con.prepareStatement(query)) {
-            setter.values(pstmt);
-            try (ResultSet rs = pstmt.executeQuery()) {
-                Object result = null;
-                if (rs.next()) {
-                    result = rowMapper.mapRow(rs);
-                }
-
-                return result;
-            }
-        } catch (SQLException e) {
-            log.error(e.getMessage());
-            throw new DataAccessException();
-        }
-    }
-
-    public Object queryForObject(String query, RowMapper rowMapper, Object... objects) {
-        try (Connection con = ConnectionManager.getConnection();
-             PreparedStatement pstmt = con.prepareStatement(query)) {
-            createPreparedStatementSetter(objects).values(pstmt);
-            try (ResultSet rs = pstmt.executeQuery()) {
-                Object result = null;
-                if (rs.next()) {
-                    result = rowMapper.mapRow(rs);
-                }
-                return result;
-            }
-        } catch (SQLException e) {
-            log.error(e.getMessage());
-            throw new DataAccessException();
-        }
     }
 }

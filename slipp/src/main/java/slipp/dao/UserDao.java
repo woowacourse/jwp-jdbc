@@ -4,7 +4,6 @@ import nextstep.jdbc.JdbcTemplate;
 import slipp.domain.User;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class UserDao {
 
@@ -30,7 +29,7 @@ public class UserDao {
         );
     }
 
-    public List<User> findAll() {
+    public List findAll() {
         JdbcTemplate jdbcTemplate = new JdbcTemplate();
 
         String query = "SELECT userId, password, name, email FROM USERS";
@@ -40,10 +39,7 @@ public class UserDao {
                         rs.getString("name"),
                         rs.getString("email")),
                 pstmt -> {
-                }).stream()
-                .map(object -> (User) object)
-                .collect(Collectors.toList())
-                ;
+                });
     }
 
     public User findByUserId(String userId) {
