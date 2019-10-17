@@ -2,6 +2,7 @@ package slipp.dao;
 
 import nextstep.jdbc.JdbcTemplate;
 import nextstep.jdbc.ListMapper;
+import nextstep.jdbc.ObjectMapper;
 import nextstep.jdbc.SqlMapper;
 import slipp.domain.User;
 import slipp.support.db.ConnectionManager;
@@ -55,18 +56,16 @@ public class UserDao {
         SqlMapper sqlMapper = new SqlMapper("SELECT userId, password, name, email FROM USERS WHERE userid=?");
         sqlMapper.addAttribute(userId);
 
-        return jdbcTemplate.executeQuery(sqlMapper,
-                resultSet -> {
-                    User user = null;
-                    if (resultSet.next()) {
-                        user = new User(
-                                resultSet.getString("userId"),
-                                resultSet.getString("password"),
-                                resultSet.getString("name"),
-                                resultSet.getString("email"));
-                    }
+        return jdbcTemplate.executeQuery(sqlMapper, new ObjectMapper<User>() {
 
-                    return user;
-                });
+            @Override
+            protected User createRow(ResultSet resultSet) throws SQLException {
+                return new User(
+                        resultSet.getString("userId"),
+                        resultSet.getString("password"),
+                        resultSet.getString("name"),
+                        resultSet.getString("email"));
+            }
+        });
     }
 }
