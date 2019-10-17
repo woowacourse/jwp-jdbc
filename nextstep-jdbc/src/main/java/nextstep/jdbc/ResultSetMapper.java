@@ -18,7 +18,7 @@ public class ResultSetMapper<T> {
         this.clazz = type;
     }
 
-    public T mapObject(ResultSet resultSet) throws SQLException, IllegalAccessException {
+    public T mapObject(ResultSet resultSet) throws SQLException {
         T object = null;
         if (resultSet.next()) {
             object = clazz.cast(map(resultSet, clazz));
@@ -26,7 +26,7 @@ public class ResultSetMapper<T> {
         return object;
     }
 
-    public List<T> mapList(ResultSet resultSet) throws SQLException, IllegalAccessException {
+    public List<T> mapList(ResultSet resultSet) throws SQLException {
         List<T> elements = new ArrayList<>();
         while (resultSet.next()) {
             T object = clazz.cast(map(resultSet, clazz));
@@ -35,31 +35,37 @@ public class ResultSetMapper<T> {
         return elements;
     }
 
-    private Object map(ResultSet resultSet, Class<?> clazz) throws IllegalAccessException, SQLException {
+    private Object map(ResultSet resultSet, Class<?> clazz) throws SQLException {
         Object object = instantiate(clazz);
         Field[] fields = clazz.getDeclaredFields();
         setFields(resultSet, object, fields);
         return object;
     }
 
-    private void setFields(ResultSet resultSet, Object object, Field[] fields) throws IllegalAccessException, SQLException {
-        for (Field field : fields) {
-            field.setAccessible(true);
-            setEmbeddedField(resultSet, object, field);
-            setNonDefaultValueField(resultSet, object, field);
+    private void setFields(ResultSet resultSet, Object object, Field[] fields) throws SQLException {
+        try {
+            for (Field field : fields) {
+                setField(resultSet, object, field);
+            }
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
         }
     }
 
-    private void setEmbeddedField(ResultSet resultSet, Object object, Field field) throws IllegalAccessException, SQLException {
-        if (!FieldType.isPrimitiveOrWrapped(field.getType())) {
-            field.set(object, map(resultSet, field.getType()));
+    private void setField(ResultSet resultSet, Object object, Field field) throws IllegalAccessException, SQLException {
+        field.setAccessible(true);
+        if (field.get(object) != null) {
+            return;
         }
+        field.set(object, getObject(resultSet, field));
     }
 
-    private void setNonDefaultValueField(ResultSet resultSet, Object object, Field field) throws IllegalAccessException, SQLException {
-        if (field.get(object) == null) {
-            field.set(object, resultSet.getString(field.getName()));
+    private Object getObject(ResultSet resultSet, Field field) throws SQLException, IllegalAccessException {
+        Class<?> fieldType = field.getType();
+        if (FieldType.isPrimitiveOrWrapped(fieldType)) {
+            return resultSet.getObject(field.getName());
         }
+        return map(resultSet, fieldType);
     }
 
     private Object instantiate(Class<?> clazz) {

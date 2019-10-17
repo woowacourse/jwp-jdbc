@@ -1,7 +1,7 @@
 package nextstep.jdbc.exception;
 
 public class IllegalExecutionException extends RuntimeException {
-    public IllegalExecutionException(String message) {
-        super(message);
+    public IllegalExecutionException(Throwable cause) {
+        super(cause);
     }
 }
