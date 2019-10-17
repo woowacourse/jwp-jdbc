@@ -1,7 +1,7 @@
 package slipp.dao;
 
-import nextstep.jdbc.BasicDataSourceFactory;
-import nextstep.jdbc.ConnectionManager;
+import nextstep.jdbc.db.BasicDataSourceFactory;
+import nextstep.jdbc.db.ConnectionManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;

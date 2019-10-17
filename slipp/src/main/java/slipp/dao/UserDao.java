@@ -1,11 +1,10 @@
 package slipp.dao;
 
-import nextstep.jdbc.JdbcTemplate;
-import nextstep.jdbc.RowMapper;
+import nextstep.jdbc.template.JdbcTemplate;
+import nextstep.jdbc.template.RowMapper;
 import slipp.domain.User;
 
 import java.util.List;
-import java.util.Optional;
 
 public class UserDao {
 

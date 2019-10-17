@@ -1,4 +1,4 @@
-package nextstep.jdbc;
+package nextstep.jdbc.template;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

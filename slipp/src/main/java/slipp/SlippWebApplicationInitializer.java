@@ -1,7 +1,7 @@
 package slipp;
 
-import nextstep.jdbc.BasicDataSourceFactory;
-import nextstep.jdbc.ConnectionManager;
+import nextstep.jdbc.db.BasicDataSourceFactory;
+import nextstep.jdbc.db.ConnectionManager;
 import nextstep.mvc.DispatcherServlet;
 import nextstep.mvc.asis.ControllerHandlerAdapter;
 import nextstep.mvc.tobe.AnnotationHandlerMapping;

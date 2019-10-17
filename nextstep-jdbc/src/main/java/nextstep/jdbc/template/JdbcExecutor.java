@@ -1,5 +1,6 @@
-package nextstep.jdbc;
+package nextstep.jdbc.template;
 
+import nextstep.jdbc.db.ConnectionManager;
 import nextstep.jdbc.exception.DatabaseAccessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,7 +12,7 @@ import java.sql.SQLException;
 public class JdbcExecutor {
     private static final Logger logger = LoggerFactory.getLogger(JdbcExecutor.class);
 
-    public <T> T execute(String sql, Handler<T> handler) {
+    public <T> T execute(String sql, PreparedStatementHandler<T> handler) {
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
             return handler.handle(pstmt);

@@ -1,16 +1,12 @@
-package nextstep.jdbc;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+package nextstep.jdbc.template;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
+@Deprecated
 public class JdbcTemplateByPreparedStatementSetter<T> {
-    private final Logger logger = LoggerFactory.getLogger(JdbcTemplateByPreparedStatementSetter.class);
-
     private final JdbcExecutor jdbcExecutor;
 
     public JdbcTemplateByPreparedStatementSetter() {

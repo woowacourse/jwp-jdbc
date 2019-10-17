@@ -1,4 +1,4 @@
-package nextstep.jdbc;
+package nextstep.jdbc.db;
 
 import org.apache.commons.dbcp2.BasicDataSource;
 

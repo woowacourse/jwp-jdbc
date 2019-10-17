@@ -1,4 +1,4 @@
-package nextstep.jdbc;
+package nextstep.jdbc.template;
 
 import nextstep.jdbc.exception.DatabaseAccessException;
 import org.slf4j.Logger;

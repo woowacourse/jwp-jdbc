@@ -1,4 +1,4 @@
-package nextstep.jdbc;
+package nextstep.jdbc.db;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
