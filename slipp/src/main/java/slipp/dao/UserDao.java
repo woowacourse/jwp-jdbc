@@ -7,7 +7,6 @@ import nextstep.jdbc.RowMapper;
 import slipp.domain.User;
 import slipp.exception.UserNotFoundException;
 
-import java.sql.Connection;
 import java.util.List;
 
 public class UserDao {
@@ -41,7 +40,7 @@ public class UserDao {
         String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
 
         RowMapper<User> rowMapper = rs -> new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
-                rs.getString("email"));
+            rs.getString("email"));
 
         JdbcTemplate jdbcTemplate = createJdbcTemplate();
         return jdbcTemplate.singleObjectQuery(sql, rowMapper, userId).orElseThrow(UserNotFoundException::new);
