@@ -8,10 +8,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserDao {
+    private static final UserDao INSTANCE = new UserDao();
+
     private JdbcTemplate jdbcTemplate;
 
-    public UserDao() {
+    private UserDao() {
         this.jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+    }
+
+    public static UserDao getInstance() {
+        return INSTANCE;
     }
 
     public void insert(final User user) {
