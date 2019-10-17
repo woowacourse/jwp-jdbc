@@ -1,6 +1,5 @@
 package nextstep.jdbc;
 
-import slipp.domain.User;
 import slipp.support.db.ConnectionManager;
 
 import java.sql.Connection;
@@ -12,125 +11,56 @@ import java.util.List;
 
 public class JdbcTemplate {
     public void insert(String sql, PrepareStatementSetter prepareStatementSetter) throws SQLException {
-        Connection con = null;
-        PreparedStatement preparedStatement = null;
-        try {
-            con = ConnectionManager.getConnection();
-            preparedStatement = con.prepareStatement(sql);
+        try (Connection con = ConnectionManager.getConnection(); PreparedStatement preparedStatement = con.prepareStatement(sql)) {
             prepareStatementSetter.setParameters(preparedStatement);
-
             preparedStatement.executeUpdate();
-        } finally {
-            if (preparedStatement != null) {
-                preparedStatement.close();
-            }
-
-            if (con != null) {
-                con.close();
-            }
         }
     }
 
-    public void insert(String sql, Object ... objects) throws SQLException {
-        Connection con = null;
-        PreparedStatement preparedStatement = null;
-        try {
-            con = ConnectionManager.getConnection();
-            preparedStatement = con.prepareStatement(sql);
-
-            setPrepareStatement(preparedStatement, objects);
-            preparedStatement.executeUpdate();
-        } finally {
-            if (preparedStatement != null) {
-                preparedStatement.close();
-            }
-
-            if (con != null) {
-                con.close();
-            }
-        }
+    public void insert(String sql, Object... args) throws SQLException {
+        PrepareStatementSetter prepareStatementSetter = getPrepareStatementSetter(args);
+        insert(sql, prepareStatementSetter);
     }
 
-    public <T> T objectQuery(String sql, PrepareStatementSetter prepareStatementSetter, RowMapper<T> rowMapper) throws SQLException {
-        Connection con = null;
-        PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
-        try {
-            con = ConnectionManager.getConnection();
-            preparedStatement = con.prepareStatement(sql);
-            prepareStatementSetter.setParameters(preparedStatement);
-            resultSet = preparedStatement.executeQuery();
-
+    public <T> T objectQuery(String sql, RowMapper<T> rowMapper, PrepareStatementSetter prepareStatementSetter) throws SQLException {
+        try (Connection con = ConnectionManager.getConnection();
+             ResultSet resultSet = getResultSet(sql, prepareStatementSetter, con)) {
             return rowMapper.mapRow(resultSet);
-        } finally {
-            if (resultSet != null) {
-                resultSet.close();
-            }
-            if (preparedStatement != null) {
-                preparedStatement.close();
-            }
-            if (con != null) {
-                con.close();
-            }
         }
     }
 
-    public <T> T objectQuery(String sql, RowMapper<T> rowMapper, Object... objects) throws SQLException {
-        Connection con = null;
-        PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
-        try {
-            con = ConnectionManager.getConnection();
-            preparedStatement = con.prepareStatement(sql);
-
-            setPrepareStatement(preparedStatement, objects);
-
-            resultSet = preparedStatement.executeQuery();
-
-            return rowMapper.mapRow(resultSet);
-        } finally {
-            if (resultSet != null) {
-                resultSet.close();
-            }
-            if (preparedStatement != null) {
-                preparedStatement.close();
-            }
-            if (con != null) {
-                con.close();
-            }
-        }
+    public <T> T objectQuery(String sql, RowMapper<T> rowMapper, Object... args) throws SQLException {
+        PrepareStatementSetter prepareStatementSetter = getPrepareStatementSetter(args);
+        return objectQuery(sql, rowMapper, prepareStatementSetter);
     }
 
-    public <T> List<T> listQuery(String sql, RowMapper<T> rowMapper) throws SQLException {
-        Connection con = null;
-        PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
+    public <T> List<T> listQuery(String sql, RowMapper<T> rowMapper, Object... args) throws SQLException {
+        PrepareStatementSetter prepareStatementSetter = getPrepareStatementSetter(args);
+        return listQuery(sql, rowMapper, prepareStatementSetter);
+    }
+
+    public <T> List<T> listQuery(String sql, RowMapper<T> rowMapper, PrepareStatementSetter prepareStatementSetter) throws SQLException {
         List<T> objects = new ArrayList<>();
-        try {
-            con = ConnectionManager.getConnection();
-            preparedStatement = con.prepareStatement(sql);
-            resultSet = preparedStatement.executeQuery();
-
+        try (Connection con = ConnectionManager.getConnection();
+             ResultSet resultSet = getResultSet(sql, prepareStatementSetter, con)) {
             while (resultSet.next()) {
                 objects.add(rowMapper.mapRow(resultSet));
-            }
-        } finally {
-            if (resultSet != null) {
-                resultSet.close();
-            }
-            if (preparedStatement != null) {
-                preparedStatement.close();
-            }
-            if (con != null) {
-                con.close();
             }
         }
         return objects;
     }
 
-    private void setPrepareStatement(PreparedStatement preparedStatement, Object[] objects) throws SQLException {
-        for (int i = 0; i < objects.length; i++) {
-            preparedStatement.setObject(i + 1, objects[i]);
-        }
+    private ResultSet getResultSet(String sql, PrepareStatementSetter prepareStatementSetter, Connection con) throws SQLException {
+        PreparedStatement preparedStatement = con.prepareStatement(sql);
+        prepareStatementSetter.setParameters(preparedStatement);
+        return preparedStatement.executeQuery();
+    }
+
+    private PrepareStatementSetter getPrepareStatementSetter(Object[] args) {
+        return preparedStatement -> {
+            for (int i = 0; i < args.length; i++) {
+                preparedStatement.setObject(i + 1, args[i]);
+            }
+        };
     }
 }
