@@ -1,6 +1,7 @@
 package nextstep.jdbc;
 
 import nextstep.jdbc.exception.DataAccessException;
+import nextstep.jdbc.exception.NotObjectFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,6 +11,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class JdbcTemplate<T> {
     private static final Logger log = LoggerFactory.getLogger(JdbcTemplate.class);
@@ -58,19 +60,19 @@ public class JdbcTemplate<T> {
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = con.prepareStatement(query)) {
             pstmtSetter.setValues(pstmt);
-            return execute(pstmt, rowMapper);
+            return execute(pstmt, rowMapper).orElseThrow(NotObjectFoundException::new);
         } catch (SQLException e) {
             log.debug(e.getMessage());
             throw new DataAccessException(e.getMessage());
         }
     }
 
-    private T execute(PreparedStatement pstmt, RowMapper<T> rowMapper) {
+    private Optional<T> execute(PreparedStatement pstmt, RowMapper<T> rowMapper) {
         try (ResultSet resultSet = pstmt.executeQuery()) {
             if (resultSet.next()) {
-                return rowMapper.mapRow(resultSet);
+                return Optional.of(rowMapper.mapRow(resultSet));
             }
-            return null;
+            return Optional.empty();
         } catch (SQLException e) {
             log.debug(e.getMessage());
             throw new DataAccessException(e.getMessage());
