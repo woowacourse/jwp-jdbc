@@ -8,6 +8,11 @@ import java.util.List;
 
 public class UserDao {
 
+    private static final String USER_INSERT_QUERY = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
+    private static final String UPDATE_USER_QUERY = "UPDATE USERS SET PASSWORD = ?, NAME = ?, EMAIL = ? WHERE USERID = ?";
+    private static final String FIND_ALL_USER_QUERY = "SELECT * FROM USERS";
+    private static final String FIND_USER_BY_ID_QUERY = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
+
     private final JdbcTemplate<User> jdbcTemplate = new JdbcTemplate<>();
     private final RowMapper<User> rowMapper = new RowMapper<>(User.class);
 
@@ -23,23 +28,19 @@ public class UserDao {
     }
 
     public void insert(User user) {
-        String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
-        jdbcTemplate.save(sql, user.getUserId(), user.getPassword(), user.getName(), user.getEmail());
+        jdbcTemplate.save(USER_INSERT_QUERY, user.getUserId(), user.getPassword(), user.getName(), user.getEmail());
     }
 
     public void update(User user) {
-        String sql = "UPDATE USERS SET PASSWORD = ?, NAME = ?, EMAIL = ? WHERE USERID = ?";
-        jdbcTemplate.save(sql, user.getPassword(), user.getName(), user.getEmail(), user.getUserId());
+        jdbcTemplate.save(UPDATE_USER_QUERY, user.getPassword(), user.getName(), user.getEmail(), user.getUserId());
     }
 
     public List<User> findAll() {
-        String sql = "SELECT * FROM USERS";
-        return jdbcTemplate.query(sql, this.rowMapper);
+        return jdbcTemplate.query(FIND_ALL_USER_QUERY, this.rowMapper);
     }
 
     public User findUserById(String userId) {
-        String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
-        return jdbcTemplate.queryForObject(sql, rowMapper, userId)
+        return jdbcTemplate.queryForObject(FIND_USER_BY_ID_QUERY, rowMapper, userId)
                 .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다."));
     }
 }
