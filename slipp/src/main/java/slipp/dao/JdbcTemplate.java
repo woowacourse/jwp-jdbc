@@ -25,6 +25,29 @@ public class JdbcTemplate {
         }
     }
 
+    public PreparedStatementSetter createPreparedStatementSetter(Object... objects) {
+        return new PreparedStatementSetter() {
+            @Override
+            public void values(PreparedStatement pstmt) throws SQLException {
+                for (int i = 0; i < objects.length; ++i) {
+                    pstmt.setObject(i + 1, objects[i]);
+                }
+            }
+        };
+    }
+
+    public void update(String query, Object... objects) {
+        try (Connection con = ConnectionManager.getConnection();
+             PreparedStatement pstmt = con.prepareStatement(query)) {
+            createPreparedStatementSetter(objects).values(pstmt);
+
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            log.error(e.getMessage());
+            throw new DataAccessException();
+        }
+    }
+
     List<Object> query(String query, RowMapper rowMapper, PreparedStatementSetter setter) {
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = con.prepareStatement(query)) {
@@ -43,6 +66,25 @@ public class JdbcTemplate {
         }
     }
 
+    List<Object> query(String query, RowMapper rowMapper, Object... objects) {
+        try (Connection con = ConnectionManager.getConnection();
+             PreparedStatement pstmt = con.prepareStatement(query)) {
+            createPreparedStatementSetter(objects).values(pstmt);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                List<Object> results = new ArrayList<>();
+
+                while (rs.next()) {
+                    results.add(rowMapper.mapRow(rs));
+                }
+                return results;
+            }
+        } catch (SQLException e) {
+            log.error(e.getMessage());
+            throw new DataAccessException();
+        }
+    }
+
+
     Object queryForObject(String query, RowMapper rowMapper, PreparedStatementSetter setter) {
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = con.prepareStatement(query)) {
@@ -53,6 +95,23 @@ public class JdbcTemplate {
                     result = rowMapper.mapRow(rs);
                 }
 
+                return result;
+            }
+        } catch (SQLException e) {
+            log.error(e.getMessage());
+            throw new DataAccessException();
+        }
+    }
+
+    Object queryForObject(String query, RowMapper rowMapper, Object... objects) {
+        try (Connection con = ConnectionManager.getConnection();
+             PreparedStatement pstmt = con.prepareStatement(query)) {
+            createPreparedStatementSetter(objects).values(pstmt);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                Object result = null;
+                if (rs.next()) {
+                    result = rowMapper.mapRow(rs);
+                }
                 return result;
             }
         } catch (SQLException e) {
