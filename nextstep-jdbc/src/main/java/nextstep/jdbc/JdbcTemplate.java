@@ -13,15 +13,6 @@ import java.util.Optional;
 public class JdbcTemplate {
     private static final Logger logger = LoggerFactory.getLogger(JdbcTemplate.class);
 
-    public static int save(String sql, PreparedStatementSetter pstmtSetter) {
-        return JdbcConnector.execute(sql, pstmt -> executeUpdate(pstmtSetter, pstmt));
-    }
-
-    private static int executeUpdate(PreparedStatementSetter pstmtSetter, PreparedStatement pstmt) throws SQLException {
-        pstmtSetter.setValues(pstmt);
-        return pstmt.executeUpdate();
-    }
-
     public static int save(String sql, Object... objects) {
         return JdbcConnector.execute(sql, pstmt -> executeUpdate(pstmt, objects));
     }
@@ -42,8 +33,8 @@ public class JdbcTemplate {
         }
     }
 
-    public static <T> List<T> query(String sql, RowMapper<T> rowMapper) {
-        return JdbcConnector.execute(sql, pstmt -> executeQuery(rowMapper, pstmt));
+    public static <T> List<T> query(String sql, RowMapper<T> rowMapper, Object... objects) {
+        return JdbcConnector.execute(sql, pstmt -> executeQuery(rowMapper, pstmt, objects));
     }
 
     private static <T> List<T> executeQuery(RowMapper<T> rowMapper, PreparedStatement pstmt) {
@@ -59,31 +50,9 @@ public class JdbcTemplate {
         }
     }
 
-    public static <T> List<T> query(String sql, RowMapper<T> rowMapper, PreparedStatementSetter pstmtSetter) {
-        return JdbcConnector.execute(sql, pstmt -> executeQuery(rowMapper, pstmtSetter, pstmt));
-    }
-
-    private static <T> List<T> executeQuery(RowMapper<T> rowMapper, PreparedStatementSetter pstmtSetter, PreparedStatement pstmt) throws SQLException {
-        pstmtSetter.setValues(pstmt);
-        return executeQuery(rowMapper, pstmt);
-    }
-
-    public static <T> List<T> query(String sql, RowMapper<T> rowMapper, Object... objects) {
-        return JdbcConnector.execute(sql, pstmt -> executeQuery(rowMapper, pstmt, objects));
-    }
-
     private static <T> List<T> executeQuery(RowMapper<T> rowMapper, PreparedStatement pstmt, Object[] objects) {
         setValues(pstmt, objects);
         return executeQuery(rowMapper, pstmt);
-    }
-
-    public static <T> Optional<T> queryForObject(String sql, RowMapper<T> rowMapper, PreparedStatementSetter pstmtSetter) {
-        return JdbcConnector.execute(sql, pstmt -> executeQueryForObject(rowMapper, pstmtSetter, pstmt));
-    }
-
-    private static <T> Optional<T> executeQueryForObject(RowMapper<T> rowMapper, PreparedStatementSetter pstmtSetter, PreparedStatement pstmt) throws SQLException {
-        pstmtSetter.setValues(pstmt);
-        return Optional.ofNullable(executeQuery(rowMapper, pstmt).get(0));
     }
 
     public static <T> Optional<T> queryForObject(String sql, RowMapper<T> rowMapper, Object... objects) {
