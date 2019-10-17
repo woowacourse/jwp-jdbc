@@ -5,6 +5,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class JdbcTemplate {
     private final ConnectionManager connectionManager;
@@ -46,12 +47,12 @@ public class JdbcTemplate {
         }
     }
 
-    public <T> T queryForObject(String sql, ResultSetMappingStrategy<T> strategy, Object... args) {
+    public <T> Optional<T> queryForObject(String sql, ResultSetMappingStrategy<T> strategy, Object... args) {
         try (PreparedStatement psmt = prepare(sql)) {
             setParams(psmt, args);
             ResultSet rs = psmt.executeQuery();
             if (rs.next()) {
-                return strategy.map(rs);
+                return Optional.ofNullable(strategy.map(rs));
             }
             throw new IllegalArgumentException();
         } catch (SQLException e) {

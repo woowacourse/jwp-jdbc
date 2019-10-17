@@ -11,7 +11,7 @@ public class UserDao {
     private static final String INSERT_QUERY = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
     private static final String UPDATE_QUERY = "UPDATE USERS SET password = ?, name = ?, email = ? where userId = ?";
     private static final String SELECT_ALL_QUERY = "SELECT userId, password, name, email FROM USERS";
-    private static final String SELECT_QUERY = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
+    private static final String SELECT_QUERY = "SELECT userId, password, name, email FROM USERS WHERE userId=?";
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -32,7 +32,8 @@ public class UserDao {
     }
 
     public User findByUserId(String userId) {
-        return jdbcTemplate.queryForObject(SELECT_QUERY, this::userMappingStrategy, userId);
+        return jdbcTemplate.queryForObject(SELECT_QUERY, this::userMappingStrategy, userId)
+                .orElseThrow(NoSuchUserException::new);
     }
 
     private User userMappingStrategy(ResultSet rs) throws SQLException {
