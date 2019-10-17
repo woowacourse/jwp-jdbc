@@ -83,4 +83,21 @@ public class JdbcTemplate {
     }
 
 
+    public void executeUpdate2(String sql, PreparedStatementSetter preparedStatementSetter) {
+        log.debug("execute sql={}", sql);
+
+        try (Connection con = getConnection();
+             PreparedStatement pstmt = con.prepareStatement(sql)) {
+            preparedStatementSetter.setPreparedStatement(pstmt);
+            pstmt.executeUpdate();
+
+//            setValuesToPreparedStatement(pstmt, values);
+//            JdbcQueryExecutor queryExecutor = getQueryExecutor(sql);
+//            return queryExecutor.execute(pstmt, rowMapper);
+
+        } catch (SQLException e) {
+            throw new ExecuteUpdateFailedException(e);
+        }
+
+    }
 }
