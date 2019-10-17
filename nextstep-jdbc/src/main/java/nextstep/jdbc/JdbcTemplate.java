@@ -30,54 +30,53 @@ public class JdbcTemplate<T> {
     public List<T> query(String query, RowMapper<T> rowMapper, PreparedStatementSetter setter) {
         return executeQuery(query, pstmt -> {
             setter.values(pstmt);
-            try (ResultSet rs = pstmt.executeQuery()) {
-                List<T> results = new ArrayList<>();
-                while (rs.next()) {
-                    results.add(rowMapper.mapRow(rs));
-                }
-                return results;
-            }
+            return getQueryResults(rowMapper, pstmt);
         });
     }
 
     public List<T> query(String query, RowMapper<T> rowMapper, Object... objects) {
         return executeQuery(query, pstmt -> {
             createPreparedStatementSetter(objects).values(pstmt);
-            try (ResultSet rs = pstmt.executeQuery()) {
-                List<T> results = new ArrayList<>();
-
-                while (rs.next()) {
-                    results.add(rowMapper.mapRow(rs));
-                }
-                return results;
-            }
+            return getQueryResults(rowMapper, pstmt);
         });
+    }
+
+    public List<T> query(String query, RowMapper<T> rowMapper) {
+        return executeQuery(query, pstmt -> getQueryResults(rowMapper, pstmt));
+    }
+
+    private List<T> getQueryResults(RowMapper<T> rowMapper, PreparedStatement pstmt) throws SQLException {
+        try (ResultSet rs = pstmt.executeQuery()) {
+            List<T> results = new ArrayList<>();
+            while (rs.next()) {
+                results.add(rowMapper.mapRow(rs));
+            }
+            return results;
+        }
     }
 
     public Object queryForObject(String query, RowMapper rowMapper, PreparedStatementSetter setter) {
         return executeQuery(query, pstmt -> {
             setter.values(pstmt);
-            try (ResultSet rs = pstmt.executeQuery()) {
-                Object result = null;
-                if (rs.next()) {
-                    result = rowMapper.mapRow(rs);
-                }
-                return result;
-            }
+            return getQueryResult(rowMapper, pstmt);
         });
     }
 
     public Object queryForObject(String query, RowMapper rowMapper, Object... objects) {
         return executeQuery(query, pstmt -> {
             createPreparedStatementSetter(objects).values(pstmt);
-            try (ResultSet rs = pstmt.executeQuery()) {
-                Object result = null;
-                if (rs.next()) {
-                    result = rowMapper.mapRow(rs);
-                }
-                return result;
-            }
+            return getQueryResult(rowMapper, pstmt);
         });
+    }
+
+    private Object getQueryResult(RowMapper rowMapper, PreparedStatement pstmt) throws SQLException {
+        try (ResultSet rs = pstmt.executeQuery()) {
+            Object result = null;
+            if (rs.next()) {
+                result = rowMapper.mapRow(rs);
+            }
+            return result;
+        }
     }
 
     private <T> T executeQuery(String query, JdbcExecutor<T> executor) {
