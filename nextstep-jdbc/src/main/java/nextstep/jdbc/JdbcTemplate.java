@@ -21,7 +21,7 @@ public class JdbcTemplate {
     private void update(String query, PreparedStatementSetter pstmtSetter) {
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = con.prepareStatement(query)) {
-            pstmtSetter.values(pstmt);
+            pstmtSetter.setPreparedStatement(pstmt);
             pstmt.execute();
         } catch (SQLException e) {
             log.error("SQLException : {}", e.getMessage());
@@ -36,7 +36,7 @@ public class JdbcTemplate {
     private <T> T queryForObject(String query, PreparedStatementSetter pstmtSetter, RowMapper<T> rowMapper) {
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = con.prepareStatement(query)) {
-            pstmtSetter.values(pstmt);
+            pstmtSetter.setPreparedStatement(pstmt);
             return execute(pstmt, rowMapper).get(FIRST_INDEX);
         } catch (SQLException e) {
             log.error("SQLException : {}", e.getMessage());
@@ -51,7 +51,7 @@ public class JdbcTemplate {
     private <T> List<T> query(String query, PreparedStatementSetter pstmtSetter, RowMapper<T> rowMapper) {
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = con.prepareStatement(query)) {
-            pstmtSetter.values(pstmt);
+            pstmtSetter.setPreparedStatement(pstmt);
             return execute(pstmt, rowMapper);
         } catch (SQLException e) {
             log.error("SQLException : {}", e.getMessage());
