@@ -1,5 +1,6 @@
 package slipp.dao;
 
+import nextstep.jdbc.ConnectionManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
@@ -7,7 +8,6 @@ import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import slipp.domain.User;
 import slipp.dto.UserUpdatedDto;
-import nextstep.jdbc.ConnectionManager;
 
 import java.util.List;
 
@@ -16,6 +16,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class UserDaoTest {
     @BeforeEach
     public void setup() {
+        initializeConnectionManager();
+
         ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
         populator.addScript(new ClassPathResource("jwp.sql"));
         DatabasePopulatorUtils.execute(populator, ConnectionManager.getDataSource());
@@ -41,5 +43,14 @@ public class UserDaoTest {
         UserDao userDao = new UserDao();
         List<User> users = userDao.findAll();
         assertThat(users).hasSize(1);
+    }
+
+    private static void initializeConnectionManager() {
+        ConnectionManager.initialize(
+                "org.h2.Driver",
+                "jdbc:h2:mem:jwp-framework",
+                "sa",
+                ""
+        );
     }
 }

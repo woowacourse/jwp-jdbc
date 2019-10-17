@@ -24,6 +24,8 @@ class DispatcherServletTest {
 
     @BeforeEach
     void setUp() throws Exception {
+        initializeConnectionManager();
+
         dispatcher = new DispatcherServlet();
         dispatcher.addHandlerMapping(new ManualHandlerMapping());
         dispatcher.addHandlerMapping(new AnnotationHandlerMapping("slipp.controller"));
@@ -85,5 +87,14 @@ class DispatcherServletTest {
 
         assertThat(secondResponse.getRedirectedUrl()).isEqualTo("/");
         assertThat(UserSessionUtils.getUserFromSession(secondRequest.getSession())).isNotNull();
+    }
+
+    private static void initializeConnectionManager() {
+        ConnectionManager.initialize(
+                "org.h2.Driver",
+                "jdbc:h2:mem:jwp-framework",
+                "sa",
+                ""
+        );
     }
 }
