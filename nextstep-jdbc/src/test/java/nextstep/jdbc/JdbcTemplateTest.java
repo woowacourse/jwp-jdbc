@@ -17,7 +17,7 @@ class JdbcTemplateTest {
     private static final String updateQuery =
             "UPDATE test_users SET password=?, name=?, email=? WHERE userId=?";
 
-    private JdbcTemplate<TestUser> jdbcTemplate;
+    private JdbcTemplate jdbcTemplate = JdbcTemplate.getInstance();
     private RowMapper<TestUser> rowMapper = resultSet ->
             new TestUser(resultSet.getString("userId"),
                     resultSet.getString("password"),
@@ -29,8 +29,6 @@ class JdbcTemplateTest {
         ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
         populator.addScript(new ClassPathResource("test.sql"));
         DatabasePopulatorUtils.execute(populator, ConnectionManager.getDataSource());
-
-        jdbcTemplate = new JdbcTemplate<>();
     }
 
     @Test

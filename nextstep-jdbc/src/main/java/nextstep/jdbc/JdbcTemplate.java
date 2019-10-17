@@ -11,10 +11,21 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class JdbcTemplate<T> {
+public class JdbcTemplate {
     private static final Logger log = LoggerFactory.getLogger(JdbcTemplate.class);
 
-    public List<T> select(String query, RowMapper<T> rowMapper, PreparedStatementSetter pstmtSetter) {
+    private JdbcTemplate() {
+    }
+
+    private static class LazyHolder {
+        private static final JdbcTemplate INSTANCE = new JdbcTemplate();
+    }
+
+    public static JdbcTemplate getInstance() {
+        return LazyHolder.INSTANCE;
+    }
+
+    public <T> List<T> select(String query, RowMapper<T> rowMapper, PreparedStatementSetter pstmtSetter) {
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = con.prepareStatement(query)) {
             pstmtSetter.setValues(pstmt);
@@ -25,7 +36,7 @@ public class JdbcTemplate<T> {
         }
     }
 
-    private List<T> getResults(RowMapper<T> rowMapper, PreparedStatement pstmt) throws SQLException {
+    private <T> List<T> getResults(RowMapper<T> rowMapper, PreparedStatement pstmt) throws SQLException {
         List<T> results = new ArrayList<>();
         try (ResultSet resultSet = pstmt.executeQuery()) {
             while (resultSet.next()) {
@@ -35,7 +46,7 @@ public class JdbcTemplate<T> {
         return results;
     }
 
-    public List<T> select(String query, RowMapper<T> rowMapper, Object... values) {
+    public <T> List<T> select(String query, RowMapper<T> rowMapper, Object... values) {
         PreparedStatementSetter pstmtSetter = new VarargsPreparedStatementSetter(values);
 
         return select(query, rowMapper, pstmtSetter);
@@ -58,7 +69,7 @@ public class JdbcTemplate<T> {
         update(query, pstmtSetter);
     }
 
-    public T selectForObject(String query, RowMapper<T> rowMapper, PreparedStatementSetter pstmtSetter) {
+    public <T> T selectForObject(String query, RowMapper<T> rowMapper, PreparedStatementSetter pstmtSetter) {
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = con.prepareStatement(query)) {
             pstmtSetter.setValues(pstmt);
@@ -69,12 +80,12 @@ public class JdbcTemplate<T> {
         }
     }
 
-    public T selectForObject(String query, RowMapper<T> rowMapper, Object... values) {
+    public <T> T selectForObject(String query, RowMapper<T> rowMapper, Object... values) {
         PreparedStatementSetter pstmtSetter = new VarargsPreparedStatementSetter(values);
         return selectForObject(query, rowMapper, pstmtSetter);
     }
 
-    private T execute(PreparedStatement pstmt, RowMapper<T> rowMapper) {
+    private <T> T execute(PreparedStatement pstmt, RowMapper<T> rowMapper) {
         try (ResultSet resultSet = pstmt.executeQuery()) {
             if (resultSet.next()) {
                 return rowMapper.mapRow(resultSet);

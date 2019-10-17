@@ -6,15 +6,15 @@ import slipp.domain.User;
 import java.util.List;
 
 public class UserDao {
+    private JdbcTemplate jdbcTemplate = JdbcTemplate.getInstance();
+
     public void insert(User user) {
         String query = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
-        JdbcTemplate<User> jdbcTemplate = new JdbcTemplate<>();
         jdbcTemplate.update(query, user.getUserId(), user.getPassword(), user.getName(), user.getEmail());
     }
 
     public void update(User user) {
         String query = "UPDATE users SET password=?, name=?, email=? WHERE userId=?";
-        JdbcTemplate<User> jdbcTemplate = new JdbcTemplate<>();
 
         jdbcTemplate.update(query, pstmt -> {
             pstmt.setString(1, user.getPassword());
@@ -26,7 +26,6 @@ public class UserDao {
 
     public List<User> findAll() {
         String query = "SELECT * FROM users";
-        JdbcTemplate<User> jdbcTemplate = new JdbcTemplate<>();
 
         return jdbcTemplate.select(
                 query,
@@ -38,7 +37,6 @@ public class UserDao {
 
     public User findByUserId(String userId) {
         String query = "SELECT userId, password, name, email FROM users WHERE userId=?";
-        JdbcTemplate<User> jdbcTemplate = new JdbcTemplate<>();
 
         return jdbcTemplate.selectForObject(
                 query,
