@@ -12,7 +12,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 public class UserDao {
-    public void insert(User user) throws SQLException {
+    public void insert(User user) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getConnection());
         SqlMapper sqlMapper = new SqlMapper("INSERT INTO USERS VALUES (?, ?, ?, ?)");
         sqlMapper.addAttribute(user.getUserId())
@@ -23,7 +23,7 @@ public class UserDao {
         jdbcTemplate.updateQuery(sqlMapper);
     }
 
-    public void update(User user) throws SQLException {
+    public void update(User user) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getConnection());
         SqlMapper sqlMapper = new SqlMapper("UPDATE USERS SET password = ?, name = ?, email = ? WHERE userId = ?");
         sqlMapper.addAttribute(user.getPassword())
@@ -34,7 +34,7 @@ public class UserDao {
         jdbcTemplate.updateQuery(sqlMapper);
     }
 
-    public List<User> findAll() throws SQLException {
+    public List<User> findAll() {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getConnection());
         SqlMapper sqlMapper = new SqlMapper("SELECT userId, password, name, email FROM USERS");
 
@@ -51,7 +51,7 @@ public class UserDao {
         });
     }
 
-    public User findByUserId(String userId) throws SQLException {
+    public User findByUserId(String userId) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getConnection());
         SqlMapper sqlMapper = new SqlMapper("SELECT userId, password, name, email FROM USERS WHERE userid=?");
         sqlMapper.addAttribute(userId);

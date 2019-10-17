@@ -12,39 +12,21 @@ public class JdbcTemplate {
         this.con = con;
     }
 
-    public void updateQuery(JdbcQuery query) throws SQLException {
-        PreparedStatement pstmt = null;
-        try {
-            pstmt = query.execute(con);
+    public void updateQuery(JdbcQuery query) {
+        try (PreparedStatement pstmt = query.execute(con)) {
             pstmt.executeUpdate();
-        } finally {
-            if (pstmt != null) {
-                pstmt.close();
-            }
-
-            if (con != null) {
-                con.close();
-            }
+        } catch (SQLException e) {
+            throw new JdbcTemplateSqlException(e);
         }
     }
 
-    public <T> T executeQuery(JdbcQuery query, JdbcMapper<T> mapper) throws SQLException {
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        try {
-            pstmt = query.execute(con);
-            rs = pstmt.executeQuery();
+    public <T> T executeQuery(JdbcQuery query, JdbcMapper<T> mapper) {
+        try (PreparedStatement pstmt = query.execute(con);
+             ResultSet rs = pstmt.executeQuery()) {
+
             return mapper.mapped(rs);
-        } finally {
-            if (rs != null) {
-                rs.close();
-            }
-            if (pstmt != null) {
-                pstmt.close();
-            }
-            if (con != null) {
-                con.close();
-            }
+        } catch (SQLException e) {
+            throw new JdbcTemplateSqlException(e);
         }
     }
 }
