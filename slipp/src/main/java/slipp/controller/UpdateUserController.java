@@ -32,6 +32,7 @@ public class UpdateUserController implements Controller {
                 req.getParameter("email"));
         log.debug("Update User : {}", updateUser);
         user.update(updateUser);
+        userDao.update(user);
         return "redirect:/";
     }
 }
