@@ -3,10 +3,8 @@ package nextstep.jdbc;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import javax.sql.DataSource;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,12 +12,18 @@ public class JdbcTemplate {
     private static final Logger log = LoggerFactory.getLogger(JdbcTemplate.class);
     private static final int FIRST_INDEX = 0;
 
+    private final DataSource dataSource;
+
+    public JdbcTemplate(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
+
     public void update(String query, Object... values) {
         update(query, pstmt -> createPreparedStatementSetter(pstmt, values));
     }
 
     private void update(String query, PreparedStatementSetter pstmtSetter) {
-        try (Connection con = ConnectionManager.getConnection();
+        try (Connection con = getConnection();
              PreparedStatement pstmt = con.prepareStatement(query)) {
             pstmtSetter.values(pstmt);
             pstmt.execute();
@@ -33,13 +37,13 @@ public class JdbcTemplate {
     }
 
     private <T> T queryForObject(String query, PreparedStatementSetter pstmtSetter, RowMapper<T> rowMapper) {
-        try (Connection con = ConnectionManager.getConnection();
+        try (Connection con = getConnection();
              PreparedStatement pstmt = con.prepareStatement(query)) {
             pstmtSetter.values(pstmt);
             return execute(pstmt, rowMapper).get(FIRST_INDEX);
         } catch (SQLException e) {
             log.error("SQLException : {}", e.getMessage());
-            throw new DataAccessException("찾는 유저가 없습니다.");
+            throw new DataAccessException("해당 데이터를 찾을 수 없습니다!");
         }
     }
 
@@ -48,13 +52,13 @@ public class JdbcTemplate {
     }
 
     private <T> List<T> query(String query, PreparedStatementSetter pstmtSetter, RowMapper<T> rowMapper) {
-        try (Connection con = ConnectionManager.getConnection();
+        try (Connection con = getConnection();
              PreparedStatement pstmt = con.prepareStatement(query)) {
             pstmtSetter.values(pstmt);
             return execute(pstmt, rowMapper);
         } catch (SQLException e) {
             log.error("SQLException : {}", e.getMessage());
-            throw new DataAccessException("유저가 없습니다.");
+            throw new DataAccessException("데이터가 없습니다!");
         }
     }
 
@@ -67,17 +71,22 @@ public class JdbcTemplate {
             return list;
         } catch (SQLException e) {
             log.error("SQLException : {}", e.getMessage());
-            throw new DataAccessException("찾는 유저가 없습니다.");
+            throw new DataAccessException("jdbc execute failed!");
         }
     }
 
-    private void createPreparedStatementSetter(PreparedStatement pstmt, Object[] values) throws SQLException {
-        if (values == null) {
-            return;
-        }
-
+    private void createPreparedStatementSetter(PreparedStatement pstmt, Object... values) throws SQLException {
         for (int index = 0; index < values.length; index++) {
             pstmt.setObject(index + 1, values[index]);
+        }
+    }
+
+    private Connection getConnection() {
+        try {
+            return dataSource.getConnection();
+        } catch (SQLException e) {
+            log.error("SQLException : {}", e.getMessage());
+            throw new DataAccessException("dataSource connection 실패");
         }
     }
 }
