@@ -22,10 +22,14 @@ public class JdbcTemplate {
     }
 
     private static void setValues(PreparedStatement pstmt, Object[] objects) {
+        for (int index = 1; index <= objects.length; index++) {
+            setString(pstmt, objects[index - 1], index);
+        }
+    }
+
+    private static void setString(PreparedStatement pstmt, Object object, int index) {
         try {
-            for (int i = 1; i <= objects.length; i++) {
-                pstmt.setString(i, String.valueOf(objects[i - 1]));
-            }
+            pstmt.setString(index, String.valueOf(object));
         } catch (SQLException e) {
             logger.error(e.getMessage(), e);
             throw new DatabaseAccessException(e);
