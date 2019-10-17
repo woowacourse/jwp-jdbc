@@ -20,25 +20,26 @@ public class JdbcTemplate<T> {
         this.dataSource = dataSource;
     }
 
-    public void update(String sql, Object... values) {
+    public void update(String sql, SqlExecuteStrategy sqlExecuteStrategy) {
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement preparedStatement = createPreparedStatement(connection, sql, values)) {
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            sqlExecuteStrategy.preparedStatementSetter(preparedStatement);
 
-            preparedStatement.executeUpdate();
         } catch (SQLException e) {
             log.error("ErrorCode: {}", e.getErrorCode());
         }
     }
 
-    public Optional<T> readForObject(RowMapper<T> rowMapper, String sql, Object... values) {
-        return Optional.of(readForList(rowMapper, sql, values).get(0));
+    public Optional<T> readForObject(RowMapper<T> rowMapper, String sql, SqlExecuteStrategy sqlExecuteStrategy) {
+        return Optional.of(readForList(rowMapper, sql, sqlExecuteStrategy).get(0));
     }
 
-    public List<T> readForList(RowMapper<T> rowMapper, String sql, Object... values) {
+    public List<T> readForList(RowMapper<T> rowMapper, String sql, SqlExecuteStrategy sqlExecuteStrategy) {
         List<T> objects = new ArrayList<>();
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement preparedStatement = createPreparedStatement(connection, sql, values);
-             ResultSet resultSet = preparedStatement.executeQuery()) {
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            sqlExecuteStrategy.preparedStatementSetter(preparedStatement);
+            ResultSet resultSet = preparedStatement.executeQuery();
 
             while (resultSet.next()) {
                 objects.add(rowMapper.mapRow(resultSet));
@@ -47,15 +48,5 @@ public class JdbcTemplate<T> {
             log.error("ErrorCode: {}", e.getErrorCode());
         }
         return objects;
-    }
-
-    private PreparedStatement createPreparedStatement(Connection connection, String sql, Object... values) throws SQLException {
-        PreparedStatement preparedStatement = connection.prepareStatement(sql);
-
-        int length = values.length;
-        for (int i = 0; i < length; i++) {
-            preparedStatement.setObject(i + 1, values[i]);
-        }
-        return preparedStatement;
     }
 }
