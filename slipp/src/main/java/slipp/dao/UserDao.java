@@ -36,7 +36,7 @@ public class UserDao {
     }
 
     public List<User> findAll() {
-        return jdbcTemplate.query(FIND_ALL_USER_QUERY, this.rowMapper);
+        return jdbcTemplate.query(FIND_ALL_USER_QUERY, rowMapper);
     }
 
     public User findUserById(String userId) {
