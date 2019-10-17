@@ -1,56 +1,38 @@
 package slipp.dao;
 
+import nextstep.jdbc.JdbcTemplate;
 import slipp.domain.User;
-import slipp.support.db.ConnectionManager;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class UserDao {
+    private JdbcTemplate jdbcTemplate;
+
+    public UserDao(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
+
     public void insert(User user) throws SQLException {
         String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
 
-        try (Connection con = ConnectionManager.getConnection();
-             PreparedStatement pstmt = con.prepareStatement(sql)) {
-
-            pstmt.setString(1, user.getUserId());
-            pstmt.setString(2, user.getPassword());
-            pstmt.setString(3, user.getName());
-            pstmt.setString(4, user.getEmail());
-
-            pstmt.executeUpdate();
-        }
+        jdbcTemplate.executeUpdate(sql, user.getUserId(), user.getPassword(), user.getName(), user.getEmail());
     }
-
 
     public void update(User user) throws SQLException {
         String sql = "UPDATE USERS " +
                 "SET password = ?, name = ?, email = ? " +
                 "WHERE userId = ?";
 
-        try (Connection con = ConnectionManager.getConnection();
-             PreparedStatement pstmt = con.prepareStatement(sql)) {
-            pstmt.setString(4, user.getUserId());
-            pstmt.setString(1, user.getPassword());
-            pstmt.setString(2, user.getName());
-            pstmt.setString(3, user.getEmail());
-
-            pstmt.executeUpdate();
-        }
+        jdbcTemplate.executeUpdate(sql, user.getPassword(), user.getName(), user.getEmail(), user.getUserId());
     }
 
     public List<User> findAll() throws SQLException {
         String sql = "SELECT userId, password, name, email FROM USERS";
-        List<User> users = new ArrayList<>();
 
-        try (Connection con = ConnectionManager.getConnection();
-             PreparedStatement pstmt = con.prepareStatement(sql);
-             ResultSet resultSet = pstmt.executeQuery()) {
-
+        return jdbcTemplate.executeQuery(sql, (resultSet) -> {
+            List<User> users = new ArrayList<>();
             while (resultSet.next()) {
                 String userId = resultSet.getString("userId");
                 String password = resultSet.getString("password");
@@ -61,26 +43,21 @@ public class UserDao {
                 users.add(user);
             }
 
-        }
-        return users;
+            return users;
+        });
     }
 
     public User findByUserId(String userId) throws SQLException {
         String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
 
-        try (Connection con = ConnectionManager.getConnection();
-             PreparedStatement pstmt = con.prepareStatement(sql)) {
-
-            pstmt.setString(1, userId);
-
-            try (ResultSet resultSet = pstmt.executeQuery()) {
-                User user = null;
-                if (resultSet.next()) {
-                    user = new User(resultSet.getString("userId"), resultSet.getString("password"), resultSet.getString("name"),
-                            resultSet.getString("email"));
-                }
-                return user;
+        return jdbcTemplate.executeQuery(sql, (resultSet) -> {
+            User user = null;
+            if (resultSet.next()) {
+                user = new User(resultSet.getString("userId"), resultSet.getString("password"), resultSet.getString("name"),
+                        resultSet.getString("email"));
             }
-        }
+            
+            return user;
+        }, userId);
     }
 }
