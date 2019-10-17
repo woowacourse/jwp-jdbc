@@ -12,40 +12,19 @@ import java.util.List;
 public class JdbcTemplate<T> {
 
     public T queryForObject(String sql, PreparedStatementSetter pstmtSetter, RowMapper<T> rowMapper) throws SQLException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        try {
-            con = ConnectionManager.getConnection();
-            pstmt = con.prepareStatement(sql);
-            pstmtSetter.setValues(pstmt);
-            rs = pstmt.executeQuery();
-
-            if (rs.next()) {
-                return rowMapper.mapRow(rs);
-            }
+        List<T> result = query(sql, pstmtSetter, rowMapper);
+        if (result.size()==0) {
             throw new SQLException();
-        } finally {
-            if (rs != null) {
-                rs.close();
-            }
-            if (pstmt != null) {
-                pstmt.close();
-            }
-            if (con != null) {
-                con.close();
-            }
         }
+        return query(sql, pstmtSetter, rowMapper).get(0);
     }
 
     public List<T> query(String sql, PreparedStatementSetter pstmtSetter, RowMapper<T> rowMapper) throws SQLException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
         ResultSet rs = null;
         List<T> result = new ArrayList<>();
-        try {
-            con = ConnectionManager.getConnection();
-            pstmt = con.prepareStatement(sql);
+
+        try (Connection con = ConnectionManager.getConnection();
+             PreparedStatement pstmt = con.prepareStatement(sql)) {
             pstmtSetter.setValues(pstmt);
             rs = pstmt.executeQuery();
 
@@ -57,59 +36,39 @@ public class JdbcTemplate<T> {
         } finally {
             if (rs != null) {
                 rs.close();
-            }
-            if (pstmt != null) {
-                pstmt.close();
-            }
-            if (con != null) {
-                con.close();
             }
         }
     }
 
     public List<T> query(String sql, RowMapper<T> rowMapper) throws SQLException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
         List<T> result = new ArrayList<>();
-        try {
-            con = ConnectionManager.getConnection();
-            pstmt = con.prepareStatement(sql);
-            rs = pstmt.executeQuery();
+        try (Connection con = ConnectionManager.getConnection();
+             PreparedStatement pstmt = con.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
 
             while (rs.next()) {
                 result.add(rowMapper.mapRow(rs));
             }
 
             return result;
-        } finally {
-            if (rs != null) {
-                rs.close();
-            }
-            if (pstmt != null) {
-                pstmt.close();
-            }
-            if (con != null) {
-                con.close();
-            }
         }
     }
 
     public void update(String sql, PreparedStatementSetter pstmtSetter) throws SQLException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        try {
-            con = ConnectionManager.getConnection();
-            pstmt = con.prepareStatement(sql);
+        try (Connection con = ConnectionManager.getConnection();
+             PreparedStatement pstmt = con.prepareStatement(sql)) {
             pstmtSetter.setValues(pstmt);
             pstmt.executeUpdate();
-        } finally {
-            if (pstmt != null) {
-                pstmt.close();
+        }
+    }
+
+    public void update(String sql, Object... values) throws SQLException {
+        try (Connection con = ConnectionManager.getConnection();
+             PreparedStatement pstmt = con.prepareStatement(sql)) {
+            for (int i = 0; i < values.length; i++) {
+                pstmt.setObject(i + 1, values[i]);
             }
-            if (con != null) {
-                con.close();
-            }
+            pstmt.executeUpdate();
         }
     }
 }
