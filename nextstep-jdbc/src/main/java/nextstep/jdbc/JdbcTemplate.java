@@ -1,6 +1,6 @@
 package nextstep.jdbc;
 
-import nextstep.util.QueryUtil;
+import nextstep.utils.QueryUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -8,10 +8,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * 리팩토링하면서 기존의 클래스가 컴파일 에러가 나면 안 돼
@@ -22,8 +19,8 @@ public class JdbcTemplate implements AutoCloseable {
 
     private final Connection conn;
 
-    public JdbcTemplate(Connection conn) {
-        this.conn = Objects.requireNonNull(conn);
+    public JdbcTemplate() {
+        this.conn = Objects.requireNonNull(ConnectionManager.getConnection());
     }
 
     public <T> List<T> executeQuery(String query, Map<String, Object> params, ResultSetMapper<T> mapper) {

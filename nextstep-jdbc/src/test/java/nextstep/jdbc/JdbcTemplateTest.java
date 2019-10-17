@@ -30,7 +30,7 @@ class JdbcTemplateTest {
         params.put("questionId", 1);
 
         // when
-        try (JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getConnection())) {
+        try (JdbcTemplate jdbcTemplate = new JdbcTemplate()) {
             List<Long> results = jdbcTemplate.executeQuery("SELECT * FROM questions WHERE questionId=:questionId",
                     params,
                     resultSet -> resultSet.getLong("questionId"));
@@ -52,7 +52,7 @@ class JdbcTemplateTest {
         params.put("email", "ehem@ehem.com");
 
         // when
-        try (JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getConnection())) {
+        try (JdbcTemplate jdbcTemplate = new JdbcTemplate()) {
             int affected = jdbcTemplate.executeUpdate("INSERT INTO users VALUES(:userId, :password, :name, :email);", params);
 
             // then
@@ -63,7 +63,7 @@ class JdbcTemplateTest {
     @Test
     void invalid_query() {
         // when
-        try (JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getConnection())) {
+        try (JdbcTemplate jdbcTemplate = new JdbcTemplate()) {
             // then
             assertThrows(JdbcTemplateException.class,
                     () -> jdbcTemplate.executeUpdate("abcdefg", Collections.emptyMap()));

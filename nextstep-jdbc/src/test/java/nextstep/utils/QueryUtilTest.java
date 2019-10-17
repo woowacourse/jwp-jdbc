@@ -1,4 +1,4 @@
-package nextstep.util;
+package nextstep.utils;
 
 import com.google.common.collect.Maps;
 import org.junit.jupiter.api.Test;

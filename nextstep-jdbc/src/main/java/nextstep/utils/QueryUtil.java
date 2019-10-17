@@ -1,4 +1,4 @@
-package nextstep.util;
+package nextstep.utils;
 
 import java.util.Map;
 

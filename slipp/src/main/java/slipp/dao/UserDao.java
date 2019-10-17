@@ -3,7 +3,6 @@ package slipp.dao;
 import com.google.common.collect.Maps;
 import nextstep.jdbc.JdbcTemplate;
 import slipp.domain.User;
-import slipp.support.db.ConnectionManager;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -13,14 +12,14 @@ import java.util.Map;
 
 public class UserDao {
     public void insert(User user) {
-        try (JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getConnection())) {
+        try (JdbcTemplate jdbcTemplate = new JdbcTemplate()) {
             Map<String, Object> params = createUserParams(user);
             jdbcTemplate.executeUpdate("INSERT INTO USERS VALUES (:userId, :password, :name, :email)", params);
         }
     }
 
     public int update(User user) {
-        try (JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getConnection())) {
+        try (JdbcTemplate jdbcTemplate = new JdbcTemplate()) {
             Map<String, Object> params = createUserParams(user);
             return jdbcTemplate.executeUpdate("UPDATE USERS SET PASSWORD = :password, NAME = :name, EMAIL = :email WHERE USERID = :userId", params);
         }
@@ -37,7 +36,7 @@ public class UserDao {
 
     public List<User> findAll() {
         List<User> users;
-        try (JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getConnection())) {
+        try (JdbcTemplate jdbcTemplate = new JdbcTemplate()) {
             users = jdbcTemplate.executeQuery("SELECT * FROM USERS", Collections.emptyMap(), this::extractUser);
         }
 
@@ -55,7 +54,7 @@ public class UserDao {
 
     public User findByUserId(String userId) {
         List<User> users;
-        try (JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getConnection())) {
+        try (JdbcTemplate jdbcTemplate = new JdbcTemplate()) {
             users = jdbcTemplate.executeQuery("SELECT userId, password, name, email FROM USERS WHERE userid=:userId",
                     Collections.singletonMap("userId", userId),
                     this::extractUser);
