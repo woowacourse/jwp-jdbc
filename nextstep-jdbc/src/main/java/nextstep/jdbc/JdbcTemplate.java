@@ -13,7 +13,7 @@ public class JdbcTemplate<T> {
 
     public T queryForObject(String sql, PreparedStatementSetter pstmtSetter, RowMapper<T> rowMapper) throws SQLException {
         List<T> result = query(sql, pstmtSetter, rowMapper);
-        if (result.size()==0) {
+        if (result.isEmpty()) {
             throw new SQLException();
         }
         return query(sql, pstmtSetter, rowMapper).get(0);
