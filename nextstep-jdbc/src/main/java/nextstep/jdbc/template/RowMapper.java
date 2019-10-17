@@ -5,15 +5,25 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.Map;
+
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.toMap;
 
 public class RowMapper<T> {
     private static final Logger logger = LoggerFactory.getLogger(RowMapper.class);
+    private static final int START_SET_VALUE_INDEX = 1;
 
     private final Class<T> clazz;
+    private final Map<String, Field> fields;
 
     public RowMapper(Class<T> clazz) {
         this.clazz = clazz;
+        this.fields = Arrays.stream(clazz.getDeclaredFields())
+                .collect(toMap(field -> field.getName().toLowerCase(), identity()));
     }
 
     public T getInstance(ResultSet resultSet) {
@@ -28,7 +38,10 @@ public class RowMapper<T> {
     }
 
     private void setFields(ResultSet resultSet, T instance) throws IllegalAccessException, SQLException {
-        for (Field field : clazz.getDeclaredFields()) {
+        ResultSetMetaData metaData = resultSet.getMetaData();
+        int columnCount = metaData.getColumnCount();
+        for (int i = START_SET_VALUE_INDEX; i <= columnCount; i++) {
+            Field field = fields.get(metaData.getColumnName(i).toLowerCase());
             field.setAccessible(true);
             field.set(instance, resultSet.getString(field.getName()));
         }
