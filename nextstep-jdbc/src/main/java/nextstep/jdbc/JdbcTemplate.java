@@ -2,6 +2,7 @@ package nextstep.jdbc;
 
 import slipp.support.db.ConnectionManager;
 
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -10,8 +11,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class JdbcTemplate {
+    private final Connection connection;
+
+    public JdbcTemplate(Connection connection) {
+        this.connection = connection;
+    }
+
     public void insert(String sql, PrepareStatementSetter prepareStatementSetter) throws SQLException {
-        try (Connection con = ConnectionManager.getConnection(); PreparedStatement preparedStatement = con.prepareStatement(sql)) {
+        try (PreparedStatement preparedStatement = this.connection.prepareStatement(sql)) {
             prepareStatementSetter.setParameters(preparedStatement);
             preparedStatement.executeUpdate();
         }
@@ -23,8 +30,7 @@ public class JdbcTemplate {
     }
 
     public <T> T objectQuery(String sql, RowMapper<T> rowMapper, PrepareStatementSetter prepareStatementSetter) throws SQLException {
-        try (Connection con = ConnectionManager.getConnection();
-             ResultSet resultSet = getResultSet(sql, prepareStatementSetter, con)) {
+        try (ResultSet resultSet = getResultSet(sql, prepareStatementSetter, this.connection)) {
             return rowMapper.mapRow(resultSet);
         }
     }
@@ -41,8 +47,7 @@ public class JdbcTemplate {
 
     public <T> List<T> listQuery(String sql, RowMapper<T> rowMapper, PrepareStatementSetter prepareStatementSetter) throws SQLException {
         List<T> objects = new ArrayList<>();
-        try (Connection con = ConnectionManager.getConnection();
-             ResultSet resultSet = getResultSet(sql, prepareStatementSetter, con)) {
+        try (ResultSet resultSet = getResultSet(sql, prepareStatementSetter, this.connection)) {
             while (resultSet.next()) {
                 objects.add(rowMapper.mapRow(resultSet));
             }
