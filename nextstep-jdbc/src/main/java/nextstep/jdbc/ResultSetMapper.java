@@ -18,7 +18,7 @@ public class ResultSetMapper<T> {
         this.clazz = type;
     }
 
-    public T mapObject(ResultSet resultSet) throws SQLException, IllegalAccessException {
+    public T mapObject(ResultSet resultSet) throws SQLException {
         T object = null;
         if (resultSet.next()) {
             object = map(resultSet);
@@ -26,7 +26,7 @@ public class ResultSetMapper<T> {
         return object;
     }
 
-    public List<T> mapList(ResultSet resultSet) throws SQLException, IllegalAccessException {
+    public List<T> mapList(ResultSet resultSet) throws SQLException {
         List<T> elements = new ArrayList<>();
         while (resultSet.next()) {
             T object = map(resultSet);
@@ -35,14 +35,22 @@ public class ResultSetMapper<T> {
         return elements;
     }
 
-    private T map(ResultSet resultSet) throws IllegalAccessException, SQLException {
+    private T map(ResultSet resultSet) throws SQLException {
         T object = instantiate(clazz);
-        Field[] fields = clazz.getDeclaredFields();
-        for (Field field : fields) {
-            field.setAccessible(true);
-            field.set(object, resultSet.getString(field.getName()));
-        }
+        setFields(resultSet, object);
         return object;
+    }
+
+    private void setFields(ResultSet resultSet, T object) throws SQLException {
+        try {
+            Field[] fields = clazz.getDeclaredFields();
+            for (Field field : fields) {
+                field.setAccessible(true);
+                field.set(object, resultSet.getString(field.getName()));
+            }
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
     }
 
     private T instantiate(Class<T> clazz) {

@@ -13,7 +13,6 @@ import java.sql.SQLException;
 
 public class JdbcTemplate {
     private static final Logger log = LoggerFactory.getLogger(JdbcTemplate.class);
-    private static final String ILLEGAL_EXECUTION_EXCEPTION_MESSAGE = "잘못된 Connection";
 
     private final DataSource dataSource;
 
@@ -21,19 +20,18 @@ public class JdbcTemplate {
         this.dataSource = dataSource;
     }
 
-    public void execute(String sql, String... values) {
+    public void execute(String sql, Object... values) {
         try (Connection connection = dataSource.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             setValues(preparedStatement, values);
-
             preparedStatement.executeUpdate();
         } catch (SQLException | IllegalConnectionException e) {
             log.error("execution error : ", e);
-            throw new IllegalExecutionException(ILLEGAL_EXECUTION_EXCEPTION_MESSAGE);
+            throw new IllegalExecutionException(e);
         }
     }
 
-    public <T> T executeQuery(String sql, ResultSetProcessor<T> resultSetProcessor, String... values) {
+    public <T> T executeQuery(String sql, ResultSetProcessor<T> resultSetProcessor, Object... values) {
         try (Connection connection = dataSource.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             setValues(preparedStatement, values);
@@ -41,17 +39,15 @@ public class JdbcTemplate {
             ResultSet resultSet = preparedStatement.executeQuery();
 
             return resultSetProcessor.process(resultSet);
-        } catch (SQLException
-                | IllegalConnectionException
-                | IllegalAccessException e) {
+        } catch (SQLException | IllegalConnectionException e) {
             log.error("execution error : ", e);
-            throw new IllegalExecutionException(ILLEGAL_EXECUTION_EXCEPTION_MESSAGE);
+            throw new IllegalExecutionException(e);
         }
     }
 
-    private void setValues(PreparedStatement preparedStatement, String[] values) throws SQLException {
+    private void setValues(PreparedStatement preparedStatement, Object[] values) throws SQLException {
         for (int i = 0; i < values.length; i++) {
-            preparedStatement.setString(i + 1, values[i]);
+            preparedStatement.setObject(i + 1, values[i]);
         }
     }
 }

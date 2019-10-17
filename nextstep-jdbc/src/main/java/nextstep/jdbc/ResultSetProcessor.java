@@ -5,5 +5,5 @@ import java.sql.SQLException;
 
 @FunctionalInterface
 public interface ResultSetProcessor<T> {
-    T process(ResultSet resultSet) throws SQLException, IllegalAccessException;
+    T process(ResultSet resultSet) throws SQLException;
 }
