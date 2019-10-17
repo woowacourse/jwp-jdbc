@@ -28,7 +28,6 @@ public class ApiUserController {
         UserCreatedDto createdDto = objectMapper.readValue(request.getInputStream(), UserCreatedDto.class);
         logger.debug("Created User : {}", createdDto);
 
-
         DataBase.addUser(new User(
                 createdDto.getUserId(),
                 createdDto.getPassword(),
@@ -60,7 +59,7 @@ public class ApiUserController {
 
         User user = DataBase.findUserById(userId);
         user.update(updateDto);
-
+        userDao.update(user);
         return new ModelAndView(new JsonView());
     }
 }
