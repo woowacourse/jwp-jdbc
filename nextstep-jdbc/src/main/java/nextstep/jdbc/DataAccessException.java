@@ -2,6 +2,6 @@ package nextstep.jdbc;
 
 public class DataAccessException extends RuntimeException {
     public DataAccessException() {
-        super("DataAccessException occurred!");
+        super("Data Access Exception Occurred!");
     }
 }

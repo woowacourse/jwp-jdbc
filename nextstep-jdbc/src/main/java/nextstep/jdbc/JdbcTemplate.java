@@ -2,21 +2,26 @@ package nextstep.jdbc;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import slipp.domain.User;
-import slipp.support.db.ConnectionManager;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class JdbcTemplate {
     private static final Logger log = LoggerFactory.getLogger(JdbcTemplate.class);
 
-    public void execute(String query, PreparedStatementSetter pss) {
-        try (Connection con = ConnectionManager.getConnection(); PreparedStatement pstmt = con.prepareStatement(query)) {
-            pss.setValues(pstmt);
+    private ConnectionManager cm;
+
+    public JdbcTemplate(DBConnection dbConnection) {
+        this.cm = new ConnectionManager(dbConnection);
+    }
+
+    public void execute(String sql, Object... objects) {
+        try (Connection con = cm.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
+            setValues(pstmt, objects);
             pstmt.executeUpdate();
         } catch (SQLException e) {
             log.debug(e.getMessage(), e.getCause());
@@ -24,12 +29,14 @@ public class JdbcTemplate {
         }
     }
 
-    public User queryForObject(String userId, PreparedStatementSetter pss, RowMapper<User> rm) {
-        String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
-        try (Connection con = ConnectionManager.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
-            pss.setValues(pstmt);
+    public <T> List<T> query(String sql, RowMapper<T> rm) {
+        try (Connection con = cm.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
             try (ResultSet rs = pstmt.executeQuery()) {
-                return rm.mapRow(rs);
+                List<T> values = new ArrayList<>();
+                while (rs.next()) {
+                    values.add(rm.mapRow(rs));
+                }
+                return values;
             }
         } catch (SQLException e) {
             log.debug(e.getMessage(), e.getCause());
@@ -37,16 +44,24 @@ public class JdbcTemplate {
         }
     }
 
-    public List<User> query(String query, RowMapper<List<User>> rm) {
-        try (Connection con = ConnectionManager.getConnection(); PreparedStatement pstmt = con.prepareStatement(query)) {
+    public <T> T queryForObject(String sql, RowMapper<T> rm, Object... objects) {
+        try (Connection con = cm.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
+            setValues(pstmt, objects);
             try (ResultSet rs = pstmt.executeQuery()) {
-                List<User> users = rm.mapRow(rs);
-                return users;
+                if (rs.next()) {
+                    return rm.mapRow(rs);
+                }
             }
+            return null;
         } catch (SQLException e) {
             log.debug(e.getMessage(), e.getCause());
             throw new DataAccessException();
         }
     }
 
+    private void setValues(PreparedStatement pstmt, Object[] objects) throws SQLException {
+        for (int i = 0; i < objects.length; i++) {
+            pstmt.setObject(i + 1, objects[i]);
+        }
+    }
 }
