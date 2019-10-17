@@ -9,25 +9,31 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
-public class JdbcTemplate {
-    private static final Logger logger = LoggerFactory.getLogger(JdbcTemplate.class);
+public class JdbcTemplate<T> {
+    private final Logger logger = LoggerFactory.getLogger(JdbcTemplate.class);
 
-    public static int save(String sql, Object... objects) {
-        return JdbcExecutor.execute(sql, pstmt -> executeUpdate(pstmt, objects));
+    private final JdbcExecutor jdbcExecutor;
+
+    public JdbcTemplate() {
+        this.jdbcExecutor = new JdbcExecutor();
     }
 
-    private static int executeUpdate(PreparedStatement pstmt, Object[] objects) throws SQLException {
+    public int save(String sql, Object... objects) {
+        return jdbcExecutor.execute(sql, pstmt -> executeUpdate(pstmt, objects));
+    }
+
+    private int executeUpdate(PreparedStatement pstmt, Object[] objects) throws SQLException {
         setValues(pstmt, objects);
         return pstmt.executeUpdate();
     }
 
-    private static void setValues(PreparedStatement pstmt, Object[] objects) {
+    private void setValues(PreparedStatement pstmt, Object[] objects) {
         for (int index = 1; index <= objects.length; index++) {
             setString(pstmt, objects[index - 1], index);
         }
     }
 
-    private static void setString(PreparedStatement pstmt, Object object, int index) {
+    private void setString(PreparedStatement pstmt, Object object, int index) {
         try {
             pstmt.setString(index, String.valueOf(object));
         } catch (SQLException e) {
@@ -36,20 +42,20 @@ public class JdbcTemplate {
         }
     }
 
-    public static <T> List<T> query(String sql, RowMapper<T> rowMapper, Object... objects) {
-        return JdbcExecutor.execute(sql, pstmt -> executeQuery(rowMapper, pstmt, objects));
+    public List<T> query(String sql, RowMapper<T> rowMapper, Object... objects) {
+        return jdbcExecutor.execute(sql, pstmt -> executeQuery(rowMapper, pstmt, objects));
     }
 
-    private static <T> List<T> executeQuery(RowMapper<T> rowMapper, PreparedStatement pstmt, Object[] objects) {
+    private List<T> executeQuery(RowMapper<T> rowMapper, PreparedStatement pstmt, Object[] objects) {
         setValues(pstmt, objects);
         return ResultSetHelper.getData(rowMapper, pstmt);
     }
 
-    public static <T> Optional<T> queryForObject(String sql, RowMapper<T> rowMapper, Object... objects) {
-        return JdbcExecutor.execute(sql, pstmt -> executeQueryForObject(rowMapper, pstmt, objects));
+    public Optional<T> queryForObject(String sql, RowMapper<T> rowMapper, Object... objects) {
+        return jdbcExecutor.execute(sql, pstmt -> executeQueryForObject(rowMapper, pstmt, objects));
     }
 
-    private static <T> Optional<T> executeQueryForObject(RowMapper<T> rowMapper, PreparedStatement pstmt, Object[] objects) {
+    private Optional<T> executeQueryForObject(RowMapper<T> rowMapper, PreparedStatement pstmt, Object[] objects) {
         setValues(pstmt, objects);
         return Optional.ofNullable(ResultSetHelper.getData(rowMapper, pstmt).get(0));
     }

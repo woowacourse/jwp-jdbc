@@ -11,7 +11,7 @@ import java.sql.SQLException;
 public class JdbcExecutor {
     private static final Logger logger = LoggerFactory.getLogger(JdbcExecutor.class);
 
-    public static <T> T execute(String sql, Handler<T> handler) {
+    public <T> T execute(String sql, Handler<T> handler) {
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
             return handler.handle(pstmt);

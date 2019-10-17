@@ -9,14 +9,20 @@ import java.util.Optional;
 
 public class UserDao {
 
+    private final JdbcTemplate<User> jdbcTemplate;
+
+    public UserDao() {
+        this.jdbcTemplate = new JdbcTemplate<>();
+    }
+
     public void insert(User user) {
         String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
-        JdbcTemplate.save(sql, user.getUserId(), user.getPassword(), user.getName(), user.getEmail());
+        jdbcTemplate.save(sql, user.getUserId(), user.getPassword(), user.getName(), user.getEmail());
     }
 
     public void update(User user) {
         String sql = "UPDATE USERS SET PASSWORD = ?, NAME = ?, EMAIL = ? WHERE USERID = ?";
-        JdbcTemplate.save(sql, user.getPassword(), user.getName(), user.getEmail(), user.getUserId());
+        jdbcTemplate.save(sql, user.getPassword(), user.getName(), user.getEmail(), user.getUserId());
     }
 
     public List<User> findAll() {
@@ -30,7 +36,7 @@ public class UserDao {
             return new User(id, password, name, email);
         };
 
-        return JdbcTemplate.query(sql, rowMapper);
+        return jdbcTemplate.query(sql, rowMapper);
     }
 
     public Optional<User> findByUserId(String userId) {
@@ -39,6 +45,6 @@ public class UserDao {
         RowMapper<User> rowMapper = rs -> new User(rs.getString("userId"), rs.getString("password"),
                 rs.getString("name"), rs.getString("email"));
 
-        return JdbcTemplate.queryForObject(sql, rowMapper, userId);
+        return jdbcTemplate.queryForObject(sql, rowMapper, userId);
     }
 }
