@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class JdbcTemplate<T> {
+public class JdbcTemplate {
     private static final Logger logger = LoggerFactory.getLogger(JdbcTemplate.class);
     private static final String TAG = "JdbcTemplate";
 
@@ -23,7 +23,10 @@ public class JdbcTemplate<T> {
         this.dataSource = dataSource;
     }
 
-    public List<T> execute(String sql, RowMapper<T> rowMapper, SqlExecuteStrategy sqlExecuteStrategy) {
+    public <T> Optional<T> execute(final String sql,
+                                   final ResultSetExtractor<T> resultSetExtractor,
+                                   final SqlExecuteStrategy sqlExecuteStrategy) {
+
         try (Connection connection = dataSource.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
@@ -32,10 +35,10 @@ public class JdbcTemplate<T> {
             }
 
             if (preparedStatement.execute()) {
-                return createList(rowMapper, preparedStatement);
+                return extractData(resultSetExtractor, preparedStatement);
             }
 
-            return null;
+            return Optional.empty();
 
         } catch (SQLException e) {
             logger.error("{}.queryForList >> {}", TAG, e);
@@ -43,36 +46,27 @@ public class JdbcTemplate<T> {
         }
     }
 
-    public List<T> execute(String sql, SqlExecuteStrategy sqlExecuteStrategy) {
+    private <T> Optional<T> extractData(final ResultSetExtractor<T> resultSetExtractor,
+                                        final PreparedStatement preparedStatement) throws SQLException {
+
+        try (ResultSet resultSet = preparedStatement.getResultSet()) {
+            return resultSetExtractor.extractData(resultSet);
+        }
+    }
+
+    public <T> Optional<T> query(final String sql,
+                                 final RowMapper<T> rowMapper,
+                                 final SqlExecuteStrategy sqlExecuteStrategy) {
+
+        return execute(sql, new ObjectMapperResultSetExtractor<>(rowMapper), sqlExecuteStrategy);
+    }
+
+    public <T> Optional<T> query(final String sql, final SqlExecuteStrategy sqlExecuteStrategy) {
         return execute(sql, null, sqlExecuteStrategy);
     }
 
-    public List<T> execute(String sql, RowMapper<T> rowMapper) {
-        return execute(sql, rowMapper, null);
-    }
-
-    private List<T> createList(final RowMapper<T> rowMapper, final PreparedStatement preparedStatement) throws SQLException {
-        try (ResultSet resultSet = preparedStatement.getResultSet()) {
-            List<T> objects = new ArrayList<>();
-
-            while (resultSet.next()) {
-                T object = rowMapper.mapRow(resultSet);
-                objects.add(object);
-            }
-
-            return objects;
-        }
-    }
-
-    public Optional<T> queryForObject(String sql, RowMapper<T> rowMapper, SqlExecuteStrategy sqlExecuteStrategy) {
-        return getObject(execute(sql, rowMapper, sqlExecuteStrategy));
-    }
-
-    private Optional<T> getObject(List<T> lists) {
-        if (lists.isEmpty()) {
-            return Optional.empty();
-        }
-
-        return Optional.of(lists.get(0));
+    public <T> List<T> query(final String sql, final RowMapper<T> rowMapper) {
+        return execute(sql, new RowMapperResultSetExtractor<>(rowMapper), null)
+                .orElse(new ArrayList<>());
     }
 }
