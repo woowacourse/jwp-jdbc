@@ -29,24 +29,27 @@ public class JdbcTemplate {
 
     public <T> T query(String sql, RowMapper<T> rm) {
         try (Connection con = cm.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
-            try (ResultSet rs = pstmt.executeQuery()) {
-                return rm.mapRow(rs);
-            }
+            return executeMapRow(rm, pstmt);
         } catch (SQLException e) {
             log.debug(e.getMessage(), e.getCause());
             throw new DataAccessException();
         }
     }
 
+
     public <T> T queryForObject(String sql, RowMapper<T> rm, Object... objects) {
         try (Connection con = cm.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
             setValues(pstmt, objects);
-            try (ResultSet rs = pstmt.executeQuery()) {
-                return rm.mapRow(rs);
-            }
+            return executeMapRow(rm, pstmt);
         } catch (SQLException e) {
             log.debug(e.getMessage(), e.getCause());
             throw new DataAccessException();
+        }
+    }
+
+    private <T> T executeMapRow(RowMapper<T> rm, PreparedStatement pstmt) throws SQLException {
+        try (ResultSet rs = pstmt.executeQuery()) {
+            return rm.mapRow(rs);
         }
     }
 

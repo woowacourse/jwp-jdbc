@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserDao {
-    JdbcTemplate template;
+    private JdbcTemplate template;
 
     public UserDao(DBConnection dbConnection) {
         this.template = new JdbcTemplate(dbConnection);
@@ -37,7 +37,6 @@ public class UserDao {
                 User user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"), rs.getString("email"));
                 users.add(user);
             }
-
             return users;
         };
 
@@ -50,13 +49,11 @@ public class UserDao {
         Object[] values = {userId};
 
         RowMapper<User> rm = rs -> {
-            User user = null;
             if (rs.next()) {
-                user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
-                        rs.getString("email"));
+                return new User(rs.getString("userId"), rs.getString("password"),
+                        rs.getString("name"), rs.getString("email"));
             }
-
-            return user;
+            throw new UserNotFoundException();
         };
 
         return template.queryForObject(sql, rm, values);
