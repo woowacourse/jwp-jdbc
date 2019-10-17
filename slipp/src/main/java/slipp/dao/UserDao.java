@@ -12,14 +12,15 @@ import java.sql.SQLException;
 import java.util.List;
 
 public class UserDao {
-    private UserDao() {}
+    private UserDao() {
+    }
 
     public static UserDao getInstance() {
         return UserDaoHolder.instance;
     }
 
     public void insert(User user) {
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getConnection());
+        JdbcTemplate jdbcTemplate = getJdbcTemplate();
         SqlMapper sqlMapper = new SqlMapper("INSERT INTO USERS VALUES (?, ?, ?, ?)");
         sqlMapper.addAttribute(user.getUserId())
                 .addAttribute(user.getPassword())
@@ -30,7 +31,7 @@ public class UserDao {
     }
 
     public void update(User user) {
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getConnection());
+        JdbcTemplate jdbcTemplate = getJdbcTemplate();
         SqlMapper sqlMapper = new SqlMapper("UPDATE USERS SET password = ?, name = ?, email = ? WHERE userId = ?");
         sqlMapper.addAttribute(user.getPassword())
                 .addAttribute(user.getName())
@@ -41,7 +42,7 @@ public class UserDao {
     }
 
     public List<User> findAll() {
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getConnection());
+        JdbcTemplate jdbcTemplate = getJdbcTemplate();
         SqlMapper sqlMapper = new SqlMapper("SELECT userId, password, name, email FROM USERS");
 
         return jdbcTemplate.executeQuery(sqlMapper, new ListMapper<User>() {
@@ -58,7 +59,7 @@ public class UserDao {
     }
 
     public User findByUserId(String userId) {
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getConnection());
+        JdbcTemplate jdbcTemplate = getJdbcTemplate();
         SqlMapper sqlMapper = new SqlMapper("SELECT userId, password, name, email FROM USERS WHERE userid=?");
         sqlMapper.addAttribute(userId);
 
@@ -73,6 +74,10 @@ public class UserDao {
                         resultSet.getString("email"));
             }
         });
+    }
+
+    private JdbcTemplate getJdbcTemplate() {
+        return new JdbcTemplate(ConnectionManager.getConnection());
     }
 
     private static class UserDaoHolder {
