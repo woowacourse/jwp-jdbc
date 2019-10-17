@@ -1,78 +1,61 @@
 package slipp.dao;
 
+import nextstep.jdbc.JdbcTemplate;
+import nextstep.jdbc.RowMapper;
+import nextstep.jdbc.SqlExecuteStrategy;
 import slipp.domain.User;
 import slipp.support.db.ConnectionManager;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class UserDao {
-    public void insert(User user) throws SQLException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        try {
-            con = ConnectionManager.getConnection();
-            String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
-            pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, user.getUserId());
-            pstmt.setString(2, user.getPassword());
-            pstmt.setString(3, user.getName());
-            pstmt.setString(4, user.getEmail());
+    private static final JdbcTemplate<User> JDBC_TEMPLATE = new JdbcTemplate<>(ConnectionManager.getDataSource());
+    private static final RowMapper<User> ROW_MAPPER = resultSet -> {
+        String userId = resultSet.getString("userId");
+        String password = resultSet.getString("password");
+        String name = resultSet.getString("name");
+        String email = resultSet.getString("email");
+        return new User(userId, password, name, email);
+    };
 
-            pstmt.executeUpdate();
-        } finally {
-            if (pstmt != null) {
-                pstmt.close();
-            }
+    public void insert(User user) {
+        SqlExecuteStrategy sqlExecuteStrategy = preparedStatement -> {
+            preparedStatement.setObject(1, user.getUserId());
+            preparedStatement.setObject(2, user.getPassword());
+            preparedStatement.setObject(3, user.getName());
+            preparedStatement.setObject(4, user.getEmail());
 
-            if (con != null) {
-                con.close();
-            }
-        }
+            preparedStatement.executeUpdate();
+        };
+        JDBC_TEMPLATE.update("INSERT INTO USERS VALUES (?, ?, ?, ?)", sqlExecuteStrategy);
+
     }
 
-    public void update(User user) throws SQLException {
-        // TODO 구현 필요함.
+    public void update(User user) {
+        SqlExecuteStrategy sqlExecuteStrategy = preparedStatement -> {
+            preparedStatement.setObject(1, user.getPassword());
+            preparedStatement.setObject(2, user.getName());
+            preparedStatement.setObject(3, user.getEmail());
+            preparedStatement.setObject(4, user.getUserId());
+
+            preparedStatement.executeUpdate();
+        };
+        JDBC_TEMPLATE.update("UPDATE USERS SET password = ?, name = ?, email = ? WHERE userId = ?", sqlExecuteStrategy);
     }
 
-    public List<User> findAll() throws SQLException {
-        // TODO 구현 필요함.
-        return new ArrayList<User>();
+    public List<User> findAll() {
+        SqlExecuteStrategy sqlExecuteStrategy = PreparedStatement::executeQuery;
+        return JDBC_TEMPLATE.readForList(ROW_MAPPER, "SELECT userId, password, name, email FROM USERS", sqlExecuteStrategy);
     }
 
-    public User findByUserId(String userId) throws SQLException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        try {
-            con = ConnectionManager.getConnection();
-            String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
-            pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, userId);
+    public Optional<User> findByUserId(String id) {
+        SqlExecuteStrategy sqlExecuteStrategy = preparedStatement -> {
+            preparedStatement.setObject(1, id);
 
-            rs = pstmt.executeQuery();
-
-            User user = null;
-            if (rs.next()) {
-                user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
-                        rs.getString("email"));
-            }
-
-            return user;
-        } finally {
-            if (rs != null) {
-                rs.close();
-            }
-            if (pstmt != null) {
-                pstmt.close();
-            }
-            if (con != null) {
-                con.close();
-            }
-        }
+            preparedStatement.executeQuery();
+        };
+        return JDBC_TEMPLATE.readForObject(ROW_MAPPER, "SELECT userId, password, name, email FROM USERS WHERE userId = ?", sqlExecuteStrategy);
     }
 }
