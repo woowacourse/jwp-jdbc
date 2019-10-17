@@ -8,6 +8,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 
 public class JdbcTemplate {
     private final DataSource dataSource;
@@ -18,14 +19,6 @@ public class JdbcTemplate {
 
     public void update(String sql, Object... args) {
         execute(sql, null, args);
-    }
-
-    public <T> List<T> executeQuery(String sql, RowMapper<T> rowMapper, Object... args) {
-        return execute(sql, new MultipleResultSetExtractionStrategy<>(rowMapper), args);
-    }
-
-    public <T> T executeQueryForObject(String sql, RowMapper<T> rowMapper, Object... args) {
-        return execute(sql, new SingleResultSetExtractionStrategy<>(rowMapper), args);
     }
 
     private <T> T execute(String sql, ResultSetExtractionStrategy<T> strategy, Object... args) {
@@ -40,7 +33,8 @@ public class JdbcTemplate {
         }
     }
 
-    private <T> T extractEntity(ResultSetExtractionStrategy<T> strategy, PreparedStatement pstmt) throws SQLException {
+    private <T> T extractEntity(ResultSetExtractionStrategy<T> strategy,
+                                PreparedStatement pstmt) throws SQLException {
         if (pstmt.execute() && strategy != null) {
             try (ResultSet rs = pstmt.getResultSet()) {
                 return strategy.extract(rs);
@@ -49,10 +43,23 @@ public class JdbcTemplate {
         return null;
     }
 
-    private <T> T execute(String sql, PreparedStatementSetter preparedStatementSetter, ResultSetExtractionStrategy<T> strategy) {
+    public <T> List<T> executeQuery(String sql, RowMapper<T> rowMapper, Object... args) {
+        ResultSetExtractionStrategy<List<T>> strategy = new MultipleResultSetExtractionStrategy<>(rowMapper);
+        return execute(sql, strategy, args);
+    }
+
+    public <T> Optional<T> executeQueryForObject(String sql, RowMapper<T> rowMapper, Object... args) {
+        ResultSetExtractionStrategy<T> strategy = new SingleResultSetExtractionStrategy<>(rowMapper);
+        T result = execute(sql, strategy, args);
+
+        return Optional.ofNullable(result);
+    }
+
+    public <T> T execute(String sql, PreparedStatementSetter pstmtSetter,
+                         ResultSetExtractionStrategy<T> strategy) {
         try (Connection connection = dataSource.getConnection();
              PreparedStatement pstmt = connection.prepareStatement(sql)) {
-            preparedStatementSetter.setValues(pstmt);
+            pstmtSetter.setValues(pstmt);
 
             return extractEntity(strategy, pstmt);
         } catch (SQLException e) {

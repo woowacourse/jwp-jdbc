@@ -1,6 +1,7 @@
 package slipp.dao;
 
 import nextstep.jdbc.JdbcTemplate;
+import slipp.dao.exception.UserNotFoundException;
 import slipp.domain.User;
 import slipp.support.db.ConnectionManager;
 
@@ -42,7 +43,8 @@ public class UserDao {
 
     public User findByUserId(String userId) {
         String sql = "SELECT userId, password, name, email FROM USERS WHERE userId=?";
-        return jdbcTemplate.executeQueryForObject(sql, this::extractUser, userId);
+        return jdbcTemplate.executeQueryForObject(sql, this::extractUser, userId)
+                .orElseThrow(UserNotFoundException::new);
     }
 
     private User extractUser(ResultSet rs) throws SQLException {
