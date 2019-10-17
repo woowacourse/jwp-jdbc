@@ -72,11 +72,7 @@ public class JdbcTemplate {
         }
     }
 
-    private void createPreparedStatementSetter(PreparedStatement pstmt, Object[] values) throws SQLException {
-        if (values == null) {
-            return;
-        }
-
+    private void createPreparedStatementSetter(PreparedStatement pstmt, Object... values) throws SQLException {
         for (int index = 0; index < values.length; index++) {
             pstmt.setObject(index + 1, values[index]);
         }
