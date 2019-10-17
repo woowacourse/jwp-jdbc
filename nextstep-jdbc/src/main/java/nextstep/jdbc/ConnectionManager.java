@@ -1,11 +1,14 @@
 package nextstep.jdbc;
 
 import org.apache.commons.dbcp2.BasicDataSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 
 class ConnectionManager {
+    private static final Logger log = LoggerFactory.getLogger(ConnectionManager.class);
     private final String driver;
     private final String url;
     private final String userName;
@@ -27,7 +30,7 @@ class ConnectionManager {
         try {
             return ds.getConnection();
         } catch (SQLException e) {
-            e.printStackTrace();
+            log.error(e.getMessage());
             throw new IllegalArgumentException();
         }
     }
