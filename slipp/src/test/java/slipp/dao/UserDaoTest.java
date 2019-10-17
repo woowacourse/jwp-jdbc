@@ -26,7 +26,7 @@ public class UserDaoTest {
         final User expected = new User("userId", "password", "name", "javajigi@email.com");
         final UserDao userDao = new UserDao();
 
-        userDao.insert(expected);
+        userDao.create(expected);
         User actual = userDao.findByUserId(expected.getUserId());
         assertThat(actual).isEqualTo(expected);
 

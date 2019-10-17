@@ -33,17 +33,17 @@ public class User {
         return email;
     }
 
-    public void update(UserUpdatedDto updateUser) {
+    public User update(UserUpdatedDto updateUser) {
         this.password = updateUser.getPassword();
         this.name = updateUser.getName();
         this.email = updateUser.getEmail();
+        return this;
     }
 
     public boolean matchPassword(String password) {
         if (password == null) {
             return false;
         }
-
         return this.password.equals(password);
     }
 

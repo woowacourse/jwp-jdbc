@@ -11,7 +11,7 @@ import java.util.List;
 public class UserDao {
     private final JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
 
-    public void insert(User user) {
+    public void create(User user) {
         this.jdbcTemplate.insert(
                 "INSERT INTO USERS VALUES (?, ?, ?, ?)",
                 user.getUserId(),
