@@ -9,6 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class JdbcTemplate {
     private final Connection connection;
@@ -31,17 +32,15 @@ public class JdbcTemplate {
         update(sql, prepareStatementSetter);
     }
 
-    public <T> T singleObjectQuery(String sql, RowMapper<T> rowMapper, PrepareStatementSetter prepareStatementSetter) {
-        try (ResultSet resultSet = getResultSet(sql, prepareStatementSetter, this.connection)) {
-            return rowMapper.mapRow(resultSet);
-        }catch (SQLException e) {
-            throw new SelectQueryException();
-        }
-    }
+    public <T> Optional<T> singleObjectQuery(String sql, RowMapper<T> rowMapper, Object... args) {
 
-    public <T> T singleObjectQuery(String sql, RowMapper<T> rowMapper, Object... args) {
         PrepareStatementSetter prepareStatementSetter = getPrepareStatementSetter(args);
-        return singleObjectQuery(sql, rowMapper, prepareStatementSetter);
+        List<T> objects = listQuery(sql, rowMapper, prepareStatementSetter);
+        if(objects.isEmpty()) {
+            return Optional.empty();
+        }
+
+        return Optional.of(objects.get(0));
     }
 
     public <T> List<T> listQuery(String sql, RowMapper<T> rowMapper, Object... args) {
