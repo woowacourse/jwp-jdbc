@@ -3,7 +3,7 @@ package nextstep.jdbc;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public abstract class ObjectMapper<T> implements JdbcMapper {
+public abstract class ObjectMapper<T> implements JdbcMapper<T> {
 
     @Override
     public T mapped(ResultSet resultSet) throws SQLException {
