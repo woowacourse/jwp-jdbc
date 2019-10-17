@@ -1,9 +1,8 @@
 package nextstep.jdbc;
 
-import nextstep.jdbc.exception.DBConnectException;
-import nextstep.jdbc.exception.ExecuteUpdateSQLException;
-import nextstep.jdbc.exception.NotOnlyResultException;
-import nextstep.jdbc.exception.SelectSQLException;
+import nextstep.jdbc.exception.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -14,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class JdbcTemplate {
-
+    private static final Logger logger = LoggerFactory.getLogger(JdbcTemplate.class);
     private final DataSource dataSource;
 
     public JdbcTemplate(DataSource dataSource) {
@@ -26,6 +25,7 @@ public class JdbcTemplate {
             pss.setValues(pstmt);
             pstmt.executeUpdate();
         } catch (SQLException e) {
+            logger.error(e.getMessage());
             throw new ExecuteUpdateSQLException();
         }
     }
@@ -36,6 +36,7 @@ public class JdbcTemplate {
 
     public <T> List<T> query(String sql, RowMapper<T> rowMapper, PreparedStatementSetter pss) {
         List<T> result = new ArrayList<>();
+
         try (Connection con = getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
             pss.setValues(pstmt);
             ResultSet resultSet = pstmt.executeQuery();
@@ -44,6 +45,7 @@ public class JdbcTemplate {
                 result.add(rowMapper.mapRow(resultSet));
             }
         } catch (SQLException e) {
+            logger.error(e.getMessage());
             throw new SelectSQLException();
         }
 
@@ -67,17 +69,28 @@ public class JdbcTemplate {
             ResultSet resultSet = pstmt.executeQuery();
 
             while (resultSet.next()) {
-                if (result != null) {
-                    throw new NotOnlyResultException();
-                }
-
+                validNotOnlyResult(result);
                 result = rowMapper.mapRow(resultSet);
             }
         } catch (SQLException e) {
+            logger.error(e.getMessage());
             throw new SelectSQLException();
         }
 
+        validNoResult(result);
         return result;
+    }
+
+    private <T> void validNotOnlyResult(T result) {
+        if (result != null) {
+            throw new NotOnlyResultException();
+        }
+    }
+
+    private <T> void validNoResult(T result) {
+        if (result == null) {
+            throw new NoResultException();
+        }
     }
 
     public <T> T queryForObject(String sql, RowMapper<T> rowMapper, Object... values) {
@@ -88,6 +101,7 @@ public class JdbcTemplate {
         try {
             return dataSource.getConnection();
         } catch (SQLException e) {
+            logger.error(e.getMessage());
             throw new DBConnectException();
         }
     }
