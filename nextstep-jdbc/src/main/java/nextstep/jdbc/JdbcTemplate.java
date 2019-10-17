@@ -23,6 +23,11 @@ public class JdbcTemplate implements AutoCloseable {
         this.conn = Objects.requireNonNull(ConnectionManager.getConnection());
     }
 
+    // TODO 메서드명
+    public <T> T executeQuery2(String query, Map<String, Object> params, ResultSetMapper<T> mapper) {
+        return executeQuery(query, params, mapper).get(0);
+    }
+
     public <T> List<T> executeQuery(String query, Map<String, Object> params, ResultSetMapper<T> mapper) {
         try (PreparedStatement pstmt = getStatement(query, params);
              ResultSet rs = pstmt.executeQuery()) {

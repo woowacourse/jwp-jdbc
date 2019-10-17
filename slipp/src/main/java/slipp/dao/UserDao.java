@@ -53,13 +53,10 @@ public class UserDao {
     }
 
     public User findByUserId(String userId) {
-        List<User> users;
         try (JdbcTemplate jdbcTemplate = new JdbcTemplate()) {
-            users = jdbcTemplate.executeQuery("SELECT userId, password, name, email FROM USERS WHERE userid=:userId",
+            return jdbcTemplate.executeQuery2("SELECT userId, password, name, email FROM USERS WHERE userid=:userId",
                     Collections.singletonMap("userId", userId),
                     this::extractUser);
         }
-
-        return users.get(0);
     }
 }
