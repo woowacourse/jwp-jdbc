@@ -15,8 +15,8 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class UserDaoTest {
-    DBConnection dbConnection;
-    UserDao userDao;
+    private DBConnection dbConnection;
+    private UserDao userDao;
 
     @BeforeEach
     public void setup() {
