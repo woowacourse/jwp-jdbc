@@ -52,9 +52,9 @@ public class JdbcTemplate {
             setParams(psmt, args);
             ResultSet rs = psmt.executeQuery();
             if (rs.next()) {
-                return Optional.ofNullable(strategy.map(rs));
+                return Optional.of(strategy.map(rs));
             }
-            throw new IllegalArgumentException();
+            return Optional.empty();
         } catch (SQLException e) {
             throw new DataAccessException(e);
         }

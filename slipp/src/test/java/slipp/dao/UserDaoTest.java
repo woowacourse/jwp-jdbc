@@ -13,14 +13,16 @@ import slipp.support.db.ConnectionManager;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class UserDaoTest {
     private JdbcTemplate jdbcTemplate = JdbcTemplate.builder()
             .driver("org.h2.Driver")
-                .url("jdbc:h2:mem:jwp-framework")
-                .userName("sa")
-                .password("")
-                .build();
+            .url("jdbc:h2:mem:jwp-framework")
+            .userName("sa")
+            .password("")
+            .build();
+
     @BeforeEach
     public void setup() {
         ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
@@ -47,5 +49,11 @@ public class UserDaoTest {
         UserDao userDao = new UserDao(jdbcTemplate);
         List<User> users = userDao.findAll();
         assertThat(users).hasSize(1);
+    }
+
+    @Test
+    void 유저정보_없을시_예외_확인() {
+        UserDao userDao = new UserDao(jdbcTemplate);
+        assertThatThrownBy(() -> userDao.findByUserId("ghost")).isInstanceOf(NoSuchUserException.class);
     }
 }
