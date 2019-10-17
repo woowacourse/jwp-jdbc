@@ -1,6 +1,7 @@
 package nextstep.jdbc;
 
 import nextstep.jdbc.exception.DataBaseException;
+import nextstep.jdbc.exception.IncorrectResultSizeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,14 +67,28 @@ public class JdbcTemplate {
                                  final RowMapper<T> rowMapper,
                                  final SqlExecuteStrategy sqlExecuteStrategy) {
 
-        return execute(sql, new ObjectMapperResultSetExtractor<>(rowMapper), sqlExecuteStrategy);
+        List<T> results = execute(sql, new RowMapperResultSetExtractor<>(rowMapper), sqlExecuteStrategy).orElse(new ArrayList<>());
+
+        return getSingleObject(results);
+    }
+
+    private <T> Optional<T> getSingleObject(final List<T> results) {
+        if (results.size() == 0) {
+            return Optional.empty();
+        }
+
+        if (results.size() == 1) {
+            return Optional.of(results.iterator().next());
+        }
+
+        throw new IncorrectResultSizeException();
     }
 
     public <T> Optional<T> query(final String sql, final SqlExecuteStrategy sqlExecuteStrategy) {
         return execute(sql, null, sqlExecuteStrategy);
     }
 
-    public <T> List<T> query(final String sql, final RowMapper<T> rowMapper) {
+    public <T> List<T> queryForList(final String sql, final RowMapper<T> rowMapper) {
         return execute(sql, new RowMapperResultSetExtractor<>(rowMapper), null)
                 .orElse(new ArrayList<>());
     }
