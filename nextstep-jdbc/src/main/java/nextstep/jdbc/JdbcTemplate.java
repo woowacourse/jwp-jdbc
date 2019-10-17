@@ -35,15 +35,15 @@ public class JdbcTemplate<T> {
         return list;
     }
 
-    public void update(String query, Object... values) {
-        update(query, pstmt -> setValues(pstmt, values));
+    public int update(String query, Object... values) {
+        return update(query, pstmt -> setValues(pstmt, values));
     }
 
-    public void update(String query, PreparedStatementSetter pstmtSetter) {
+    public int update(String query, PreparedStatementSetter pstmtSetter) {
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = con.prepareStatement(query)) {
             pstmtSetter.setValues(pstmt);
-            pstmt.executeUpdate();
+            return pstmt.executeUpdate();
         } catch (SQLException e) {
             log.debug(e.getMessage());
             throw new DataAccessException(e.getMessage());
