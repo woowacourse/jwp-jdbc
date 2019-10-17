@@ -14,6 +14,8 @@ import java.util.List;
 
 public class JdbcTemplate {
     private static final Logger logger = LoggerFactory.getLogger(JdbcTemplate.class);
+    private static final int SETTER_START_INDEX = 1;
+
     private final DataSource dataSource;
 
     public JdbcTemplate(DataSource dataSource) {
@@ -109,7 +111,7 @@ public class JdbcTemplate {
     private PreparedStatementSetter setPreparedStatementFor(Object[] values) {
         return pstmt -> {
             for (int i = 0; i < values.length; i++) {
-                pstmt.setObject(i + 1, values[i]);
+                pstmt.setObject(i + SETTER_START_INDEX, values[i]);
             }
         };
     }
