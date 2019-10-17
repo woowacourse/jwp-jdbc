@@ -9,6 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class ResultSetMapper<T> {
     private static final String INSTANTIATION_FAILED_EXCEPTION_MESSAGE = "인스턴스 생성 실패";
@@ -19,20 +20,35 @@ public class ResultSetMapper<T> {
     }
 
     public T mapObject(ResultSet resultSet) throws SQLException {
-        T object = null;
-        if (resultSet.next()) {
-            object = clazz.cast(map(resultSet, clazz));
-        }
-        return object;
+        return returnFrom(resultSet)
+                .orElse(null);
     }
 
     public List<T> mapList(ResultSet resultSet) throws SQLException {
         List<T> elements = new ArrayList<>();
-        while (resultSet.next()) {
-            T object = clazz.cast(map(resultSet, clazz));
-            elements.add(object);
-        }
+        addElements(resultSet, elements);
         return elements;
+    }
+
+    private void addElements(ResultSet resultSet, List<T> elements) throws SQLException {
+        T obj;
+        do {
+            obj = returnFrom(resultSet)
+                    .orElse(null);
+            addNotNull(elements, obj);
+        } while (obj != null);
+    }
+
+    private Optional<T> returnFrom(ResultSet resultSet) throws SQLException {
+        return resultSet.next()
+                ? Optional.of(clazz.cast(map(resultSet, clazz)))
+                : Optional.empty();
+    }
+
+    private void addNotNull(List<T> elements, T obj) {
+        if (obj != null) {
+            elements.add(obj);
+        }
     }
 
     private Object map(ResultSet resultSet, Class<?> clazz) throws SQLException {
