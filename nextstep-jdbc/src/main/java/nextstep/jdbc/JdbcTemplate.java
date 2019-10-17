@@ -31,17 +31,7 @@ public class JdbcTemplate<T> {
     }
 
     public Optional<T> readForObject(RowMapper<T> rowMapper, String sql, Object... values) {
-        try (Connection connection = dataSource.getConnection();
-             PreparedStatement preparedStatement = createPreparedStatement(connection, sql, values);
-             ResultSet resultSet = preparedStatement.executeQuery()) {
-
-            if (resultSet.next()) {
-                return Optional.of(rowMapper.mapRow(resultSet));
-            }
-        } catch (SQLException e) {
-            log.error("ErrorCode: {}", e.getErrorCode());
-        }
-        return Optional.empty();
+        return Optional.of(readForList(rowMapper, sql, values).get(0));
     }
 
     public List<T> readForList(RowMapper<T> rowMapper, String sql, Object... values) {
@@ -64,7 +54,7 @@ public class JdbcTemplate<T> {
 
         int length = values.length;
         for (int i = 0; i < length; i++) {
-            preparedStatement.setString(i + 1, values[i].toString());
+            preparedStatement.setObject(i + 1, values[i]);
         }
         return preparedStatement;
     }
