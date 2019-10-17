@@ -21,7 +21,7 @@ public class ResultSetMapper<T> {
     public T mapObject(ResultSet resultSet) throws SQLException, IllegalAccessException {
         T object = null;
         if (resultSet.next()) {
-            object = map(resultSet);
+            object = clazz.cast(map(resultSet, clazz));
         }
         return object;
     }
@@ -29,25 +29,42 @@ public class ResultSetMapper<T> {
     public List<T> mapList(ResultSet resultSet) throws SQLException, IllegalAccessException {
         List<T> elements = new ArrayList<>();
         while (resultSet.next()) {
-            T object = map(resultSet);
+            T object = clazz.cast(map(resultSet, clazz));
             elements.add(object);
         }
         return elements;
     }
 
-    private T map(ResultSet resultSet) throws IllegalAccessException, SQLException {
-        T object = instantiate(clazz);
+    private Object map(ResultSet resultSet, Class<?> clazz) throws IllegalAccessException, SQLException {
+        Object object = instantiate(clazz);
         Field[] fields = clazz.getDeclaredFields();
-        for (Field field : fields) {
-            field.setAccessible(true);
-            field.set(object, resultSet.getString(field.getName()));
-        }
+        setFields(resultSet, object, fields);
         return object;
     }
 
-    private T instantiate(Class<T> clazz) {
+    private void setFields(ResultSet resultSet, Object object, Field[] fields) throws IllegalAccessException, SQLException {
+        for (Field field : fields) {
+            field.setAccessible(true);
+            setEmbeddedField(resultSet, object, field);
+            setNonDefaultValueField(resultSet, object, field);
+        }
+    }
+
+    private void setEmbeddedField(ResultSet resultSet, Object object, Field field) throws IllegalAccessException, SQLException {
+        if (!FieldType.isPrimitiveOrWrapped(field.getType())) {
+            field.set(object, map(resultSet, field.getType()));
+        }
+    }
+
+    private void setNonDefaultValueField(ResultSet resultSet, Object object, Field field) throws IllegalAccessException, SQLException {
+        if (field.get(object) == null) {
+            field.set(object, resultSet.getString(field.getName()));
+        }
+    }
+
+    private Object instantiate(Class<?> clazz) {
         try {
-            Constructor<T> constructor = clazz.getDeclaredConstructor();
+            Constructor constructor = clazz.getDeclaredConstructor();
             constructor.setAccessible(true);
             return constructor.newInstance();
         } catch (NoSuchMethodException | InstantiationException
