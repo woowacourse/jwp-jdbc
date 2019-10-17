@@ -3,9 +3,7 @@ package slipp.dao;
 import nextstep.jdbc.JdbcTemplate;
 import nextstep.jdbc.SelectJdbcTemplate;
 import slipp.domain.User;
-import slipp.support.db.ConnectionManager;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -42,34 +40,25 @@ public class UserDao {
     }
 
     public List<User> findAll() throws SQLException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        List<User> users = new ArrayList<>();
-        try {
-            con = ConnectionManager.getConnection();
-            String sql = "SELECT * FROM USERS";
-            pstmt = con.prepareStatement(sql);
-            rs = pstmt.executeQuery();
+        String sql = "SELECT * FROM USERS";
 
-            while (rs.next()) {
-                User user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
-                    rs.getString("email"));
+        SelectJdbcTemplate selectJdbcTemplate = new SelectJdbcTemplate() {
+            @Override
+            public void setValues(final PreparedStatement pstmt) throws SQLException {
+            }
 
-                users.add(user);
+            @Override
+            public Object mapRow(final ResultSet rs) throws SQLException {
+                List<User> users = new ArrayList<>();
+                while (rs.next()) {
+                    User user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
+                        rs.getString("email"));
+                    users.add(user);
+                }
+                return users;
             }
-            return users;
-        } finally {
-            if (rs != null) {
-                rs.close();
-            }
-            if (pstmt != null) {
-                pstmt.close();
-            }
-            if (con != null) {
-                con.close();
-            }
-        }
+        };
+        return selectJdbcTemplate.query(sql);
     }
 
     public User findByUserId(String userId) throws SQLException {
