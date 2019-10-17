@@ -33,24 +33,6 @@ public class TestUser {
         return email;
     }
 
-//    public void update(UserUpdatedDto updateUser) {
-//        this.password = updateUser.getPassword();
-//        this.name = updateUser.getName();
-//        this.email = updateUser.getEmail();
-//    }
-
-    public boolean matchPassword(String password) {
-        if (password == null) {
-            return false;
-        }
-
-        return this.password.equals(password);
-    }
-
-//    public boolean isSameUser(User user) {
-//        return userId.equals(user.userId);
-//    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
