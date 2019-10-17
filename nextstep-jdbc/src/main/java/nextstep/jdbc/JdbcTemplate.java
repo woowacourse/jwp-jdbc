@@ -7,6 +7,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class JdbcTemplate {
     private static final Logger log = LoggerFactory.getLogger(JdbcTemplate.class);
@@ -27,29 +29,33 @@ public class JdbcTemplate {
         }
     }
 
-    public <T> T query(String sql, RowMapper<T> rm) {
+    public <T> List<T> query(String sql, RowMapper<T> rm) {
         try (Connection con = cm.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
-            return executeMapRow(rm, pstmt);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                List<T> values = new ArrayList<>();
+                while (rs.next()) {
+                    values.add(rm.mapRow(rs));
+                }
+                return values;
+            }
         } catch (SQLException e) {
             log.debug(e.getMessage(), e.getCause());
             throw new DataAccessException();
         }
     }
-
 
     public <T> T queryForObject(String sql, RowMapper<T> rm, Object... objects) {
         try (Connection con = cm.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
             setValues(pstmt, objects);
-            return executeMapRow(rm, pstmt);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return rm.mapRow(rs);
+                }
+            }
+            return null;
         } catch (SQLException e) {
             log.debug(e.getMessage(), e.getCause());
             throw new DataAccessException();
-        }
-    }
-
-    private <T> T executeMapRow(RowMapper<T> rm, PreparedStatement pstmt) throws SQLException {
-        try (ResultSet rs = pstmt.executeQuery()) {
-            return rm.mapRow(rs);
         }
     }
 

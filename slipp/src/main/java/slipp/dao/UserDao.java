@@ -5,7 +5,6 @@ import nextstep.jdbc.JdbcTemplate;
 import nextstep.jdbc.RowMapper;
 import slipp.domain.User;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class UserDao {
@@ -29,33 +28,20 @@ public class UserDao {
 
     public List<User> findAll() {
         String sql = "SELECT * FROM users";
-
-        RowMapper<List<User>> rm = rs -> {
-            List<User> users = new ArrayList<>();
-
-            while (rs.next()) {
-                User user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"), rs.getString("email"));
-                users.add(user);
-            }
-            return users;
-        };
+        RowMapper<User> rm = getUserRowMapper();
 
         return template.query(sql, rm);
     }
 
-
     public User findByUserId(String userId) {
         String sql = "SELECT * FROM users WHERE userId = ?";
         Object[] values = {userId};
-
-        RowMapper<User> rm = rs -> {
-            if (rs.next()) {
-                return new User(rs.getString("userId"), rs.getString("password"),
-                        rs.getString("name"), rs.getString("email"));
-            }
-            throw new UserNotFoundException();
-        };
+        RowMapper<User> rm = getUserRowMapper();
 
         return template.queryForObject(sql, rm, values);
+    }
+
+    private RowMapper<User> getUserRowMapper() {
+        return rs -> new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"), rs.getString("email"));
     }
 }
