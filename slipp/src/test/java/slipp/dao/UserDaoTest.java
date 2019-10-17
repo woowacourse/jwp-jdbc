@@ -16,7 +16,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class UserDaoTest {
     @BeforeEach
     public void setup() {
-        ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
+        final ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
         populator.addScript(new ClassPathResource("jwp.sql"));
         DatabasePopulatorUtils.execute(populator, ConnectionManager.getDataSource());
     }
