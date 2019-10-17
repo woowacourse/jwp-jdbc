@@ -1,109 +1,56 @@
 package slipp.dao;
 
+import nextstep.jdbc.DBConnection;
+import nextstep.jdbc.JdbcTemplate;
+import nextstep.jdbc.RowMapper;
 import slipp.domain.User;
-import slipp.support.db.ConnectionManager;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class UserDao {
+    JdbcTemplate template;
+
+    public UserDao(DBConnection dbConnection) {
+        this.template = new JdbcTemplate(dbConnection);
+    }
+
     public void insert(User user) throws SQLException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        try {
-            con = ConnectionManager.getConnection();
-            String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
-            pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, user.getUserId());
-            pstmt.setString(2, user.getPassword());
-            pstmt.setString(3, user.getName());
-            pstmt.setString(4, user.getEmail());
-
-            pstmt.executeUpdate();
-        } finally {
-            if (pstmt != null) {
-                pstmt.close();
-            }
-
-            if (con != null) {
-                con.close();
-            }
-        }
+        String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
+        Object[] values = {user.getUserId(), user.getPassword(), user.getName(), user.getEmail()};
+        template.execute(sql, values);
     }
 
     public void update(User user) throws SQLException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        try {
-            con = ConnectionManager.getConnection();
-            String sql = "UPDATE users SET password = ?, name = ?, email = ? WHERE userId = ?";
-            pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, user.getPassword());
-            pstmt.setString(2, user.getName());
-            pstmt.setString(3, user.getEmail());
-            pstmt.setString(4, user.getUserId());
-
-            pstmt.executeUpdate();
-        } finally {
-            if (pstmt != null) {
-                pstmt.close();
-            }
-
-            if (con != null) {
-                con.close();
-            }
-        }
+        String sql = "UPDATE users SET password = ?, name = ?, email = ? WHERE userId = ?";
+        Object[] values = {user.getPassword(), user.getName(), user.getEmail(), user.getUserId()};
+        template.execute(sql, values);
     }
 
     public List<User> findAll() throws SQLException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        try {
-            con = ConnectionManager.getConnection();
-            String sql = "SELECT * FROM users";
-            pstmt = con.prepareStatement(sql);
+        String sql = "SELECT * FROM users";
 
-            rs = pstmt.executeQuery();
-
+        RowMapper<List<User>> rm = rs -> {
             List<User> users = new ArrayList<>();
 
             while (rs.next()) {
-                User user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
-                        rs.getString("email"));
+                User user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"), rs.getString("email"));
                 users.add(user);
             }
 
             return users;
-        } finally {
-            if (rs != null) {
-                rs.close();
-            }
-            if (pstmt != null) {
-                pstmt.close();
-            }
-            if (con != null) {
-                con.close();
-            }
-        }
+        };
+
+        return template.query(sql, rm);
     }
 
+
     public User findByUserId(String userId) throws SQLException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        try {
-            con = ConnectionManager.getConnection();
-            String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
-            pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, userId);
+        String sql = "SELECT * FROM users WHERE userId = ?";
+        Object[] values = {userId};
 
-            rs = pstmt.executeQuery();
-
+        RowMapper<User> rm = rs -> {
             User user = null;
             if (rs.next()) {
                 user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
@@ -111,16 +58,8 @@ public class UserDao {
             }
 
             return user;
-        } finally {
-            if (rs != null) {
-                rs.close();
-            }
-            if (pstmt != null) {
-                pstmt.close();
-            }
-            if (con != null) {
-                con.close();
-            }
-        }
+        };
+
+        return template.queryForObject(sql, rm, values);
     }
 }
