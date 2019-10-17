@@ -10,6 +10,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class JdbcTemplate<T> {
     private static final Logger log = LoggerFactory.getLogger(JdbcTemplate.class);
@@ -29,18 +30,18 @@ public class JdbcTemplate<T> {
         }
     }
 
-    public T readForObject(RowMapper<T> rowMapper, String sql, Object... values) {
+    public Optional<T> readForObject(RowMapper<T> rowMapper, String sql, Object... values) {
         try (Connection connection = dataSource.getConnection();
              PreparedStatement preparedStatement = createPreparedStatement(connection, sql, values);
              ResultSet resultSet = preparedStatement.executeQuery()) {
 
             if (resultSet.next()) {
-                return rowMapper.mapRow(resultSet);
+                return Optional.of(rowMapper.mapRow(resultSet));
             }
         } catch (SQLException e) {
             log.error("ErrorCode: {}", e.getErrorCode());
         }
-        return null;
+        return Optional.empty();
     }
 
     public List<T> readForList(RowMapper<T> rowMapper, String sql, Object... values) {
@@ -57,7 +58,6 @@ public class JdbcTemplate<T> {
         }
         return objects;
     }
-
 
     private PreparedStatement createPreparedStatement(Connection connection, String sql, Object... values) throws SQLException {
         PreparedStatement preparedStatement = connection.prepareStatement(sql);

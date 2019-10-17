@@ -6,6 +6,7 @@ import slipp.domain.User;
 import slipp.support.db.ConnectionManager;
 
 import java.util.List;
+import java.util.Optional;
 
 public class UserDao {
     private static final JdbcTemplate<User> JDBC_TEMPLATE = new JdbcTemplate<>(ConnectionManager.getDataSource());
@@ -29,7 +30,7 @@ public class UserDao {
         return JDBC_TEMPLATE.readForList(ROW_MAPPER, "SELECT userId, password, name, email FROM USERS");
     }
 
-    public User findByUserId(String id) {
+    public Optional<User> findByUserId(String id) {
         return JDBC_TEMPLATE.readForObject(ROW_MAPPER, "SELECT userId, password, name, email FROM USERS WHERE userId = ?", id);
     }
 }
