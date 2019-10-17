@@ -31,6 +31,26 @@ public class JdbcTemplate {
         }
     }
 
+    public void insert(String sql, Object ... objects) throws SQLException {
+        Connection con = null;
+        PreparedStatement preparedStatement = null;
+        try {
+            con = ConnectionManager.getConnection();
+            preparedStatement = con.prepareStatement(sql);
+
+            setPrepareStatement(preparedStatement, objects);
+            preparedStatement.executeUpdate();
+        } finally {
+            if (preparedStatement != null) {
+                preparedStatement.close();
+            }
+
+            if (con != null) {
+                con.close();
+            }
+        }
+    }
+
     public User objectQuery(String sql, PrepareStatementSetter prepareStatementSetter, RowMapper rowMapper) throws SQLException {
         Connection con = null;
         PreparedStatement preparedStatement = null;
@@ -39,6 +59,32 @@ public class JdbcTemplate {
             con = ConnectionManager.getConnection();
             preparedStatement = con.prepareStatement(sql);
             prepareStatementSetter.setParameters(preparedStatement);
+            resultSet = preparedStatement.executeQuery();
+
+            return rowMapper.mapRow(resultSet);
+        } finally {
+            if (resultSet != null) {
+                resultSet.close();
+            }
+            if (preparedStatement != null) {
+                preparedStatement.close();
+            }
+            if (con != null) {
+                con.close();
+            }
+        }
+    }
+
+    public User objectQuery(String sql, RowMapper rowMapper, Object... objects) throws SQLException {
+        Connection con = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        try {
+            con = ConnectionManager.getConnection();
+            preparedStatement = con.prepareStatement(sql);
+
+            setPrepareStatement(preparedStatement, objects);
+
             resultSet = preparedStatement.executeQuery();
 
             return rowMapper.mapRow(resultSet);
@@ -81,5 +127,11 @@ public class JdbcTemplate {
             }
         }
         return users;
+    }
+
+    private void setPrepareStatement(PreparedStatement preparedStatement, Object[] objects) throws SQLException {
+        for (int i = 0; i < objects.length; i++) {
+            preparedStatement.setObject(i + 1, objects[i]);
+        }
     }
 }

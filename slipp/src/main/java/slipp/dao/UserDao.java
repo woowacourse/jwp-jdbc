@@ -17,33 +17,14 @@ import java.util.List;
 public class UserDao {
     public void insert(User user) throws SQLException {
         String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
-        PrepareStatementSetter prepareStatementSetter = new PrepareStatementSetter() {
-            @Override
-            public void setParameters(PreparedStatement preparedStatement) throws SQLException {
-                preparedStatement.setString(1, user.getUserId());
-                preparedStatement.setString(2, user.getPassword());
-                preparedStatement.setString(3, user.getName());
-                preparedStatement.setString(4, user.getEmail());
-            }
-        };
         JdbcTemplate jdbcTemplate = new JdbcTemplate();
-        jdbcTemplate.insert(sql, prepareStatementSetter);
+        jdbcTemplate.insert(sql, user.getUserId(), user.getPassword(), user.getName(), user.getEmail());
     }
 
     public void update(User user) throws SQLException {
         String sql = "UPDATE USERS SET password=?,name=?,email=? WHERE userId=?";
-        PrepareStatementSetter prepareStatementSetter = new PrepareStatementSetter() {
-            @Override
-            public void setParameters(PreparedStatement preparedStatement) throws SQLException {
-                preparedStatement.setString(1, user.getPassword());
-                preparedStatement.setString(2, user.getName());
-                preparedStatement.setString(3, user.getEmail());
-                preparedStatement.setString(4, user.getUserId());
-            }
-        };
-
         JdbcTemplate jdbcTemplate = new JdbcTemplate();
-        jdbcTemplate.insert(sql, prepareStatementSetter);
+        jdbcTemplate.insert(sql, user.getPassword(), user.getName(), user.getEmail(), user.getUserId());
     }
 
     public List<User> findAll() throws SQLException {
@@ -62,12 +43,6 @@ public class UserDao {
 
     public User findByUserId(String userId) throws SQLException {
         String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
-        PrepareStatementSetter prepareStatementSetter = new PrepareStatementSetter() {
-            @Override
-            public void setParameters(PreparedStatement preparedStatement) throws SQLException {
-                preparedStatement.setString(1, userId);
-            }
-        };
 
         RowMapper rowMapper = new RowMapper() {
             @Override
@@ -80,8 +55,8 @@ public class UserDao {
                 return user;
             }
         };
-        
+
         JdbcTemplate jdbcTemplate = new JdbcTemplate();
-        return jdbcTemplate.objectQuery(sql ,prepareStatementSetter, rowMapper);
+        return jdbcTemplate.objectQuery(sql , rowMapper, userId);
     }
 }
