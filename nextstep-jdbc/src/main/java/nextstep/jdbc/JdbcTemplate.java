@@ -1,5 +1,7 @@
 package nextstep.jdbc;
 
+import nextstep.jdbc.exception.IllegalConnectionException;
+import nextstep.jdbc.exception.IllegalExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

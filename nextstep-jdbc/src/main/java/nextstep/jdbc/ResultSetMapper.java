@@ -1,5 +1,7 @@
 package nextstep.jdbc;
 
+import nextstep.jdbc.exception.InstantiationFailedException;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
