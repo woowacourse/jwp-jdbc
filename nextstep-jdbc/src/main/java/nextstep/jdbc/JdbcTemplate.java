@@ -48,4 +48,15 @@ public class JdbcTemplate {
         }
         return null;
     }
+
+    private <T> T execute(String sql, PreparedStatementSetter preparedStatementSetter, ResultSetExtractionStrategy<T> strategy) {
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            preparedStatementSetter.setValues(pstmt);
+
+            return extractEntity(strategy, pstmt);
+        } catch (SQLException e) {
+            throw new JdbcTemplateException(e);
+        }
+    }
 }
