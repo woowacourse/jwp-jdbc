@@ -1,7 +1,7 @@
 package nextstep.jdbc;
 
-import slipp.support.db.ConnectionManager;
 
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -10,6 +10,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class JdbcTemplate<T> {
+
+    private DataSource dataSource;
+
+    public JdbcTemplate(final DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
 
     public T queryForObject(String sql, PreparedStatementSetter pstmtSetter, RowMapper<T> rowMapper) throws SQLException {
         List<T> result = query(sql, pstmtSetter, rowMapper);
@@ -23,7 +29,7 @@ public class JdbcTemplate<T> {
         ResultSet rs = null;
         List<T> result = new ArrayList<>();
 
-        try (Connection con = ConnectionManager.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
             pstmtSetter.setValues(pstmt);
             rs = pstmt.executeQuery();
@@ -42,7 +48,7 @@ public class JdbcTemplate<T> {
 
     public List<T> query(String sql, RowMapper<T> rowMapper) throws SQLException {
         List<T> result = new ArrayList<>();
-        try (Connection con = ConnectionManager.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql);
              ResultSet rs = pstmt.executeQuery()) {
 
@@ -55,7 +61,7 @@ public class JdbcTemplate<T> {
     }
 
     public void update(String sql, PreparedStatementSetter pstmtSetter) throws SQLException {
-        try (Connection con = ConnectionManager.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
             pstmtSetter.setValues(pstmt);
             pstmt.executeUpdate();
@@ -63,7 +69,7 @@ public class JdbcTemplate<T> {
     }
 
     public void update(String sql, Object... values) throws SQLException {
-        try (Connection con = ConnectionManager.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
             for (int i = 0; i < values.length; i++) {
                 pstmt.setObject(i + 1, values[i]);
