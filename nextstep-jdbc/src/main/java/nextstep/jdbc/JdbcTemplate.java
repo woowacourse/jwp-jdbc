@@ -25,6 +25,7 @@ public class JdbcTemplate {
             pstmt.execute();
         } catch (SQLException e) {
             log.error("SQLException : {}", e.getMessage());
+            throw new DataAccessException("질의를 수행할 수 없습니다.");
         }
     }
 
@@ -39,7 +40,7 @@ public class JdbcTemplate {
             return execute(pstmt, rowMapper).get(FIRST_INDEX);
         } catch (SQLException e) {
             log.error("SQLException : {}", e.getMessage());
-            throw new DataAccessException("찾는 유저가 없습니다.");
+            throw new DataAccessException("데이터를 찾을 수 없습니다.");
         }
     }
 
@@ -54,7 +55,7 @@ public class JdbcTemplate {
             return execute(pstmt, rowMapper);
         } catch (SQLException e) {
             log.error("SQLException : {}", e.getMessage());
-            throw new DataAccessException("유저가 없습니다.");
+            throw new DataAccessException("데이터를 찾을 수 없습니다.");
         }
     }
 
@@ -67,7 +68,7 @@ public class JdbcTemplate {
             return list;
         } catch (SQLException e) {
             log.error("SQLException : {}", e.getMessage());
-            throw new DataAccessException("찾는 유저가 없습니다.");
+            throw new DataAccessException("데이터를 찾을 수 없습니다.");
         }
     }
 
