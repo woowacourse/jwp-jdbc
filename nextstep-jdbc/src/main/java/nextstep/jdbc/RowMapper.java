@@ -4,6 +4,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 @FunctionalInterface
-public interface DataExtractionStrategy<T> {
-    T extract(ResultSet rs) throws SQLException;
+public interface RowMapper<T> {
+    T mapRow(ResultSet rs) throws SQLException;
 }

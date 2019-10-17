@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
-import slipp.dao.exception.UserNotFoundException;
 import slipp.domain.User;
 import slipp.dto.UserUpdatedDto;
 import slipp.support.db.ConnectionManager;
@@ -13,8 +12,6 @@ import slipp.support.db.ConnectionManager;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class UserDaoTest {
     private static final String EXSISTED_USER_ID = "admin";
@@ -29,12 +26,14 @@ public class UserDaoTest {
 
     @Test
     void find() {
-        assertDoesNotThrow(() -> userDao.findByUserId(EXSISTED_USER_ID));
+        assertThat(userDao.findByUserId(EXSISTED_USER_ID)).isNotNull();
+//        assertThat(userDao.findByUserId(EXSISTED_USER_ID)).isNotEmpty();
     }
 
     @Test
     void find_fail() {
-        assertThrows(UserNotFoundException.class, () -> userDao.findByUserId("admin2"));
+        assertThat(userDao.findByUserId("admin2")).isNull();
+//        assertThat(userDao.findByUserId("admin2")).isEmpty();
     }
 
     @Test
@@ -42,8 +41,7 @@ public class UserDaoTest {
         User expected = new User("userId", "password", "name", "javajigi@email.com");
         userDao.insert(expected);
 
-        User actual = userDao.findByUserId(expected.getUserId());
-        assertThat(actual).isEqualTo(expected);
+        assertThat(userDao.findByUserId(expected.getUserId())).isEqualTo(expected);
     }
 
     @Test
@@ -53,8 +51,7 @@ public class UserDaoTest {
 
         expected.update(new UserUpdatedDto("password2", "name2", "sanjigi@email.com"));
         userDao.update(expected);
-        User actual = userDao.findByUserId(expected.getUserId());
-        assertThat(actual).isEqualTo(expected);
+        assertThat(userDao.findByUserId(expected.getUserId())).isEqualTo(expected);
     }
 
     @Test

@@ -1,14 +1,12 @@
 package slipp.dao;
 
 import nextstep.jdbc.JdbcTemplate;
-import slipp.dao.exception.UserNotFoundException;
 import slipp.domain.User;
 import slipp.support.db.ConnectionManager;
 
 import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class UserDao {
@@ -39,31 +37,12 @@ public class UserDao {
 
     public List<User> findAll() {
         String sql = "SELECT * FROM USERS";
-
-        DataExtractionStrategy<List<User>> strategy = rs -> {
-            List<User> users = new ArrayList<>();
-
-            while (rs.next()) {
-                users.add(getUser(rs));
-            }
-            return users;
-        };
-
-        return jdbcTemplate.executeQuery(sql, strategy);
+        return jdbcTemplate.executeQuery(sql, this::getUser);
     }
 
     public User findByUserId(String userId) {
         String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
-
-        DataExtractionStrategy<User> strategy = rs -> {
-            User user = null;
-            if (rs.next()) {
-                user = getUser(rs);
-            }
-            return user;
-        };
-
-        return jdbcTemplate.executeQuery(sql, strategy, userId);
+        return jdbcTemplate.executeQueryForSingleObject(sql, this::getUser, userId);
     }
 
     private User getUser(ResultSet rs) throws SQLException {
@@ -72,4 +51,5 @@ public class UserDao {
                 rs.getString("name"),
                 rs.getString("email"));
     }
+
 }
