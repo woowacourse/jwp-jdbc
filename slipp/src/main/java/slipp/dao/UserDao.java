@@ -11,6 +11,13 @@ import java.util.List;
 import java.util.Map;
 
 public class UserDao {
+    private UserDao() {
+    }
+
+    public static UserDao getInstance() {
+        return LazyHolder.userDao;
+    }
+
     public void insert(User user) {
         try (JdbcTemplate jdbcTemplate = new JdbcTemplate()) {
             Map<String, Object> params = createUserParams(user);
@@ -58,5 +65,9 @@ public class UserDao {
                     Collections.singletonMap("userId", userId),
                     this::extractUser);
         }
+    }
+
+    private static class LazyHolder {
+        private static final UserDao userDao = new UserDao();
     }
 }
