@@ -27,13 +27,11 @@ public class UserDaoTest {
     @Test
     void find() {
         assertThat(userDao.findByUserId(EXSISTED_USER_ID)).isNotNull();
-//        assertThat(userDao.findByUserId(EXSISTED_USER_ID)).isNotEmpty();
     }
 
     @Test
     void find_fail() {
         assertThat(userDao.findByUserId("admin2")).isNull();
-//        assertThat(userDao.findByUserId("admin2")).isEmpty();
     }
 
     @Test
