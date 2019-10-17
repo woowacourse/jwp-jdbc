@@ -1,6 +1,7 @@
 package slipp.dao;
 
 
+import nextstep.jdbc.JdbcTemplate;
 import slipp.domain.User;
 import slipp.support.db.ConnectionManager;
 
@@ -13,24 +14,21 @@ import java.util.List;
 
 public class UserDao {
     public void insert(User user) throws SQLException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        try {
-            con = ConnectionManager.getConnection();
-            String sql = createSql();
-            pstmt = con.prepareStatement(sql);
-            setParameters(user, pstmt);
-
-            pstmt.executeUpdate();
-        } finally {
-            if (pstmt != null) {
-                pstmt.close();
+        JdbcTemplate jdbcTemplate = new JdbcTemplate() {
+            @Override
+            protected String createSql() {
+                return "INSERT INTO USERS VALUES (?, ?, ?, ?)";
             }
 
-            if (con != null) {
-                con.close();
+            @Override
+            protected void setParameters(PreparedStatement preparedStatement) throws SQLException {
+                preparedStatement.setString(1, user.getUserId());
+                preparedStatement.setString(2, user.getPassword());
+                preparedStatement.setString(3, user.getName());
+                preparedStatement.setString(4, user.getEmail());
             }
-        }
+        };
+        jdbcTemplate.insert();
     }
 
     private void setParameters(User user, PreparedStatement pstmt) throws SQLException {
