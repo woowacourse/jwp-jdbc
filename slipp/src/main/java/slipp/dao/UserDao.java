@@ -15,28 +15,14 @@ public class UserDao {
         String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
         JdbcTemplate<User> jdbcTemplate = new JdbcTemplate<>(ConnectionManager.getDataSource());
 
-        PreparedStatementSetter preparedStatementSetter = pstmt -> {
-            pstmt.setString(1, user.getUserId());
-            pstmt.setString(2, user.getPassword());
-            pstmt.setString(3, user.getName());
-            pstmt.setString(4, user.getEmail());
-        };
-
-        jdbcTemplate.update(sql, preparedStatementSetter);
+        jdbcTemplate.update(sql, user.getUserId(), user.getPassword(), user.getName(), user.getEmail());
     }
 
     public void update(User user) throws SQLException {
         String sql = "UPDATE USERS SET password=?, email=?, name=? WHERE userId=?";
         JdbcTemplate<User> jdbcTemplate = new JdbcTemplate<>(ConnectionManager.getDataSource());
 
-        PreparedStatementSetter preparedStatementSetter = pstmt -> {
-            pstmt.setString(1, user.getPassword());
-            pstmt.setString(2, user.getEmail());
-            pstmt.setString(3, user.getName());
-            pstmt.setString(4, user.getUserId());
-        };
-
-        jdbcTemplate.update(sql, preparedStatementSetter);
+        jdbcTemplate.update(sql, user.getPassword(), user.getEmail(), user.getName(), user.getUserId());
     }
 
     public List<User> findAll() throws SQLException {
@@ -53,7 +39,7 @@ public class UserDao {
     }
 
     public User findByUserId(String userId) throws SQLException {
-        String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
+        String sql = "SELECT userId, password, name, email FROM USERS WHERE userId=?";
         JdbcTemplate<User> jdbcTemplate = new JdbcTemplate<>(ConnectionManager.getDataSource());
 
         PreparedStatementSetter preparedStatementSetter = pstmt -> pstmt.setString(1, userId);
