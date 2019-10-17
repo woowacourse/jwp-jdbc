@@ -21,8 +21,8 @@ class DispatcherServletTest {
     @BeforeEach
     void setUp() throws Exception {
         dispatcher = new DispatcherServlet();
-        dispatcher.addHandlerMpping(new ManualHandlerMapping());
-        dispatcher.addHandlerMpping(new AnnotationHandlerMapping("slipp.controller"));
+        dispatcher.addHandlerMapping(new ManualHandlerMapping());
+        dispatcher.addHandlerMapping(new AnnotationHandlerMapping("slipp.controller"));
 
         dispatcher.addHandlerAdapter(new HandlerExecutionHandlerAdapter());
         dispatcher.addHandlerAdapter(new ControllerHandlerAdapter());
