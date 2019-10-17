@@ -3,7 +3,6 @@ package slipp.dao;
 import nextstep.jdbc.JdbcTemplate;
 import slipp.domain.User;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,13 +13,13 @@ public class UserDao {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public void insert(User user) throws SQLException {
+    public void insert(User user) {
         String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
 
         jdbcTemplate.executeUpdate(sql, user.getUserId(), user.getPassword(), user.getName(), user.getEmail());
     }
 
-    public void update(User user) throws SQLException {
+    public void update(User user) {
         String sql = "UPDATE USERS " +
                 "SET password = ?, name = ?, email = ? " +
                 "WHERE userId = ?";
@@ -28,7 +27,7 @@ public class UserDao {
         jdbcTemplate.executeUpdate(sql, user.getPassword(), user.getName(), user.getEmail(), user.getUserId());
     }
 
-    public List<User> findAll() throws SQLException {
+    public List<User> findAll() {
         String sql = "SELECT userId, password, name, email FROM USERS";
 
         return jdbcTemplate.executeQuery(sql, (resultSet) -> {
@@ -47,7 +46,7 @@ public class UserDao {
         });
     }
 
-    public User findByUserId(String userId) throws SQLException {
+    public User findByUserId(String userId) {
         String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
 
         return jdbcTemplate.executeQuery(sql, (resultSet) -> {
@@ -56,7 +55,7 @@ public class UserDao {
                 user = new User(resultSet.getString("userId"), resultSet.getString("password"), resultSet.getString("name"),
                         resultSet.getString("email"));
             }
-            
+
             return user;
         }, userId);
     }

@@ -12,22 +12,25 @@ public class JdbcTemplate {
         this.connectionManager = connectionManager;
     }
 
-    public void executeUpdate(String sql, Object... queryParams) throws SQLException {
+    public void executeUpdate(String sql, Object... queryParams) {
         try (Connection con = connectionManager.getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
-
             setQueryParams(pstmt, queryParams);
             pstmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new DataAccessException(e.getMessage());
         }
     }
 
-    public <T> T executeQuery(String sql, RowMapper rowMapper, Object... queryParams) throws SQLException {
+    public <T> T executeQuery(String sql, RowMapper rowMapper, Object... queryParams) {
         try (Connection con = connectionManager.getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
 
             setQueryParams(pstmt, queryParams);
             ResultSet resultSet = pstmt.executeQuery();
             return (T) rowMapper.mapRow(resultSet);
+        } catch (SQLException e) {
+            throw new DataAccessException(e.getMessage());
         }
     }
 
