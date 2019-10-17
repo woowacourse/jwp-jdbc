@@ -51,7 +51,7 @@ public class JdbcTemplate {
         }
     }
 
-    public User objectQuery(String sql, PrepareStatementSetter prepareStatementSetter, RowMapper rowMapper) throws SQLException {
+    public <T> T objectQuery(String sql, PrepareStatementSetter prepareStatementSetter, RowMapper<T> rowMapper) throws SQLException {
         Connection con = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -75,7 +75,7 @@ public class JdbcTemplate {
         }
     }
 
-    public User objectQuery(String sql, RowMapper rowMapper, Object... objects) throws SQLException {
+    public <T> T objectQuery(String sql, RowMapper<T> rowMapper, Object... objects) throws SQLException {
         Connection con = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -101,19 +101,18 @@ public class JdbcTemplate {
         }
     }
 
-    public List<User> listQuery(String sql, RowMapper rowMapper) throws SQLException {
+    public <T> List<T> listQuery(String sql, RowMapper<T> rowMapper) throws SQLException {
         Connection con = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
-        List<User> users = new ArrayList<>();
+        List<T> objects = new ArrayList<>();
         try {
             con = ConnectionManager.getConnection();
             preparedStatement = con.prepareStatement(sql);
             resultSet = preparedStatement.executeQuery();
 
             while (resultSet.next()) {
-                User user = rowMapper.mapRow(resultSet);
-                users.add(user);
+                objects.add(rowMapper.mapRow(resultSet));
             }
         } finally {
             if (resultSet != null) {
@@ -126,7 +125,7 @@ public class JdbcTemplate {
                 con.close();
             }
         }
-        return users;
+        return objects;
     }
 
     private void setPrepareStatement(PreparedStatement preparedStatement, Object[] objects) throws SQLException {
