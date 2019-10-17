@@ -5,9 +5,9 @@ import nextstep.jdbc.ConnectionMaker;
 import nextstep.jdbc.JdbcTemplate;
 import nextstep.jdbc.RowMapper;
 import slipp.domain.User;
+import slipp.exception.UserNotFoundException;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.List;
 
 public class UserDao {
@@ -16,19 +16,19 @@ public class UserDao {
     public static final String DB_USERNAME = "sa";
     public static final String DB_PW = "";
 
-    public void insert(User user) throws SQLException {
+    public void insert(User user) {
         String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
         JdbcTemplate jdbcTemplate = createJdbcTemplate();
         jdbcTemplate.update(sql, user.getUserId(), user.getPassword(), user.getName(), user.getEmail());
     }
 
-    public void update(User user) throws SQLException {
+    public void update(User user) {
         String sql = "UPDATE USERS SET password=?,name=?,email=? WHERE userId=?";
         JdbcTemplate jdbcTemplate = createJdbcTemplate();
         jdbcTemplate.update(sql, user.getPassword(), user.getName(), user.getEmail(), user.getUserId());
     }
 
-    public List<User> findAll() throws SQLException {
+    public List<User> findAll() {
         String sql = "SELECT * FROM USERS";
         RowMapper<User> rowMapper = rs -> new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
             rs.getString("email"));
@@ -37,20 +37,14 @@ public class UserDao {
         return jdbcTemplate.listQuery(sql, rowMapper);
     }
 
-    public User findByUserId(String userId) throws SQLException {
+    public User findByUserId(String userId) {
         String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
 
-        RowMapper<User> rowMapper = rs -> {
-            User user = null;
-            if (rs.next()) {
-                user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
-                    rs.getString("email"));
-            }
-            return user;
-        };
+        RowMapper<User> rowMapper = rs -> new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
+                rs.getString("email"));
 
         JdbcTemplate jdbcTemplate = createJdbcTemplate();
-        return jdbcTemplate.singleObjectQuery(sql , rowMapper, userId);
+        return jdbcTemplate.singleObjectQuery(sql, rowMapper, userId).orElseThrow(UserNotFoundException::new);
     }
 
     private JdbcTemplate createJdbcTemplate() {

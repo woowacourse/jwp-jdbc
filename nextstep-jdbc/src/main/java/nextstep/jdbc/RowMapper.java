@@ -1,7 +1,5 @@
 package nextstep.jdbc;
 
-import slipp.domain.User;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 

@@ -18,11 +18,11 @@ public class JdbcTemplate {
         this.connection = connection;
     }
 
-    public void update(String sql, PrepareStatementSetter prepareStatementSetter) {
+    private void update(String sql, PrepareStatementSetter prepareStatementSetter) {
         try (PreparedStatement preparedStatement = this.connection.prepareStatement(sql)) {
             prepareStatementSetter.setParameters(preparedStatement);
             preparedStatement.executeUpdate();
-        }catch (SQLException e) {
+        } catch (SQLException e) {
             throw new SqlUpdateException();
         }
     }
@@ -33,10 +33,9 @@ public class JdbcTemplate {
     }
 
     public <T> Optional<T> singleObjectQuery(String sql, RowMapper<T> rowMapper, Object... args) {
-
         PrepareStatementSetter prepareStatementSetter = getPrepareStatementSetter(args);
         List<T> objects = listQuery(sql, rowMapper, prepareStatementSetter);
-        if(objects.isEmpty()) {
+        if (objects.isEmpty()) {
             return Optional.empty();
         }
 
@@ -48,7 +47,7 @@ public class JdbcTemplate {
         return listQuery(sql, rowMapper, prepareStatementSetter);
     }
 
-    public <T> List<T> listQuery(String sql, RowMapper<T> rowMapper, PrepareStatementSetter prepareStatementSetter) {
+    private <T> List<T> listQuery(String sql, RowMapper<T> rowMapper, PrepareStatementSetter prepareStatementSetter) {
         List<T> objects = new ArrayList<>();
         try (ResultSet resultSet = getResultSet(sql, prepareStatementSetter, this.connection)) {
             while (resultSet.next()) {

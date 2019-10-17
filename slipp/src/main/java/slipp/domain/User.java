@@ -8,7 +8,8 @@ public class User {
     private String name;
     private String email;
 
-    public User() {}
+    public User() {
+    }
 
     public User(String userId, String password, String name, String email) {
         this.userId = userId;
@@ -81,11 +82,8 @@ public class User {
         } else if (!name.equals(other.name))
             return false;
         if (userId == null) {
-            if (other.userId != null)
-                return false;
-        } else if (!userId.equals(other.userId))
-            return false;
-        return true;
+            return other.userId == null;
+        } else return userId.equals(other.userId);
     }
 
     @Override

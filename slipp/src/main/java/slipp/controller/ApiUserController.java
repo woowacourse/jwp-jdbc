@@ -19,7 +19,7 @@ import javax.servlet.http.HttpServletResponse;
 
 @Controller
 public class ApiUserController {
-    private static final Logger logger = LoggerFactory.getLogger( ApiUserController.class );
+    private static final Logger logger = LoggerFactory.getLogger(ApiUserController.class);
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
@@ -30,10 +30,10 @@ public class ApiUserController {
 
 
         DataBase.addUser(new User(
-                createdDto.getUserId(),
-                createdDto.getPassword(),
-                createdDto.getName(),
-                createdDto.getEmail()));
+            createdDto.getUserId(),
+            createdDto.getPassword(),
+            createdDto.getName(),
+            createdDto.getEmail()));
 
         response.setHeader("Location", "/api/users?userId=" + createdDto.getUserId());
         response.setStatus(HttpStatus.CREATED.value());

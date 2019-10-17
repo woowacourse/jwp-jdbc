@@ -1,11 +1,11 @@
 package slipp.controller;
 
-import slipp.domain.User;
-import slipp.dto.UserUpdatedDto;
-import slipp.support.db.DataBase;
 import nextstep.mvc.asis.Controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import slipp.domain.User;
+import slipp.dto.UserUpdatedDto;
+import slipp.support.db.DataBase;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -21,9 +21,9 @@ public class UpdateUserController implements Controller {
         }
 
         UserUpdatedDto updateUser = new UserUpdatedDto(
-                req.getParameter("password"),
-                req.getParameter("name"),
-                req.getParameter("email"));
+            req.getParameter("password"),
+            req.getParameter("name"),
+            req.getParameter("email"));
         log.debug("Update User : {}", updateUser);
         user.update(updateUser);
         return "redirect:/";
