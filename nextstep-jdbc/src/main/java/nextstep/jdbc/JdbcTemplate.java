@@ -45,16 +45,9 @@ public class JdbcTemplate {
         try (Connection con = dataSource.getConnection();
              PreparedStatement pstmt = createPreparedStatement(con, query, objects);
              ResultSet rs = pstmt.executeQuery()) {
-            try {
-                con.setAutoCommit(false);
-                while (rs.next()) {
-                    T t = getResult(rs, clazz);
-                    results.add(t);
-                }
-                con.commit();
-            } catch (SQLException e) {
-                con.rollback();
-                throw e;
+            while (rs.next()) {
+                T t = getResult(rs, clazz);
+                results.add(t);
             }
         } catch (Exception e) {
             logger.error("Error occurred while executing Query", e);
@@ -68,18 +61,9 @@ public class JdbcTemplate {
         try (Connection con = dataSource.getConnection();
              PreparedStatement pstmt = createPreparedStatement(con, query, objects);
              ResultSet rs = pstmt.executeQuery()) {
-            try {
-                con.setAutoCommit(false);
-                while (rs.next()) {
-                    T t = rowMapper.mapRow(rs);
-                    results.add(t);
-                }
-                con.commit();
-            } catch (SQLException e) {
-                con.rollback();
-                throw e;
-            } finally {
-                con.setAutoCommit(true);
+            while (rs.next()) {
+                T t = rowMapper.mapRow(rs);
+                results.add(t);
             }
         } catch (Exception e) {
             logger.error("Error occurred while executing Query", e);
