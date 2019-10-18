@@ -9,7 +9,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class ResultSetMapper<T> {
     private static final String INSTANTIATION_FAILED_EXCEPTION_MESSAGE = "인스턴스 생성 실패";
@@ -20,8 +19,7 @@ public class ResultSetMapper<T> {
     }
 
     public T mapObject(ResultSet resultSet) throws SQLException {
-        return returnFrom(resultSet)
-                .orElse(null);
+        return returnFrom(resultSet);
     }
 
     public List<T> mapList(ResultSet resultSet) throws SQLException {
@@ -33,16 +31,15 @@ public class ResultSetMapper<T> {
     private void addElements(ResultSet resultSet, List<T> elements) throws SQLException {
         T obj;
         do {
-            obj = returnFrom(resultSet)
-                    .orElse(null);
+            obj = returnFrom(resultSet);
             addNotNull(elements, obj);
         } while (obj != null);
     }
 
-    private Optional<T> returnFrom(ResultSet resultSet) throws SQLException {
+    private T returnFrom(ResultSet resultSet) throws SQLException {
         return resultSet.next()
-                ? Optional.of(clazz.cast(map(resultSet, clazz)))
-                : Optional.empty();
+                ? clazz.cast(map(resultSet, clazz))
+                : null;
     }
 
     private void addNotNull(List<T> elements, T obj) {
