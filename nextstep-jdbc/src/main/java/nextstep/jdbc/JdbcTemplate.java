@@ -21,10 +21,7 @@ public class JdbcTemplate {
     }
 
     public int update(String query, Object... objects) {
-        return executeQuery(query, pstmt -> {
-            createPreparedStatementSetter(objects).values(pstmt);
-            return pstmt.executeUpdate();
-        });
+        return update(query, new ObjectSetter(objects));
     }
 
     public <T> List<T> query(String query, RowMapper<T> rowMapper, PreparedStatementSetter setter) {
@@ -35,10 +32,7 @@ public class JdbcTemplate {
     }
 
     public <T> List<T> query(String query, RowMapper<T> rowMapper, Object... objects) {
-        return executeQuery(query, pstmt -> {
-            createPreparedStatementSetter(objects).values(pstmt);
-            return getQueryResults(rowMapper, pstmt);
-        });
+        return query(query, rowMapper, new ObjectSetter(objects));
     }
 
     public <T> List<T> query(String query, RowMapper<T> rowMapper) {
@@ -63,10 +57,7 @@ public class JdbcTemplate {
     }
 
     public <T> T queryForObject(String query, RowMapper<T> rowMapper, Object... objects) {
-        return executeQuery(query, pstmt -> {
-            createPreparedStatementSetter(objects).values(pstmt);
-            return getQueryResult(rowMapper, pstmt);
-        });
+        return queryForObject(query, rowMapper, new ObjectSetter(objects));
     }
 
     private <T> T getQueryResult(RowMapper<T> rowMapper, PreparedStatement pstmt) throws SQLException {
@@ -87,13 +78,5 @@ public class JdbcTemplate {
             log.error("Error :", e);
             throw new DataAccessException(e);
         }
-    }
-
-    private PreparedStatementSetter createPreparedStatementSetter(Object... objects) {
-        return pstmt -> {
-            for (int i = 0; i < objects.length; ++i) {
-                pstmt.setObject(i + 1, objects[i]);
-            }
-        };
     }
 }
