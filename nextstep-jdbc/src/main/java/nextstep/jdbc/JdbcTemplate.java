@@ -29,31 +29,30 @@ public class JdbcTemplate {
     }
 
     private <T> T execute(String sql, ResultSetExtractionStrategy<T> strategy, Object... args) {
-        PreparedStatementSetter pss = preparedStatement -> {
+        PreparedStatementSetter preparedStatementSetter = preparedStatement -> {
             for (int i = 0; i < args.length; i++) {
                 preparedStatement.setObject(i + 1, args[i]);
             }
         };
-        return execute(sql, pss, strategy);
+        return execute(sql, preparedStatementSetter, strategy);
     }
 
     private <T> T execute(String sql, PreparedStatementSetter preparedStatementSetter, ResultSetExtractionStrategy<T> strategy) {
         try (Connection connection = dataSource.getConnection();
              PreparedStatement pstmt = connection.prepareStatement(sql)) {
-            preparedStatementSetter.setValues(pstmt);
-
-            return extractEntity(strategy, pstmt);
+            preparedStatementSetter.setParameters(pstmt);
+            return extractEntity(pstmt, strategy);
         } catch (SQLException e) {
             throw new JdbcTemplateException(e);
         }
     }
 
-    private <T> T extractEntity(ResultSetExtractionStrategy<T> strategy, PreparedStatement pstmt) throws SQLException {
-        if (pstmt.execute() && strategy != null) {
-            try (ResultSet rs = pstmt.getResultSet()) {
-                return strategy.extract(rs);
-            }
+    private <T> T extractEntity(PreparedStatement pstmt, ResultSetExtractionStrategy<T> strategy) throws SQLException {
+        if (!pstmt.execute() || strategy == null) {
+            return null;
         }
-        return null;
+        try (ResultSet rs = pstmt.getResultSet()) {
+            return strategy.extract(rs);
+        }
     }
 }
