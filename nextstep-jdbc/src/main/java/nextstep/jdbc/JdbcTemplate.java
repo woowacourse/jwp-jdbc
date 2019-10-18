@@ -9,6 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class JdbcTemplate {
     private static final Logger log = LoggerFactory.getLogger(JdbcTemplate.class);
@@ -29,19 +30,12 @@ public class JdbcTemplate {
         }
     }
 
-    public <T> T queryForObject(String query, RowMapper<T> rowMapper, Object... values) {
+    public <T> Optional<T> queryForObject(String query, RowMapper<T> rowMapper, Object... values) {
         return queryForObject(query, pstmt -> createPreparedStatementSetter(pstmt, values), rowMapper);
     }
 
-    private <T> T queryForObject(String query, PreparedStatementSetter pstmtSetter, RowMapper<T> rowMapper) {
-        try (Connection con = ConnectionManager.getConnection();
-             PreparedStatement pstmt = con.prepareStatement(query)) {
-            pstmtSetter.setPreparedStatement(pstmt);
-            return execute(pstmt, rowMapper).get(FIRST_INDEX);
-        } catch (SQLException e) {
-            log.error("SQLException : {}", e.getMessage());
-            throw new DataAccessException("데이터를 찾을 수 없습니다.");
-        }
+    private <T> Optional<T> queryForObject(String query, PreparedStatementSetter pstmtSetter, RowMapper<T> rowMapper) {
+        return Optional.of(query(query, pstmtSetter, rowMapper).get(FIRST_INDEX));
     }
 
     public <T> List<T> query(String query, RowMapper<T> rowMapper, Object... values) {
@@ -52,24 +46,19 @@ public class JdbcTemplate {
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = con.prepareStatement(query)) {
             pstmtSetter.setPreparedStatement(pstmt);
-            return execute(pstmt, rowMapper);
+            return execute(pstmt.executeQuery(), rowMapper);
         } catch (SQLException e) {
             log.error("SQLException : {}", e.getMessage());
             throw new DataAccessException("데이터를 찾을 수 없습니다.");
         }
     }
 
-    private <T> List<T> execute(PreparedStatement pstmt, RowMapper<T> rowMapper) {
-        try (ResultSet rs = pstmt.executeQuery()) {
-            List<T> list = new ArrayList<>();
-            while (rs.next()) {
-                list.add(rowMapper.mapRow(rs));
-            }
-            return list;
-        } catch (SQLException e) {
-            log.error("SQLException : {}", e.getMessage());
-            throw new DataAccessException("데이터를 찾을 수 없습니다.");
+    private <T> List<T> execute(ResultSet rs, RowMapper<T> rowMapper) throws SQLException {
+        List<T> list = new ArrayList<>();
+        while (rs.next()) {
+            list.add(rowMapper.mapRow(rs));
         }
+        return list;
     }
 
     private void createPreparedStatementSetter(PreparedStatement pstmt, Object... values) throws SQLException {

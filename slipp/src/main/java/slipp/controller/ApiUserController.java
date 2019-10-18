@@ -13,6 +13,7 @@ import slipp.dao.UserDao;
 import slipp.domain.User;
 import slipp.dto.UserCreatedDto;
 import slipp.dto.UserUpdatedDto;
+import slipp.exception.NoSuchUserException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -33,7 +34,6 @@ public class ApiUserController {
         UserCreatedDto createdDto = objectMapper.readValue(request.getInputStream(), UserCreatedDto.class);
         logger.debug("Created User : {}", createdDto);
 
-
         userDao.insert(new User(
                 createdDto.getUserId(),
                 createdDto.getPassword(),
@@ -52,7 +52,7 @@ public class ApiUserController {
         logger.debug("userId : {}", userId);
 
         ModelAndView mav = new ModelAndView(new JsonView());
-        mav.addObject("user", userDao.findByUserId(userId));
+        mav.addObject("user", userDao.findByUserId(userId).orElseThrow(NoSuchUserException::new));
         return mav;
     }
 
@@ -63,7 +63,7 @@ public class ApiUserController {
         UserUpdatedDto updateDto = objectMapper.readValue(request.getInputStream(), UserUpdatedDto.class);
         logger.debug("Updated User : {}", updateDto);
 
-        User user = userDao.findByUserId(userId);
+        User user = userDao.findByUserId(userId).orElseThrow(NoSuchUserException::new);
         user.update(updateDto);
         userDao.update(user);
 

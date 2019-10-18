@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import slipp.dao.UserDao;
 import slipp.domain.User;
+import slipp.exception.NoSuchUserException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -24,7 +25,7 @@ public class LoginController implements Controller {
         String userId = req.getParameter("userId");
         String password = req.getParameter("password");
         try {
-            User user = userDao.findByUserId(userId);
+            User user = userDao.findByUserId(userId).orElseThrow(NoSuchUserException::new);
             if (user.matchPassword(password)) {
                 HttpSession session = req.getSession();
                 session.setAttribute(UserSessionUtils.USER_SESSION_KEY, user);
