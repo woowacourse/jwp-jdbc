@@ -23,14 +23,13 @@ import javax.servlet.http.HttpServletResponse;
 public class ApiUserController {
     private static final Logger logger = LoggerFactory.getLogger( ApiUserController.class );
 
-    private UserDao userDao = new UserDao(new JdbcTemplate(new SlippConnectionManager()));
+    private final UserDao userDao = new UserDao(new JdbcTemplate(new SlippConnectionManager()));
     private ObjectMapper objectMapper = new ObjectMapper();
 
     @RequestMapping(value = "/api/users", method = RequestMethod.POST)
     public ModelAndView create(HttpServletRequest request, HttpServletResponse response) throws Exception {
         UserCreatedDto createdDto = objectMapper.readValue(request.getInputStream(), UserCreatedDto.class);
         logger.debug("Created User : {}", createdDto);
-
 
         userDao.insert(new User(
                 createdDto.getUserId(),
