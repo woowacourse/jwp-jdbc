@@ -43,11 +43,16 @@ public class UserDao {
 
     public User findByUserId(String userId) {
         String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
-        return jdbcTemplate.queryForObject(sql,
+        User user = jdbcTemplate.queryForObject(sql,
                 rs -> new User(rs.getString("userId"),
                         rs.getString("password"),
                         rs.getString("name"),
                         rs.getString("email")),
                 pstmt -> pstmt.setString(1, userId));
+
+        if (user == null) {
+            throw new NotFoundUserException();
+        }
+        return user;
     }
 }

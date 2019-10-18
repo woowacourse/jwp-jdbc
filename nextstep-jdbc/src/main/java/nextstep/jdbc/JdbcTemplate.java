@@ -62,11 +62,11 @@ public class JdbcTemplate {
 
     private <T> T getQueryResult(RowMapper<T> rowMapper, PreparedStatement pstmt) throws SQLException {
         try (ResultSet rs = pstmt.executeQuery()) {
-            T result = null;
             if (rs.next()) {
-                result = rowMapper.mapRow(rs);
+                return rowMapper.mapRow(rs);
             }
-            return result;
+
+            return null;
         }
     }
 
