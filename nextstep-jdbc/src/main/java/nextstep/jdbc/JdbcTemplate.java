@@ -1,6 +1,6 @@
 package nextstep.jdbc;
 
-import java.sql.Connection;
+import javax.sql.DataSource;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -10,13 +10,10 @@ import java.util.List;
 import java.util.Objects;
 
 public class JdbcTemplate {
-    private final Connection connection;
+    private final DataSource dataSource;
 
-    public JdbcTemplate(final Connection connection) {
-        if (Objects.isNull(connection)) {
-            throw new DbAccessException();
-        }
-        this.connection = connection;
+    public JdbcTemplate(final DataSource dataSource) {
+        this.dataSource = dataSource;
     }
 
     public <T> T findItem(final String sql, final RowMapper<T> mapper, final Object... parameters) {
@@ -33,10 +30,9 @@ public class JdbcTemplate {
         return result;
     }
 
-    private ResultSet getResultSet(final String sql, final Object[] parameters) {
+    private ResultSet getResultSet(final String sql, final Object... parameters) {
         try {
-            final PreparedStatement statement = connection.prepareStatement(sql);
-            setPreparedStatements(statement, parameters);
+            final PreparedStatement statement = getStatement(sql, parameters);
             return statement.executeQuery();
         } catch (final SQLException exception) {
             throw new DbAccessException(exception);
@@ -44,18 +40,20 @@ public class JdbcTemplate {
     }
 
     public void write(final String sql, final Object... parameters) {
-        try (final PreparedStatement statement = connection.prepareStatement(sql)) {
-            setPreparedStatements(statement, parameters);
+        try {
+            final PreparedStatement statement = getStatement(sql, parameters);
             statement.executeUpdate();
         } catch (final SQLException exception) {
             throw new DbAccessException(exception);
         }
     }
 
-    private void setPreparedStatements(final PreparedStatement statement, final Object[] parameters) throws SQLException {
+    private PreparedStatement getStatement(final String sql, final Object... parameters) throws SQLException {
+        final PreparedStatement statement = dataSource.getConnection().prepareStatement(sql);
         for (int i = 0; i < parameters.length; i++) {
             statement.setObject(i + 1, parameters[i]);
         }
+        return statement;
     }
 
     private static class ResultSetIterator<T> implements Iterator<T> {

@@ -11,7 +11,7 @@ public class UserDao {
     private final JdbcTemplate jdbcTemplate;
 
     public UserDao() {
-        this.jdbcTemplate = new JdbcTemplate(ConnectionManager.getConnection());
+        this.jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
     }
 
     private final RowMapper<User> userMapper = resultSet -> new User(
