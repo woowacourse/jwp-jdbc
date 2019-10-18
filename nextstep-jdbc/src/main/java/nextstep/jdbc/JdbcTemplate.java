@@ -48,16 +48,11 @@ public class JdbcTemplate {
     }
 
     public <T> Optional<T> queryForObject(String sql, ResultSetMappingStrategy<T> strategy, Object... args) {
-        try (PreparedStatement psmt = prepare(sql)) {
-            setParams(psmt, args);
-            ResultSet rs = psmt.executeQuery();
-            if (rs.next()) {
-                return Optional.of(strategy.map(rs));
-            }
+        List<T> results = query(sql, strategy, args);
+        if (results.isEmpty()) {
             return Optional.empty();
-        } catch (SQLException e) {
-            throw new DataAccessException(e);
         }
+        return Optional.of(results.get(0));
     }
 
     public <T> List<T> query(String sql, ResultSetMappingStrategy<T> strategy, Object... args) {
