@@ -23,9 +23,8 @@ public class JdbcTemplate {
     public void update(String sql, Object... args) {
         try (Connection con = dataSource.getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
-            for (int i = 0; i < args.length; i++) {
-                pstmt.setObject(i + 1, args[i]);
-            }
+            setParameters(pstmt, args);
+
             pstmt.executeUpdate();
         } catch (SQLException e) {
             log.error("SQL Exception Thrown : ", e);
@@ -36,13 +35,13 @@ public class JdbcTemplate {
     public <T> T execute(String sql, RowMapper<T> rowMapper, Object... args) {
         try (Connection con = dataSource.getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
-            for (int i = 0; i < args.length; i++) {
-                pstmt.setObject(i + 1, args[i]);
-            }
+            setParameters(pstmt, args);
+
             ResultSet rs = pstmt.executeQuery();
             if (!rs.next()) {
                 return null;
             }
+
             return rowMapper.mapRow(rs);
         } catch (SQLException e) {
             log.error("SQL Exception Thrown : ", e);
@@ -54,9 +53,8 @@ public class JdbcTemplate {
         List<T> result = new ArrayList<>();
         try (Connection con = dataSource.getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
-            for (int i = 0; i < args.length; i++) {
-                pstmt.setObject(i + 1, args[i]);
-            }
+            setParameters(pstmt, args);
+
             ResultSet rs = pstmt.executeQuery();
             while (rs.next()) {
                 result.add(rowMapper.mapRow(rs));
@@ -66,6 +64,12 @@ public class JdbcTemplate {
         } catch (SQLException e) {
             log.error("SQL Exception Thrown : ", e);
             throw new JdbcTemplateException(e);
+        }
+    }
+
+    private void setParameters(PreparedStatement pstmt, Object[] args) throws SQLException {
+        for (int i = 0; i < args.length; i++) {
+            pstmt.setObject(i + 1, args[i]);
         }
     }
 }
