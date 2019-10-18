@@ -4,8 +4,6 @@ import nextstep.jdbc.JdbcTemplate;
 import slipp.domain.User;
 import slipp.support.db.ConnectionManager;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -35,30 +33,18 @@ public class UserDao {
     }
 
     public List<User> findAll() throws SQLException {
-        List<User> users = new ArrayList<>();
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        try {
-            con = ConnectionManager.getConnection();
-            String sql = "SELECT * FROM USERS";
-            pstmt = con.prepareStatement(sql);
-            rs = pstmt.executeQuery();
+        String sql = "SELECT * FROM USERS";
 
-            while (rs.next()) {
-                users.add(new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
-                        rs.getString("email")));
-            }
-        } finally {
-            if (rs != null) {
-                rs.close();
-            }
-            if (pstmt != null) {
-                pstmt.close();
-            }
-            if (con != null) {
-                con.close();
-            }
+        return jdbcTemplate.queryForObject(sql,
+                pstmt -> {},
+                this::getUsers);
+    }
+
+    private List<User> getUsers(ResultSet rs) throws SQLException {
+        List<User> users = new ArrayList<>();
+        while (rs.next()) {
+            users.add(new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
+                    rs.getString("email")));
         }
         return users;
     }
