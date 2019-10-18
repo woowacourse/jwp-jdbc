@@ -2,9 +2,7 @@ package slipp.dao;
 
 import nextstep.jdbc.JdbcTemplate;
 import nextstep.jdbc.PreparedStatementSetter;
-import nextstep.jdbc.RowMapper;
 import slipp.domain.TestEntity;
-import slipp.domain.User;
 import slipp.support.db.ConnectionManager;
 
 import java.util.List;
@@ -14,7 +12,7 @@ public class TestEntityDao {
 
     public void insert(TestEntity entity) {
         String sql = "INSERT INTO ENTITIES VALUES (?, ?, ?)";
-        PreparedStatementSetter preparedStatementSetter= pstmt -> {
+        PreparedStatementSetter preparedStatementSetter = pstmt -> {
             pstmt.setString(1, entity.getUserId());
             pstmt.setInt(2, entity.getAge());
             pstmt.setLong(3, entity.getGrade());

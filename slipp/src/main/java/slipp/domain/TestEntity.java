@@ -1,7 +1,5 @@
 package slipp.domain;
 
-import slipp.dto.UserUpdatedDto;
-
 import java.util.Objects;
 
 public class TestEntity {

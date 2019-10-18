@@ -8,7 +8,6 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import slipp.domain.TestEntity;
-import slipp.domain.User;
 import slipp.support.db.ConnectionManager;
 
 import java.util.List;
@@ -28,7 +27,7 @@ public class TestEntityDaoTest {
 
     @Test
     public void crudTestEntityWithoutRowMapper() throws Exception {
-        TestEntity expected = new TestEntity("kjm",10, 100);
+        TestEntity expected = new TestEntity("kjm", 10, 100);
         TestEntityDao dao = new TestEntityDao();
         dao.insert(expected);
         TestEntity actual = dao.findByUserIdWithoutRowMapper(expected.getUserId());
