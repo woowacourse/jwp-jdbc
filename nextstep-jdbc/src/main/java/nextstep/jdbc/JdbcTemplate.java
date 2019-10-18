@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class JdbcTemplate {
+    private static final PreparedStatementSetter EMPTY_SETTER = statement -> {};
     private final DataSource dataSource;
 
     public JdbcTemplate(final DataSource dataSource) {
@@ -17,12 +18,20 @@ public class JdbcTemplate {
     }
 
     public <T> T findItem(final String sql, final RowMapper<T> mapper, final Object... parameters) {
-        final ResultSet resultSet = getResultSet(sql, parameters);
+        return findItem(sql, mapper, EMPTY_SETTER, parameters);
+    }
+
+    public <T> T findItem(final String sql, final RowMapper<T> mapper, final PreparedStatementSetter setter, final Object... parameters) {
+        final ResultSet resultSet = getResultSet(sql, setter, parameters);
         return new ResultSetIterator<>(resultSet, mapper).next();
     }
 
     public <T> List<T> findItems(final String sql, final RowMapper<T> mapper, final Object... parameters) {
-        final ResultSet resultSet = getResultSet(sql, parameters);
+        return findItems(sql, mapper, EMPTY_SETTER, parameters);
+    }
+
+    public <T> List<T> findItems(final String sql, final RowMapper<T> mapper, final PreparedStatementSetter setter, final Object... parameters) {
+        final ResultSet resultSet = getResultSet(sql, setter, parameters);
         final List<T> result = new ArrayList<>();
         for (final ResultSetIterator<T> item = new ResultSetIterator<>(resultSet, mapper); item.hasNext(); ) {
             result.add(item.next());
@@ -30,29 +39,32 @@ public class JdbcTemplate {
         return result;
     }
 
-    private ResultSet getResultSet(final String sql, final Object... parameters) {
+    private ResultSet getResultSet(final String sql, final PreparedStatementSetter setter, final Object... parameters) {
         try {
-            final PreparedStatement statement = getStatement(sql, parameters);
-            return statement.executeQuery();
+            return getStatement(sql, setter, parameters).executeQuery();
         } catch (final SQLException exception) {
             throw new DbAccessException(exception);
         }
     }
 
     public void write(final String sql, final Object... parameters) {
+        write(sql, EMPTY_SETTER, parameters);
+    }
+
+    public void write(final String sql, final PreparedStatementSetter setter, final Object... parameters) {
         try {
-            final PreparedStatement statement = getStatement(sql, parameters);
-            statement.executeUpdate();
+            getStatement(sql, setter, parameters).executeUpdate();
         } catch (final SQLException exception) {
             throw new DbAccessException(exception);
         }
     }
 
-    private PreparedStatement getStatement(final String sql, final Object... parameters) throws SQLException {
+    private PreparedStatement getStatement(final String sql, final PreparedStatementSetter setter, final Object... parameters) throws SQLException {
         final PreparedStatement statement = dataSource.getConnection().prepareStatement(sql);
         for (int i = 0; i < parameters.length; i++) {
             statement.setObject(i + 1, parameters[i]);
         }
+        setter.setParameters(statement);
         return statement;
     }
 
