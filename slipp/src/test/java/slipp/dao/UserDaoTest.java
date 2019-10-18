@@ -46,11 +46,11 @@ public class UserDaoTest {
     void deleteAll() {
         UserDao userDao = new UserDao();
         List<User> users = userDao.findAll();
-        assertThat(users.size() > 0).isTrue();
+        assertThat(users.size()).isGreaterThan(0);
         userDao.deleteAll();
 
         List<User> deletedUsers = userDao.findAll();
-        assertThat(deletedUsers.size()).isEqualTo(0);
+        assertThat(deletedUsers).hasSize(0);
 
         for (User user : users) {
             userDao.insert(user);
