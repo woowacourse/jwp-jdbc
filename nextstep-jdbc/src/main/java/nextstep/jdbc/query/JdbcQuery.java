@@ -5,5 +5,5 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public interface JdbcQuery {
-    PreparedStatement execute(Connection con) throws SQLException;
+    PreparedStatement create(Connection con) throws SQLException;
 }

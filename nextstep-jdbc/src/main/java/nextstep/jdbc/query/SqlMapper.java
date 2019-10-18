@@ -23,7 +23,7 @@ public class SqlMapper implements JdbcQuery {
     }
 
     @Override
-    public PreparedStatement execute(Connection con) throws SQLException {
+    public PreparedStatement create(Connection con) throws SQLException {
         PreparedStatement pstmt = con.prepareStatement(query);
         for (int i = 0; i < attributes.size(); i++) {
             pstmt.setString(i + 1, attributes.get(i));

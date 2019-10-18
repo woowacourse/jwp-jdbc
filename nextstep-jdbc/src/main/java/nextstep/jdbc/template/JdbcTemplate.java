@@ -17,7 +17,7 @@ public class JdbcTemplate implements DbcTemplate {
     }
 
     public void updateQuery(JdbcQuery query) {
-        try (PreparedStatement pstmt = query.execute(con)) {
+        try (PreparedStatement pstmt = query.create(con)) {
             pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new JdbcTemplateSqlException(e);
@@ -25,7 +25,7 @@ public class JdbcTemplate implements DbcTemplate {
     }
 
     public <T> T executeQuery(JdbcQuery query, JdbcMapper<T> mapper) {
-        try (PreparedStatement pstmt = query.execute(con);
+        try (PreparedStatement pstmt = query.create(con);
              ResultSet rs = pstmt.executeQuery()) {
 
             return mapper.mapped(rs);

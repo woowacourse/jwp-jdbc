@@ -29,5 +29,5 @@ public class SqlMapperTest {
         assertThat(sqlMapper).isEqualTo(expected);
     }
 
-    // TODO: execute test
+    // TODO: create test
 }
