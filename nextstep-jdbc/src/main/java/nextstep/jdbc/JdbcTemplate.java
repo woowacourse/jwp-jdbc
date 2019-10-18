@@ -18,38 +18,31 @@ public class JdbcTemplate {
     }
 
     public void update(String sql, Object... args) {
-        execute(sql, null, args);
-    }
-
-    private <T> T extractEntity(ResultSetExtractionStrategy<T> strategy,
-                                PreparedStatement pstmt) throws SQLException {
-        if (pstmt.execute() && strategy != null) {
-            try (ResultSet rs = pstmt.getResultSet()) {
-                return strategy.extract(rs);
-            }
-        }
-        return null;
+        PreparedStatementSetter pstmtSetter = createPstmtSetter(args);
+        execute(sql, pstmtSetter, null);
     }
 
     public <T> List<T> executeQuery(String sql, RowMapper<T> rowMapper, Object... args) {
         ResultSetExtractionStrategy<List<T>> strategy = new MultipleResultSetExtractionStrategy<>(rowMapper);
-        return execute(sql, strategy, args);
+        PreparedStatementSetter pstmtSetter = createPstmtSetter(args);
+
+        return execute(sql, pstmtSetter, strategy);
     }
 
     public <T> Optional<T> executeQueryForObject(String sql, RowMapper<T> rowMapper, Object... args) {
         ResultSetExtractionStrategy<T> strategy = new SingleResultSetExtractionStrategy<>(rowMapper);
-        T result = execute(sql, strategy, args);
+        PreparedStatementSetter pstmtSetter = createPstmtSetter(args);
 
+        T result = execute(sql, pstmtSetter, strategy);
         return Optional.ofNullable(result);
     }
 
-    private <T> T execute(String sql, ResultSetExtractionStrategy<T> strategy, Object... args) {
-        PreparedStatementSetter pstmtSetter = pstmt -> {
+    private PreparedStatementSetter createPstmtSetter(Object... args) {
+        return pstmt -> {
             for (int i = 0; i < args.length; i++) {
                 pstmt.setObject(i + 1, args[i]);
             }
         };
-        return execute(sql, pstmtSetter, strategy);
     }
 
     private  <T> T execute(String sql, PreparedStatementSetter pstmtSetter,
@@ -61,6 +54,16 @@ public class JdbcTemplate {
         } catch (SQLException e) {
             throw new JdbcTemplateException(e);
         }
+    }
+
+    private <T> T extractEntity(ResultSetExtractionStrategy<T> strategy,
+                                PreparedStatement pstmt) throws SQLException {
+        if (pstmt.execute() && strategy != null) {
+            try (ResultSet rs = pstmt.getResultSet()) {
+                return strategy.extract(rs);
+            }
+        }
+        return null;
     }
 
     public void update(String sql, PreparedStatementSetter pstmtSetter) {
@@ -75,8 +78,8 @@ public class JdbcTemplate {
     public <T> Optional<T> executeQueryForObject(String sql, PreparedStatementSetter pstmtSetter,
                                                  RowMapper<T> rowMapper) {
         ResultSetExtractionStrategy<T> strategy = new SingleResultSetExtractionStrategy<>(rowMapper);
-        T result = execute(sql, pstmtSetter, strategy);
 
+        T result = execute(sql, pstmtSetter, strategy);
         return Optional.ofNullable(result);
     }
 
