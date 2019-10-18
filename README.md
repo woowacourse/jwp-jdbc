@@ -34,7 +34,8 @@ docker-compose up -d
 ## 요구사항
 
 1. UserDao.class update(), findAll() 구현 (O)
-2. UserDao.class 리팩토링 (X)
+2. UserDao.class 리팩토링 (O)
+3. nextstep.jdbc 리팩토링 (X)
 
 
 
