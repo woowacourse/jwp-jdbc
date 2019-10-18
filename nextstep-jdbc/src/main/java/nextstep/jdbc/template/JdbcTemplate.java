@@ -1,4 +1,4 @@
-package nextstep.jdbc;
+package nextstep.jdbc.template;
 
 import nextstep.jdbc.exception.JdbcTemplateSqlException;
 import nextstep.jdbc.mapper.JdbcMapper;
@@ -9,7 +9,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class JdbcTemplate {
+public class JdbcTemplate implements DbcTemplate {
     private final Connection con;
 
     public JdbcTemplate(Connection con) {

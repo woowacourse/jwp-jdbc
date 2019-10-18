@@ -1,9 +1,10 @@
 package slipp.dao;
 
-import nextstep.jdbc.JdbcTemplate;
+import nextstep.jdbc.template.JdbcTemplate;
 import nextstep.jdbc.mapper.ListMapper;
 import nextstep.jdbc.mapper.ObjectMapper;
 import nextstep.jdbc.query.SqlMapper;
+import nextstep.jdbc.template.DbcTemplate;
 import slipp.domain.User;
 import slipp.support.db.ConnectionManager;
 
@@ -20,7 +21,7 @@ public class UserDao {
     }
 
     public void insert(User user) {
-        JdbcTemplate jdbcTemplate = getJdbcTemplate();
+        DbcTemplate jdbcTemplate = getJdbcTemplate();
         SqlMapper sqlMapper = new SqlMapper("INSERT INTO USERS VALUES (?, ?, ?, ?)");
         sqlMapper.addAttribute(user.getUserId())
                 .addAttribute(user.getPassword())
@@ -31,7 +32,7 @@ public class UserDao {
     }
 
     public void update(User user) {
-        JdbcTemplate jdbcTemplate = getJdbcTemplate();
+        DbcTemplate jdbcTemplate = getJdbcTemplate();
         SqlMapper sqlMapper = new SqlMapper("UPDATE USERS SET password = ?, name = ?, email = ? WHERE userId = ?");
         sqlMapper.addAttribute(user.getPassword())
                 .addAttribute(user.getName())
@@ -42,7 +43,7 @@ public class UserDao {
     }
 
     public List<User> findAll() {
-        JdbcTemplate jdbcTemplate = getJdbcTemplate();
+        DbcTemplate jdbcTemplate = getJdbcTemplate();
         SqlMapper sqlMapper = new SqlMapper("SELECT userId, password, name, email FROM USERS");
 
         return jdbcTemplate.executeQuery(sqlMapper, new ListMapper<User>() {
@@ -59,7 +60,7 @@ public class UserDao {
     }
 
     public User findByUserId(String userId) {
-        JdbcTemplate jdbcTemplate = getJdbcTemplate();
+        DbcTemplate jdbcTemplate = getJdbcTemplate();
         SqlMapper sqlMapper = new SqlMapper("SELECT userId, password, name, email FROM USERS WHERE userid=?");
         sqlMapper.addAttribute(userId);
 
@@ -76,7 +77,7 @@ public class UserDao {
         });
     }
 
-    private JdbcTemplate getJdbcTemplate() {
+    private DbcTemplate getJdbcTemplate() {
         return new JdbcTemplate(ConnectionManager.getConnection());
     }
 
