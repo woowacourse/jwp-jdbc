@@ -71,9 +71,7 @@ public class UserDao {
             rs = pstmt.executeQuery();
 
             List<User> users = new ArrayList<>();
-            if (rs.next()) {
-                User user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
-                        rs.getString("email"));
+            while (rs.next()) {
                 users.add(new User(
                                 rs.getString("userId"),
                                 rs.getString("password"),
