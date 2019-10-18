@@ -12,7 +12,6 @@ public class MultipleEntitiesResultSetExtractionStrategy<T> implements ResultSet
 
     public MultipleEntitiesResultSetExtractionStrategy(RowMapper<T> rowMapper) {
         this.rowMapper = rowMapper;
-
     }
 
     @Override

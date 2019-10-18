@@ -30,7 +30,6 @@ public class UserDao {
 
         };
         jdbcTemplate.executeUpdate(sql, preparedStatementSetter);
-//        jdbcTemplate.executeUpdate(sql, user.getUserId(), user.getPassword(), user.getName(), user.getEmail());
     }
 
     public void update(User user) {
@@ -41,7 +40,6 @@ public class UserDao {
             pstmt.setString(3, user.getEmail());
             pstmt.setString(4, user.getUserId());
         };
-//        jdbcTemplate.executeUpdate(sql, user.getPassword(), user.getName(), user.getEmail(), user.getUserId());
         jdbcTemplate.executeUpdate(sql, preparedStatementSetter);
     }
 
@@ -60,7 +58,6 @@ public class UserDao {
             pstmt.setString(1, userId);
         };
         RowMapper<User> rowMapper = makeRowMapper();
-//        return jdbcTemplate.queryForSingleEntity(sql, rowMapper, userId);
         return jdbcTemplate.queryForSingleEntity(sql, preparedStatementSetter, rowMapper);
     }
 
