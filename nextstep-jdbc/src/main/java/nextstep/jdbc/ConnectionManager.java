@@ -31,7 +31,7 @@ class ConnectionManager {
             return ds.getConnection();
         } catch (SQLException e) {
             log.error(e.getMessage());
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException(e);
         }
     }
 }

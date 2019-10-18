@@ -43,7 +43,7 @@ public class JdbcTemplate {
             // PreparedStatement 의 parameter index 는 1부터 시작한다.
             psmt.setObject(parameterIndex + 1, arg);
         } catch (SQLException e) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException(e);
         }
     }
 
