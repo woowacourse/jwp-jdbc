@@ -84,8 +84,8 @@ public class JdbcTemplate {
              PreparedStatement pstmt = con.prepareStatement(query)) {
             return executor.execute(pstmt);
         } catch (SQLException e) {
-            log.error(e.getMessage());
-            throw new DataAccessException();
+            log.error("Error :", e);
+            throw new DataAccessException(e);
         }
     }
 

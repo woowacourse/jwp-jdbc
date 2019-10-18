@@ -1,10 +1,10 @@
 package nextstep.jdbc;
 
 public class DataAccessException extends RuntimeException {
+    private static final String MESSAGE = "Process SQL Error :";
 
-    private static final String MESSAGE = "Error: process sql";
-
-    public DataAccessException() {
-        super(MESSAGE);
+    public DataAccessException(Exception e) {
+        super(MESSAGE + e.getMessage(), e);
     }
+
 }
