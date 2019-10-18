@@ -8,7 +8,6 @@ import slipp.dto.UserUpdatedDto;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Optional;
 
 public class UpdateUserController implements Controller {
     private static final Logger logger = LoggerFactory.getLogger(UpdateUserController.class);
@@ -17,10 +16,9 @@ public class UpdateUserController implements Controller {
 
     @Override
     public String execute(HttpServletRequest req, HttpServletResponse res) {
-        return Optional.ofNullable(
-                this.userDao.findByUserId(req.getParameter("userId"))
-        ).filter(user -> UserSessionUtils.isSameUser(req.getSession(), user))
-        .map(user -> {
+        return this.userDao.findByUserId(req.getParameter("userId")).filter(user ->
+            UserSessionUtils.isSameUser(req.getSession(), user)
+        ).map(user -> {
             final UserUpdatedDto updateUser = new UserUpdatedDto(
                     req.getParameter("password"),
                     req.getParameter("name"),

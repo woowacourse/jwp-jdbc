@@ -26,8 +26,8 @@ public class UserController {
                 req.getParameter("password"),
                 req.getParameter("name"),
                 req.getParameter("email"));
-        logger.debug("User : {}", user);
         this.userDao.create(user);
+        logger.debug("User : {}", user);
         return redirect("/");
     }
 

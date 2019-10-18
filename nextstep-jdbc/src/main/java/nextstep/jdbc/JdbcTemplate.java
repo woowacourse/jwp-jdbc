@@ -7,6 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class JdbcTemplate {
     private final DataSource dataSource;
@@ -15,7 +16,7 @@ public class JdbcTemplate {
         this.dataSource = dataSource;
     }
 
-    public void insert(String query, Object... params) {
+    public void create(String query, Object... params) {
         cxud(query, params);
     }
 
@@ -33,11 +34,13 @@ public class JdbcTemplate {
         }
     }
 
-    public <A> A select(FunctionThrowingSQLException<ResultSet, A> rowMapper, String query, Object... params) {
+    public <A> Optional<A> select(
+            FunctionThrowingSQLException<ResultSet, A> rowMapper, String query, Object... params
+    ) {
         try (final Connection con = this.dataSource.getConnection();
              final PreparedStatement pstmt = prepareStatement(con, query, params);
              final ResultSet resultSet = pstmt.executeQuery()) {
-            return resultSet.next() ? rowMapper.apply(resultSet) : null;
+            return resultSet.next() ? Optional.of(rowMapper.apply(resultSet)) : Optional.empty();
         } catch (SQLException e) {
             throw new QueryFailedException(e);
         }
@@ -56,7 +59,7 @@ public class JdbcTemplate {
     }
 
     private void cxud(String query, Object... params) {
-        try (final Connection con = dataSource.getConnection();
+        try (final Connection con = this.dataSource.getConnection();
              final PreparedStatement pstmt = prepareStatement(con, query, params)) {
             pstmt.executeUpdate();
         } catch (SQLException e) {

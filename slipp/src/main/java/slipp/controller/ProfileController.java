@@ -5,16 +5,13 @@ import slipp.dao.UserDao;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Optional;
 
 public class ProfileController implements Controller {
     private final UserDao userDao = new UserDao();
 
     @Override
     public String execute(HttpServletRequest req, HttpServletResponse res) {
-        return Optional.ofNullable(
-                this.userDao.findByUserId(req.getParameter("userId"))
-        ).map(user -> {
+        return this.userDao.findByUserId(req.getParameter("userId")).map(user -> {
             req.setAttribute("user", user);
             return "/user/profile.jsp";
         }).orElseThrow(() -> new NullPointerException("사용자를 찾을 수 없습니다."));

@@ -27,16 +27,16 @@ public class UserDaoTest {
         final UserDao userDao = new UserDao();
 
         userDao.create(expected);
-        User actual = userDao.findByUserId(expected.getUserId());
+        User actual = userDao.findByUserId(expected.getUserId()).get();
         assertThat(actual).isEqualTo(expected);
 
         expected.update(new UserUpdatedDto("password2", "name2", "sanjigi@email.com"));
         userDao.update(expected);
-        actual = userDao.findByUserId(expected.getUserId());
+        actual = userDao.findByUserId(expected.getUserId()).get();
         assertThat(actual).isEqualTo(expected);
 
         userDao.deleteByUserId(expected.getUserId());
-        actual = userDao.findByUserId(expected.getUserId());
+        actual = userDao.findByUserId(expected.getUserId()).orElse(null);
         assertThat(actual).isNull();
     }
 

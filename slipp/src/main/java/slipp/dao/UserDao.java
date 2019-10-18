@@ -7,12 +7,13 @@ import slipp.support.db.ConnectionManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 
 public class UserDao {
     private final JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
 
     public void create(User user) {
-        this.jdbcTemplate.insert(
+        this.jdbcTemplate.create(
                 "INSERT INTO USERS VALUES (?, ?, ?, ?)",
                 user.getUserId(),
                 user.getPassword(),
@@ -38,7 +39,7 @@ public class UserDao {
         );
     }
 
-    public User findByUserId(String userId) {
+    public Optional<User> findByUserId(String userId) {
         return this.jdbcTemplate.select(
                 this::mapRowToUser,
                 "SELECT userId, password, name, email FROM USERS WHERE userId=?",
