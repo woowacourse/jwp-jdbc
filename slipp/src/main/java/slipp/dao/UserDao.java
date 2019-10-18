@@ -2,10 +2,7 @@ package slipp.dao;
 
 import nextstep.jdbc.JdbcTemplate;
 import slipp.domain.User;
-import slipp.support.db.ConnectionManager;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -42,60 +39,40 @@ public class UserDao {
 
     }
 
-    public List<User> findAll() throws SQLException {
-        List<User> users = new ArrayList<User>();
-        ;
+    public List<User> findAll() {
         String sql = "SELECT userId, password, name, email FROM USERS";
 
-        try (Connection con = ConnectionManager.getConnection();
-             PreparedStatement pstmt = con.prepareStatement(sql)) {
-
-            ResultSet rs = executeQueryThatHasResult(pstmt, new ArrayList<>());
-            User user;
-
-            while (rs.next()) {
-                user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
-                        rs.getString("email"));
-                users.add(user);
-            }
-        } finally {
-            if (rs != null) {
-                rs.close();
-            }
-        }
-        return users;
+        return jdbcTemplate.executeQueryThatHasResultSet(sql, new ArrayList<>(),
+                (resultSet) -> {
+                    List<User> users = new ArrayList<User>();
+                    while (resultSet.next()) {
+                        User user = new User(resultSet.getString("userId"),
+                                resultSet.getString("password"),
+                                resultSet.getString("name"),
+                                resultSet.getString("email"));
+                        users.add(user);
+                    }
+                    return users;
+                });
     }
 
     public User findByUserId(String userId) throws SQLException {
         String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
-        try (Connection con = ConnectionManager.getConnection();
-             PreparedStatement pstmt = con.prepareStatement(sql)) {
 
-            List<Object> parameters = new ArrayList<>();
-            parameters.add(userId);
+        List<Object> parameters = new ArrayList<>();
+        parameters.add(userId);
 
-            rs = executeQueryThatHasResult(pstmt, parameters);
-            User user = null;
-            if (rs.next()) {
-                user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
-                        rs.getString("email"));
-            }
-            return user;
-
-        } finally {
-            if (rs != null) {
-                rs.close();
-            }
-        }
+        return jdbcTemplate.executeQueryThatHasResultSet(sql, parameters,
+                resultSet -> {
+                    User user = null;
+                    if (resultSet.next()) {
+                        user = new User(resultSet.getString("userId"),
+                                resultSet.getString("password"),
+                                resultSet.getString("name"),
+                                resultSet.getString("email"));
+                    }
+                    return user;
+                });
     }
 
-    private ResultSet executeQueryThatHasResult(PreparedStatement pstmt, List<Object> parameters) throws SQLException {
-        int index = 1;
-        for (Object parameter : parameters) {
-            pstmt.setObject(index, parameter);
-            index++;
-        }
-
-        return pstmt.executeQuery();
-    }
 }
