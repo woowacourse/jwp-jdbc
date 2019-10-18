@@ -9,7 +9,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class JdbcTemplate implements DbcTemplate {
+public class JdbcTemplate {
     private final Connection con;
 
     public JdbcTemplate(Connection con) {
