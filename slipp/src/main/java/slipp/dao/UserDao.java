@@ -21,26 +21,23 @@ public class UserDao {
 
     public void insert(User user) {
         JdbcTemplate jdbcTemplate = getJdbcTemplate();
-        PreparedStatementBuilder preparedStatementBuilder = new PreparedStatementBuilder(
-                "INSERT INTO USERS VALUES (?, ?, ?, ?)");
-        preparedStatementBuilder.addAttribute(user.getUserId())
-                .addAttribute(user.getPassword())
-                .addAttribute(user.getName())
-                .addAttribute(user.getEmail());
 
-        jdbcTemplate.updateQuery(preparedStatementBuilder);
+        jdbcTemplate.update(
+                "INSERT INTO USERS VALUES (?, ?, ?, ?)",
+                user.getUserId(),
+                user.getPassword(),
+                user.getName(),
+                user.getEmail());
     }
 
     public void update(User user) {
         JdbcTemplate jdbcTemplate = getJdbcTemplate();
-        PreparedStatementBuilder preparedStatementBuilder = new PreparedStatementBuilder(
-                "UPDATE USERS SET password = ?, name = ?, email = ? WHERE userId = ?");
-        preparedStatementBuilder.addAttribute(user.getPassword())
-                .addAttribute(user.getName())
-                .addAttribute(user.getEmail())
-                .addAttribute(user.getUserId());
-
-        jdbcTemplate.updateQuery(preparedStatementBuilder);
+        jdbcTemplate.update(
+                "UPDATE USERS SET password = ?, name = ?, email = ? WHERE userId = ?",
+                user.getPassword(),
+                user.getName(),
+                user.getEmail(),
+                user.getUserId());
     }
 
     public List<User> findAll() {

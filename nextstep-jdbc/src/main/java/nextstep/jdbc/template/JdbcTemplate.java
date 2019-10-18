@@ -8,6 +8,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.List;
 
 public class JdbcTemplate {
     private final Connection con;
@@ -16,19 +18,23 @@ public class JdbcTemplate {
         this.con = con;
     }
 
-    public void updateQuery(PreparedStatementBuilder mapper) {
-        try (PreparedStatement pstmt = mapper.create(con)) {
-            pstmt.executeUpdate();
-        } catch (SQLException e) {
-            throw new JdbcTemplateSqlException(e);
-        }
-    }
-
     public <T> T executeQuery(PreparedStatementBuilder preparedStatementBuilder, JdbcMapper<T> mapper) {
         try (PreparedStatement pstmt = preparedStatementBuilder.create(con);
              ResultSet rs = pstmt.executeQuery()) {
 
             return mapper.mapped(rs);
+        } catch (SQLException e) {
+            throw new JdbcTemplateSqlException(e);
+        }
+    }
+
+    public void update(String sql, Object... parameters) {
+        List<Object> objects = Arrays.asList(parameters);
+        try (PreparedStatement pstmt = con.prepareStatement(sql)) {
+            for (int i = 1; i <= objects.size(); i++) {
+                pstmt.setObject(i, objects.get(i - 1));
+            }
+            pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new JdbcTemplateSqlException(e);
         }
