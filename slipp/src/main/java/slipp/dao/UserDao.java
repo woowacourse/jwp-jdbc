@@ -2,6 +2,7 @@ package slipp.dao;
 
 import nextstep.jdbc.JdbcTemplate;
 import slipp.domain.User;
+import slipp.exception.UserNotFoundException;
 import slipp.support.db.ConnectionManager;
 
 import java.util.List;
@@ -30,7 +31,7 @@ public class UserDao {
         return jdbcTemplate.queryForObject(sql,
             rs -> new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
                 rs.getString("email")), userId)
-            .orElse(null);
+            .orElseThrow(UserNotFoundException::new);
     }
 
     public void deleteByUserId(String userId) {
