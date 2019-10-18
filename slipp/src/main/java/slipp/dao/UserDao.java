@@ -74,7 +74,6 @@ public class UserDao {
         PreparedStatementSetter preparedStatementSetter = pstmt -> {
             pstmt.setString(1, userId);
         };
-        RowMapper<User> rowMapper = makeRowMapper();
         return jdbcTemplate.queryForSingleEntityWithoutRowMapper(sql, preparedStatementSetter, User.class);
     }
 

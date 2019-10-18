@@ -11,6 +11,18 @@ CREATE TABLE USERS (
 
 INSERT INTO USERS VALUES('admin', 'password', '자바지기', 'admin@slipp.net');
 
+DROP TABLE IF EXISTS ENTITIES;
+
+CREATE TABLE ENTITIES (
+	userId          varchar(12)		NOT NULL,
+	age		        int		    NOT NULL,
+	grade			bigint		NOT NULL,
+
+	PRIMARY KEY               (userId)
+);
+
+INSERT INTO ENTITIES VALUES('admin', 40, 100);
+
 DROP TABLE IF EXISTS QUESTIONS;
 
 CREATE TABLE QUESTIONS (
