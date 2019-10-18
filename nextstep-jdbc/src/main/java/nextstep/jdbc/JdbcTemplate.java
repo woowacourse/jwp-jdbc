@@ -2,20 +2,15 @@ package nextstep.jdbc;
 
 import nextstep.jdbc.exception.ConnectionFailedException;
 import nextstep.jdbc.exception.ExecuteUpdateFailedException;
-import nextstep.jdbc.resultsetextractionstrategy.MultipleEntitiesResultSetExtractionStrategy;
-import nextstep.jdbc.resultsetextractionstrategy.ResultSetExtractionStrategy;
-import nextstep.jdbc.resultsetextractionstrategy.SingleEntityResultSetExtractionStrategy;
+import nextstep.jdbc.resultsetextractionstrategy.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class JdbcTemplate {
@@ -43,8 +38,16 @@ public class JdbcTemplate {
         return execute(sql, preparedStatementSetter, new SingleEntityResultSetExtractionStrategy<>(rowMapper));
     }
 
+    public <T> T queryForSingleEntityWithoutRowMapper(String sql, PreparedStatementSetter preparedStatementSetter, Class<T> clazz) {
+        return execute(sql, preparedStatementSetter, new SingleEntityResultSetExtractionStrategyWithoutRowMapper<>(clazz));
+    }
+
     public <T> List<T> queryForMultipleEntities(String sql, PreparedStatementSetter preparedStatementSetter, RowMapper<T> rowMapper) {
         return execute(sql, preparedStatementSetter, new MultipleEntitiesResultSetExtractionStrategy<>(rowMapper));
+    }
+
+    public <T> List<T> queryForMultipleEntitiesWithoutRowMapper(String sql, PreparedStatementSetter preparedStatementSetter, Class<T> clazz) {
+        return execute(sql, preparedStatementSetter, new MultipleEntitiesResultSetExtractionStrategyWithoutRowMapper<>(clazz));
     }
 
     private <U> U execute(String sql, PreparedStatementSetter preparedStatementSetter, ResultSetExtractionStrategy<U> resultSetExtractionStrategy) {
@@ -56,53 +59,7 @@ public class JdbcTemplate {
                 return resultSetExtractionStrategy.extract(pstmt.getResultSet());
             }
             return null;
-        } catch (SQLException e) {
-            throw new ExecuteUpdateFailedException(e);
-        }
-    }
-
-    public <T> T queryForSingleEntityWithoutRowMapper(String sql, PreparedStatementSetter preparedStatementSetter, Class<T> clazz) {
-        try (Connection con = getConnection();
-             PreparedStatement pstmt = con.prepareStatement(sql)) {
-
-            preparedStatementSetter.setPreparedStatement(pstmt);
-            ResultSet resultSet = pstmt.executeQuery();
-            T instance = null;
-            if (resultSet.next()) {
-                Field[] fields = clazz.getDeclaredFields();
-                instance = clazz.getDeclaredConstructor().newInstance();
-                for (Field field : fields) {
-                    field.setAccessible(true);
-                    Class<?> fieldType = field.getType();
-                    field.set(instance, TypeParser.parse(resultSet, field.getName(), fieldType));
-                }
-            }
-            return instance;
-        } catch (SQLException | InstantiationException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
-            log.error(e.getMessage());
-            throw new ExecuteUpdateFailedException(e);
-        }
-    }
-
-    public <T> List<T> queryForMultipleEntitiesWithoutRowMapper(String sql, PreparedStatementSetter preparedStatementSetter, Class<T> clazz) {
-        try (Connection con = getConnection();
-             PreparedStatement pstmt = con.prepareStatement(sql)) {
-
-            preparedStatementSetter.setPreparedStatement(pstmt);
-            ResultSet resultSet = pstmt.executeQuery();
-            List<T> results = new ArrayList<>();
-            while (resultSet.next()) {
-                Field[] fields = clazz.getDeclaredFields();
-                T instance = clazz.getDeclaredConstructor().newInstance();
-                for (Field field : fields) {
-                    field.setAccessible(true);
-                    Class<?> fieldType = field.getType();
-                    field.set(instance, TypeParser.parse(resultSet, field.getName(), fieldType));
-                }
-                results.add(instance);
-            }
-            return results;
-        } catch (SQLException | InstantiationException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
+        } catch (SQLException | NoSuchMethodException e) {
             log.error(e.getMessage());
             throw new ExecuteUpdateFailedException(e);
         }

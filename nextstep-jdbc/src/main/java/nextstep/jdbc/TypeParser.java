@@ -17,12 +17,12 @@ public enum TypeParser {
     STRING(String.class, TypeParser::getString, null);
 
     private Class<?> valueType;
-    private BiFunction<ResultSet,String, Object> function;
+    private BiFunction<ResultSet,String, Object> biFunction;
     private Object defaultValue;
 
-    TypeParser(Class<?> valueType, BiFunction<ResultSet,String, Object> function, Object defaultValue) {
+    TypeParser(Class<?> valueType, BiFunction<ResultSet,String, Object> biFunction, Object defaultValue) {
         this.valueType = valueType;
-        this.function = function;
+        this.biFunction = biFunction;
         this.defaultValue = defaultValue;
     }
 
@@ -32,8 +32,12 @@ public enum TypeParser {
                 .findAny()
                 .orElseThrow(IllegalArgumentException::new);
 
+        Object result = parser.biFunction.apply(resultSet, name);
+        if (result == null) {
+            return parser.defaultValue;
+        }
+        return result;
 
-        return parser.function.apply(resultSet, name);
     }
 
     private static String getString(ResultSet resultSet, String name) {
