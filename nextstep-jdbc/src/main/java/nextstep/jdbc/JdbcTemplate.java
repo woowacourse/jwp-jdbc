@@ -9,36 +9,39 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class JdbcTemplate {
+public class JdbcTemplate implements DBTemplate {
+    private static final PreparedStatementSetter preparedStatementSetter = new DefaultSetter();
+
     private final DataSource dataSource;
 
     public JdbcTemplate(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
+    @Override
     public void create(String query, Object... params) {
         cxud(query, params);
     }
 
-    public <A> List<A> selectAll(FunctionThrowingSQLException<ResultSet, A> rowMapper, String query) {
+    @Override
+    public <A> List<A> readAll(RowMapper<A> rowMapper, String query) {
         try (final Connection con = this.dataSource.getConnection();
-             final PreparedStatement pstmt = prepareStatement(con, query);
+             final PreparedStatement pstmt = preparedStatementSetter.run(con, query);
              final ResultSet resultSet = pstmt.executeQuery()) {
-            final List<A> result = new ArrayList<>();
-            while (resultSet.next()) {
-                result.add(rowMapper.apply(resultSet));
-            }
-            return result;
+            return new ArrayList<>() {{
+                while (resultSet.next()) {
+                    add(rowMapper.apply(resultSet));
+                }
+            }};
         } catch (SQLException e) {
             throw new QueryFailedException(e);
         }
     }
 
-    public <A> Optional<A> select(
-            FunctionThrowingSQLException<ResultSet, A> rowMapper, String query, Object... params
-    ) {
+    @Override
+    public <A> Optional<A> read(RowMapper<A> rowMapper, String query, Object... params) {
         try (final Connection con = this.dataSource.getConnection();
-             final PreparedStatement pstmt = prepareStatement(con, query, params);
+             final PreparedStatement pstmt = preparedStatementSetter.run(con, query, params);
              final ResultSet resultSet = pstmt.executeQuery()) {
             return resultSet.next() ? Optional.of(rowMapper.apply(resultSet)) : Optional.empty();
         } catch (SQLException e) {
@@ -46,34 +49,27 @@ public class JdbcTemplate {
         }
     }
 
+    @Override
     public void update(String query, Object... params) {
         cxud(query, params);
     }
 
+    @Override
     public void delete(String query, Object... params) {
         cxud(query, params);
     }
 
+    @Override
     public void deleteAll(String query) {
         cxud(query);
     }
 
     private void cxud(String query, Object... params) {
         try (final Connection con = this.dataSource.getConnection();
-             final PreparedStatement pstmt = prepareStatement(con, query, params)) {
+             final PreparedStatement pstmt = preparedStatementSetter.run(con, query, params)) {
             pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new QueryFailedException(e);
         }
-    }
-
-    private PreparedStatement prepareStatement(
-            Connection con, String query, Object... params
-    ) throws SQLException {
-        final PreparedStatement pstmt = con.prepareStatement(query);
-        for (int i = 0; i < params.length; i++) {
-            pstmt.setObject(i + 1, params[i]);
-        }
-        return pstmt;
     }
 }

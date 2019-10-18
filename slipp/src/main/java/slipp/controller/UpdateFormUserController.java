@@ -7,7 +7,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public class UpdateFormUserController implements Controller {
-    private final UserDao userDao = new UserDao();
+    private final UserDao userDao;
+
+    public UpdateFormUserController(UserDao userDao) {
+        this.userDao = userDao;
+    }
 
     @Override
     public String execute(HttpServletRequest req, HttpServletResponse res) {

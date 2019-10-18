@@ -1,6 +1,7 @@
 package slipp;
 
 import nextstep.mvc.DispatcherServlet;
+import nextstep.mvc.SingletonRegistry;
 import nextstep.mvc.asis.ControllerHandlerAdapter;
 import nextstep.mvc.tobe.AnnotationHandlerMapping;
 import nextstep.mvc.tobe.HandlerExecutionHandlerAdapter;
@@ -15,14 +16,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class DispatcherServletTest {
     private DispatcherServlet dispatcher;
+    private SingletonRegistry singletonRegistry;
     private MockHttpServletRequest request;
     private MockHttpServletResponse response;
 
     @BeforeEach
     void setUp() throws Exception {
+        singletonRegistry = new SingletonRegistry();
+
         dispatcher = new DispatcherServlet();
-        dispatcher.addHandlerMpping(new ManualHandlerMapping());
-        dispatcher.addHandlerMpping(new AnnotationHandlerMapping("slipp.controller"));
+        dispatcher.addHandlerMapping(new ManualHandlerMapping(singletonRegistry));
+        dispatcher.addHandlerMapping(new AnnotationHandlerMapping(singletonRegistry, "slipp.controller"));
 
         dispatcher.addHandlerAdapter(new HandlerExecutionHandlerAdapter());
         dispatcher.addHandlerAdapter(new ControllerHandlerAdapter());

@@ -1,19 +1,30 @@
 package slipp.dao;
 
+import nextstep.jdbc.DBTemplate;
 import nextstep.jdbc.JdbcTemplate;
+import nextstep.jdbc.RowMapper;
 import slipp.domain.User;
-import slipp.support.db.ConnectionManager;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import javax.sql.DataSource;
 import java.util.List;
 import java.util.Optional;
 
 public class UserDao {
-    private final JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+    private static final RowMapper<User> mapRowToUser = rs -> new User(
+            rs.getString("userId"),
+            rs.getString("password"),
+            rs.getString("name"),
+            rs.getString("email")
+    );
+
+    private final DBTemplate template;
+
+    public UserDao(DataSource dataSource) {
+        this.template = new JdbcTemplate(dataSource);
+    }
 
     public void create(User user) {
-        this.jdbcTemplate.create(
+        this.template.create(
                 "INSERT INTO USERS VALUES (?, ?, ?, ?)",
                 user.getUserId(),
                 user.getPassword(),
@@ -23,7 +34,7 @@ public class UserDao {
     }
 
     public void update(User user) {
-        this.jdbcTemplate.update(
+        this.template.update(
                 "UPDATE USERS SET password=?, name=?, email=? WHERE userId=?",
                 user.getPassword(),
                 user.getName(),
@@ -33,30 +44,21 @@ public class UserDao {
     }
 
     public List<User> findAll() {
-        return this.jdbcTemplate.selectAll(
-                this::mapRowToUser,
+        return this.template.readAll(
+                this.mapRowToUser,
                 "SELECT userId, password, name, email FROM USERS"
         );
     }
 
     public Optional<User> findByUserId(String userId) {
-        return this.jdbcTemplate.select(
-                this::mapRowToUser,
+        return this.template.read(
+                this.mapRowToUser,
                 "SELECT userId, password, name, email FROM USERS WHERE userId=?",
                 userId
         );
     }
 
     public void deleteByUserId(String userId) {
-        this.jdbcTemplate.delete("DELETE FROM USERS WHERE userId=?", userId);
-    }
-
-    private User mapRowToUser(ResultSet rs) throws SQLException {
-        return new User(
-                rs.getString("userId"),
-                rs.getString("password"),
-                rs.getString("name"),
-                rs.getString("email")
-        );
+        this.template.delete("DELETE FROM USERS WHERE userId=?", userId);
     }
 }

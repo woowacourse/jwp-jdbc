@@ -17,7 +17,11 @@ import javax.servlet.http.HttpServletResponse;
 public class UserController {
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
-    private final UserDao userDao = new UserDao();
+    private final UserDao userDao;
+
+    public UserController(UserDao userDao) {
+        this.userDao = userDao;
+    }
 
     @RequestMapping(value = "/users/create", method = RequestMethod.POST)
     public ModelAndView create(HttpServletRequest req, HttpServletResponse res) {

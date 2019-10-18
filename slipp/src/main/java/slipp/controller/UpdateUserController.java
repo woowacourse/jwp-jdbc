@@ -12,7 +12,11 @@ import javax.servlet.http.HttpServletResponse;
 public class UpdateUserController implements Controller {
     private static final Logger logger = LoggerFactory.getLogger(UpdateUserController.class);
 
-    private final UserDao userDao = new UserDao();
+    private final UserDao userDao;
+
+    public UpdateUserController(UserDao userDao) {
+        this.userDao = userDao;
+    }
 
     @Override
     public String execute(HttpServletRequest req, HttpServletResponse res) {

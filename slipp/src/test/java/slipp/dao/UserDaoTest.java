@@ -24,7 +24,7 @@ public class UserDaoTest {
     @Test
     public void crud() {
         final User expected = new User("userId", "password", "name", "javajigi@email.com");
-        final UserDao userDao = new UserDao();
+        final UserDao userDao = new UserDao(ConnectionManager.getDataSource());
 
         userDao.create(expected);
         User actual = userDao.findByUserId(expected.getUserId()).get();
@@ -42,7 +42,7 @@ public class UserDaoTest {
 
     @Test
     public void findAll() {
-        final UserDao userDao = new UserDao();
+        final UserDao userDao = new UserDao(ConnectionManager.getDataSource());
         final List<User> users = userDao.findAll();
         assertThat(users).hasSize(1);
     }

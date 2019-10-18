@@ -21,8 +21,13 @@ import javax.servlet.http.HttpServletResponse;
 public class ApiUserController {
     private static final Logger logger = LoggerFactory.getLogger(ApiUserController.class);
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
-    private final UserDao userDao = new UserDao();
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+
+    private final UserDao userDao;
+
+    public ApiUserController(UserDao userDao) {
+        this.userDao = userDao;
+    }
 
     @RequestMapping(value = "/api/users", method = RequestMethod.POST)
     public ModelAndView create(HttpServletRequest req, HttpServletResponse res) throws Exception {
