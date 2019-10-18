@@ -15,7 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 public class UpdateUserController implements Controller {
     private static final Logger log = LoggerFactory.getLogger(UpdateUserController.class);
 
-    private UserDao userDao = new UserDao(new JdbcTemplate(new SlippConnectionManager()));
+    private final UserDao userDao = new UserDao(new JdbcTemplate(new SlippConnectionManager()));
 
     @Override
     public String execute(HttpServletRequest req, HttpServletResponse resp) throws Exception {

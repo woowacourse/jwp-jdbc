@@ -23,7 +23,7 @@ import javax.servlet.http.HttpServletResponse;
 public class ApiUserController {
     private static final Logger logger = LoggerFactory.getLogger( ApiUserController.class );
 
-    private UserDao userDao = new UserDao(new JdbcTemplate(new SlippConnectionManager()));
+    private final UserDao userDao = new UserDao(new JdbcTemplate(new SlippConnectionManager()));
     private ObjectMapper objectMapper = new ObjectMapper();
 
     @RequestMapping(value = "/api/users", method = RequestMethod.POST)

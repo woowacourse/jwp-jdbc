@@ -18,7 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 @Controller
 public class UserController {
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
-    private UserDao userDao = new UserDao(new JdbcTemplate(new SlippConnectionManager()));
+    private final UserDao userDao = new UserDao(new JdbcTemplate(new SlippConnectionManager()));
 
     @RequestMapping(value = "/users/create", method = RequestMethod.POST)
     public ModelAndView create(HttpServletRequest req, HttpServletResponse resp) throws Exception {
