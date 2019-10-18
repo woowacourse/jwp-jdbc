@@ -27,7 +27,7 @@ public class JdbcTemplate {
         try (PreparedStatement pstmt = preparedStatementBuilder.create(con);
              ResultSet rs = pstmt.executeQuery()) {
 
-            return mapper.mapped(rs);
+            return mapper.create(rs);
         } catch (SQLException e) {
             throw new JdbcTemplateSqlException(e);
         }

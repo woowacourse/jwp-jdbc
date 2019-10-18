@@ -8,7 +8,7 @@ import java.util.List;
 public abstract class ListMapper<T> implements TableMapper<List<T>> {
 
     @Override
-    public List<T> mapped(ResultSet resultSet) throws SQLException {
+    public List<T> create(ResultSet resultSet) throws SQLException {
         List<T> rows = new ArrayList<>();
         while (resultSet.next()) {
             T user = createRow(resultSet);

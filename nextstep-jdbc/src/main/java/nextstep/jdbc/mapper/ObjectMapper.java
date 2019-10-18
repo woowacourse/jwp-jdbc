@@ -6,7 +6,7 @@ import java.sql.SQLException;
 public abstract class ObjectMapper<T> implements TableMapper<T> {
 
     @Override
-    public T mapped(ResultSet resultSet) throws SQLException {
+    public T create(ResultSet resultSet) throws SQLException {
         if (resultSet.next()) {
             return createRow(resultSet);
         }
