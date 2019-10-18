@@ -2,7 +2,7 @@ package slipp.dao;
 
 import nextstep.jdbc.mapper.ListMapper;
 import nextstep.jdbc.mapper.ObjectMapper;
-import nextstep.jdbc.query.PreparedStatementBuilder;
+import nextstep.jdbc.template.PreparedStatementBuilder;
 import nextstep.jdbc.template.JdbcTemplate;
 import slipp.domain.User;
 import slipp.support.db.ConnectionManager;

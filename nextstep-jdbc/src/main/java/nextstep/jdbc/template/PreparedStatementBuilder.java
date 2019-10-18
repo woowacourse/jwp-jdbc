@@ -1,4 +1,4 @@
-package nextstep.jdbc.query;
+package nextstep.jdbc.template;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
