@@ -15,15 +15,15 @@ public class JdbcTemplate {
     private static final Logger log = LoggerFactory.getLogger(JdbcTemplate.class);
     private static final int FIRST_INDEX = 0;
 
-    public void update(String query, Object... values) {
-        update(query, pstmt -> createPreparedStatementSetter(pstmt, values));
+    public boolean update(String query, Object... values) {
+        return update(query, pstmt -> createPreparedStatementSetter(pstmt, values));
     }
 
-    private void update(String query, PreparedStatementSetter pstmtSetter) {
+    private boolean update(String query, PreparedStatementSetter pstmtSetter) {
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = con.prepareStatement(query)) {
             pstmtSetter.setPreparedStatement(pstmt);
-            pstmt.execute();
+            return pstmt.execute();
         } catch (SQLException e) {
             log.error("SQLException : {}", e.getMessage());
             throw new DataAccessException("질의를 수행할 수 없습니다.");
