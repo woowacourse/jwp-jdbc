@@ -35,18 +35,9 @@ public class UserDao {
     public List<User> findAll() throws SQLException {
         String sql = "SELECT * FROM USERS";
 
-        return jdbcTemplate.queryForObject(sql,
+        return jdbcTemplate.query(sql,
                 pstmt -> {},
-                this::getUsers);
-    }
-
-    private List<User> getUsers(ResultSet rs) throws SQLException {
-        List<User> users = new ArrayList<>();
-        while (rs.next()) {
-            users.add(new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
-                    rs.getString("email")));
-        }
-        return users;
+                this::getUser);
     }
 
     public User findByUserId(String userId) throws SQLException {
@@ -58,11 +49,7 @@ public class UserDao {
     }
 
     private User getUser(ResultSet rs) throws SQLException {
-        User user = null;
-        if (rs.next()) {
-            user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
-                    rs.getString("email"));
-        }
-        return user;
+        return new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
+                rs.getString("email"));
     }
 }
