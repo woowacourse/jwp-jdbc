@@ -33,14 +33,7 @@ public class JdbcTemplate {
     public void executeQuery(String query, Object... objects) {
         try (Connection con = dataSource.getConnection();
              PreparedStatement pstmt = createPreparedStatement(con, query, objects)) {
-            try {
-                con.setAutoCommit(false);
-                pstmt.executeUpdate();
-                con.commit();
-            } catch (SQLException e) {
-                con.rollback();
-                throw e;
-            }
+            pstmt.executeUpdate();
         } catch (Exception e) {
             logger.error("Error occurred while executing Query", e);
             throw new JdbcTemplateException(e);
@@ -85,6 +78,8 @@ public class JdbcTemplate {
             } catch (SQLException e) {
                 con.rollback();
                 throw e;
+            } finally {
+                con.setAutoCommit(true);
             }
         } catch (Exception e) {
             logger.error("Error occurred while executing Query", e);
@@ -98,15 +93,8 @@ public class JdbcTemplate {
         try (Connection con = dataSource.getConnection();
              PreparedStatement pstmt = createPreparedStatement(con, query, objects);
              ResultSet rs = pstmt.executeQuery()) {
-            try {
-                con.setAutoCommit(false);
-                if (rs.next()) {
-                    result = getResult(rs, clazz);
-                }
-                con.commit();
-            } catch (SQLException e) {
-                con.rollback();
-                throw e;
+            if (rs.next()) {
+                result = getResult(rs, clazz);
             }
         } catch (Exception e) {
             logger.error("Error occurred while executing Query", e);
@@ -120,15 +108,8 @@ public class JdbcTemplate {
         try (Connection con = dataSource.getConnection();
              PreparedStatement pstmt = createPreparedStatement(con, query, objects);
              ResultSet rs = pstmt.executeQuery()) {
-            try {
-                con.setAutoCommit(false);
-                if (rs.next()) {
-                    result = rowMapper.mapRow(rs);
-                }
-                con.commit();
-            } catch (SQLException e) {
-                con.rollback();
-                throw e;
+            if (rs.next()) {
+                result = rowMapper.mapRow(rs);
             }
         } catch (Exception e) {
             logger.error("Error occurred while executing Query", e);
