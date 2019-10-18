@@ -23,10 +23,11 @@ public class RowMapper<T> {
     public RowMapper(Class<T> clazz) {
         this.clazz = clazz;
         this.fields = Arrays.stream(clazz.getDeclaredFields())
+                .peek(field -> field.setAccessible(true))
                 .collect(toMap(field -> field.getName().toLowerCase(), identity()));
     }
 
-    public T getInstance(ResultSet resultSet) {
+    public T mapRow(ResultSet resultSet) {
         try {
             T instance = clazz.getDeclaredConstructor().newInstance();
             setFields(resultSet, instance);
@@ -42,7 +43,6 @@ public class RowMapper<T> {
         int columnCount = metaData.getColumnCount();
         for (int i = START_SET_VALUE_INDEX; i <= columnCount; i++) {
             Field field = fields.get(metaData.getColumnName(i).toLowerCase());
-            field.setAccessible(true);
             field.set(instance, resultSet.getString(field.getName()));
         }
     }
