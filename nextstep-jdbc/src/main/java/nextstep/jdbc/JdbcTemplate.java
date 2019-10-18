@@ -5,6 +5,9 @@ import nextstep.jdbc.exception.ExecuteUpdateFailedException;
 import nextstep.jdbc.queryexecutor.EntityJdbcQueryExecutor;
 import nextstep.jdbc.queryexecutor.JdbcQueryExecutor;
 import nextstep.jdbc.queryexecutor.UpdateJdbcQueryExecutor;
+import nextstep.jdbc.resultsetextractionstrategy.MultipleEntitiesResultSetExtractionStrategy;
+import nextstep.jdbc.resultsetextractionstrategy.ResultSetExtractionStrategy;
+import nextstep.jdbc.resultsetextractionstrategy.SingleEntityResultSetExtractionStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,90 +40,29 @@ public class JdbcTemplate {
         }
     }
 
-    public void executeUpdate(final String sql, Object... values) {
-        log.debug("executeUpdate sql={}", sql);
-
-        excute(sql, null, values);
+    public void executeUpdate(String sql, PreparedStatementSetter preparedStatementSetter) {
+        execute(sql, preparedStatementSetter, null);
     }
 
-    public <T> T queryForSingleEntity(String sql, RowMapper<T> rowMapper, String userId) {
-        List<T> entities = queryForMultipleEntities(sql, rowMapper, userId);
-        return entities.get(INDEX_OF_SINGLE_ENTITY);
+    public <T> T queryForSingleEntity(String sql, PreparedStatementSetter preparedStatementSetter, RowMapper<T> rowMapper) {
+        return execute(sql, preparedStatementSetter, new SingleEntityResultSetExtractionStrategy<>(rowMapper));
     }
 
-    public <T> T queryForSingleEntity2(String sql, PreparedStatementSetter preparedStatementSetter, RowMapper<T> rowMapper) {
-        List<T> entities = queryForMultipleEntities2(sql, preparedStatementSetter, rowMapper);
-        return entities.get(0);
+    public <T> List<T> queryForMultipleEntities(String sql, PreparedStatementSetter preparedStatementSetter, RowMapper<T> rowMapper) {
+        return execute(sql, preparedStatementSetter, new MultipleEntitiesResultSetExtractionStrategy<>(rowMapper));
     }
 
-    public <T> List<T> queryForMultipleEntities2(String sql, PreparedStatementSetter preparedStatementSetter, RowMapper<T> rowMapper) {
-        return execute2(sql, preparedStatementSetter, rowMapper);
-    }
-
-    private <T> List<T> execute2(String sql, PreparedStatementSetter preparedStatementSetter, RowMapper<T> rowMapper) {
+    private <T> T execute(String sql, PreparedStatementSetter preparedStatementSetter, ResultSetExtractionStrategy<T> resultSetExtractionStrategy) {
         try (Connection con = getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
 
             preparedStatementSetter.setPreparedStatement(pstmt);
-            JdbcQueryExecutor queryExecutor = getQueryExecutor(sql);
-            return queryExecutor.execute(pstmt, rowMapper);
-
+            if (pstmt.execute() && resultSetExtractionStrategy != null) {
+                return resultSetExtractionStrategy.extract(pstmt.getResultSet());
+            }
+            return null;
         } catch (SQLException e) {
             throw new ExecuteUpdateFailedException(e);
         }
-
-    }
-
-    public <T> List<T> queryForMultipleEntities(final String sql, RowMapper<T> rowMapper, Object... values) {
-        log.debug("queryForMultipleEntities sql={}", sql);
-
-        return excute(sql, rowMapper, values);
-    }
-
-    private <T> List<T> excute(final String sql, RowMapper<T> rowMapper, Object... values) {
-        log.debug("execute sql={}", sql);
-
-        try (Connection con = getConnection();
-             PreparedStatement pstmt = con.prepareStatement(sql)) {
-
-            setValuesToPreparedStatement(pstmt, values);
-            JdbcQueryExecutor queryExecutor = getQueryExecutor(sql);
-            return queryExecutor.execute(pstmt, rowMapper);
-
-        } catch (SQLException e) {
-            throw new ExecuteUpdateFailedException(e);
-        }
-    }
-
-    private JdbcQueryExecutor getQueryExecutor(String sql) {
-        return jdbcQueryExecutors.stream()
-                .filter(executor -> executor.canHandle(sql))
-                .findAny()
-                .orElseThrow(IllegalArgumentException::new);
-    }
-
-    private void setValuesToPreparedStatement(final PreparedStatement pstmt, final Object[] values) throws SQLException {
-        for (int index = START_INDEX; index <= values.length; index++) {
-            pstmt.setObject(index, values[index - 1]);
-        }
-    }
-
-
-    public void executeUpdate2(String sql, PreparedStatementSetter preparedStatementSetter) {
-        log.debug("execute sql={}", sql);
-
-        try (Connection con = getConnection();
-             PreparedStatement pstmt = con.prepareStatement(sql)) {
-            preparedStatementSetter.setPreparedStatement(pstmt);
-            pstmt.executeUpdate();
-
-//            setValuesToPreparedStatement(pstmt, values);
-//            JdbcQueryExecutor queryExecutor = getQueryExecutor(sql);
-//            return queryExecutor.execute(pstmt, rowMapper);
-
-        } catch (SQLException e) {
-            throw new ExecuteUpdateFailedException(e);
-        }
-
     }
 }

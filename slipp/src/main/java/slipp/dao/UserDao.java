@@ -29,7 +29,7 @@ public class UserDao {
             pstmt.setString(4, user.getEmail());
 
         };
-        jdbcTemplate.executeUpdate2(sql, preparedStatementSetter);
+        jdbcTemplate.executeUpdate(sql, preparedStatementSetter);
 //        jdbcTemplate.executeUpdate(sql, user.getUserId(), user.getPassword(), user.getName(), user.getEmail());
     }
 
@@ -42,7 +42,7 @@ public class UserDao {
             pstmt.setString(4, user.getUserId());
         };
 //        jdbcTemplate.executeUpdate(sql, user.getPassword(), user.getName(), user.getEmail(), user.getUserId());
-        jdbcTemplate.executeUpdate2(sql, preparedStatementSetter);
+        jdbcTemplate.executeUpdate(sql, preparedStatementSetter);
     }
 
     public List<User> findAll() {
@@ -51,7 +51,7 @@ public class UserDao {
 
         };
         RowMapper<User> rowMapper = makeRowMapper();
-        return jdbcTemplate.queryForMultipleEntities2(sql, preparedStatementSetter, rowMapper);
+        return jdbcTemplate.queryForMultipleEntities(sql, preparedStatementSetter, rowMapper);
     }
 
     public User findByUserId(String userId) {
@@ -61,7 +61,7 @@ public class UserDao {
         };
         RowMapper<User> rowMapper = makeRowMapper();
 //        return jdbcTemplate.queryForSingleEntity(sql, rowMapper, userId);
-        return jdbcTemplate.queryForSingleEntity2(sql, preparedStatementSetter, rowMapper);
+        return jdbcTemplate.queryForSingleEntity(sql, preparedStatementSetter, rowMapper);
     }
 
     private RowMapper<User> makeRowMapper() {
