@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class SqlMapper implements JdbcQuery {
+public class SqlMapper {
     private String query;
     private List<String> attributes;
 
@@ -22,7 +22,6 @@ public class SqlMapper implements JdbcQuery {
         return this;
     }
 
-    @Override
     public PreparedStatement create(Connection con) throws SQLException {
         PreparedStatement pstmt = con.prepareStatement(query);
         for (int i = 0; i < attributes.size(); i++) {

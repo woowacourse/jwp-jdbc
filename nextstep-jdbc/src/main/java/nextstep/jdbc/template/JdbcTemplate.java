@@ -2,7 +2,7 @@ package nextstep.jdbc.template;
 
 import nextstep.jdbc.exception.JdbcTemplateSqlException;
 import nextstep.jdbc.mapper.JdbcMapper;
-import nextstep.jdbc.query.JdbcQuery;
+import nextstep.jdbc.query.SqlMapper;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -16,16 +16,16 @@ public class JdbcTemplate {
         this.con = con;
     }
 
-    public void updateQuery(JdbcQuery query) {
-        try (PreparedStatement pstmt = query.create(con)) {
+    public void updateQuery(SqlMapper mapper) {
+        try (PreparedStatement pstmt = mapper.create(con)) {
             pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new JdbcTemplateSqlException(e);
         }
     }
 
-    public <T> T executeQuery(JdbcQuery query, JdbcMapper<T> mapper) {
-        try (PreparedStatement pstmt = query.create(con);
+    public <T> T executeQuery(SqlMapper sqlMapper, JdbcMapper<T> mapper) {
+        try (PreparedStatement pstmt = sqlMapper.create(con);
              ResultSet rs = pstmt.executeQuery()) {
 
             return mapper.mapped(rs);
