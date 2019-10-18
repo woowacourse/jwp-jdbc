@@ -21,23 +21,26 @@ public class UserDao {
 
     public void insert(User user) {
         JdbcTemplate jdbcTemplate = getJdbcTemplate();
-
-        jdbcTemplate.update(
+        PreparedStatementBuilder preparedStatementBuilder = new PreparedStatementBuilder(
                 "INSERT INTO USERS VALUES (?, ?, ?, ?)",
                 user.getUserId(),
                 user.getPassword(),
                 user.getName(),
                 user.getEmail());
+
+        jdbcTemplate.update(preparedStatementBuilder);
     }
 
     public void update(User user) {
         JdbcTemplate jdbcTemplate = getJdbcTemplate();
-        jdbcTemplate.update(
+        PreparedStatementBuilder preparedStatementBuilder = new PreparedStatementBuilder(
                 "UPDATE USERS SET password = ?, name = ?, email = ? WHERE userId = ?",
                 user.getPassword(),
                 user.getName(),
                 user.getEmail(),
                 user.getUserId());
+
+        jdbcTemplate.update(preparedStatementBuilder);
     }
 
     public List<User> findAll() {
@@ -61,8 +64,8 @@ public class UserDao {
     public User findByUserId(String userId) {
         JdbcTemplate jdbcTemplate = getJdbcTemplate();
         PreparedStatementBuilder preparedStatementBuilder = new PreparedStatementBuilder(
-                "SELECT userId, password, name, email FROM USERS WHERE userid=?");
-        preparedStatementBuilder.addAttribute(userId);
+                "SELECT userId, password, name, email FROM USERS WHERE userid=?",
+                userId);
 
         return jdbcTemplate.executeQuery(preparedStatementBuilder, new ObjectMapper<User>() {
 
