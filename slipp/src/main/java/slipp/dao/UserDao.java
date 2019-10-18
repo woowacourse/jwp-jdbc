@@ -2,7 +2,7 @@ package slipp.dao;
 
 import nextstep.jdbc.mapper.ListMapper;
 import nextstep.jdbc.mapper.ObjectMapper;
-import nextstep.jdbc.query.SqlMapper;
+import nextstep.jdbc.query.PreparedStatementBuilder;
 import nextstep.jdbc.template.JdbcTemplate;
 import slipp.domain.User;
 import slipp.support.db.ConnectionManager;
@@ -21,31 +21,34 @@ public class UserDao {
 
     public void insert(User user) {
         JdbcTemplate jdbcTemplate = getJdbcTemplate();
-        SqlMapper sqlMapper = new SqlMapper("INSERT INTO USERS VALUES (?, ?, ?, ?)");
-        sqlMapper.addAttribute(user.getUserId())
+        PreparedStatementBuilder preparedStatementBuilder = new PreparedStatementBuilder(
+                "INSERT INTO USERS VALUES (?, ?, ?, ?)");
+        preparedStatementBuilder.addAttribute(user.getUserId())
                 .addAttribute(user.getPassword())
                 .addAttribute(user.getName())
                 .addAttribute(user.getEmail());
 
-        jdbcTemplate.updateQuery(sqlMapper);
+        jdbcTemplate.updateQuery(preparedStatementBuilder);
     }
 
     public void update(User user) {
         JdbcTemplate jdbcTemplate = getJdbcTemplate();
-        SqlMapper sqlMapper = new SqlMapper("UPDATE USERS SET password = ?, name = ?, email = ? WHERE userId = ?");
-        sqlMapper.addAttribute(user.getPassword())
+        PreparedStatementBuilder preparedStatementBuilder = new PreparedStatementBuilder(
+                "UPDATE USERS SET password = ?, name = ?, email = ? WHERE userId = ?");
+        preparedStatementBuilder.addAttribute(user.getPassword())
                 .addAttribute(user.getName())
                 .addAttribute(user.getEmail())
                 .addAttribute(user.getUserId());
 
-        jdbcTemplate.updateQuery(sqlMapper);
+        jdbcTemplate.updateQuery(preparedStatementBuilder);
     }
 
     public List<User> findAll() {
         JdbcTemplate jdbcTemplate = getJdbcTemplate();
-        SqlMapper sqlMapper = new SqlMapper("SELECT userId, password, name, email FROM USERS");
+        PreparedStatementBuilder preparedStatementBuilder = new PreparedStatementBuilder(
+                "SELECT userId, password, name, email FROM USERS");
 
-        return jdbcTemplate.executeQuery(sqlMapper, new ListMapper<User>() {
+        return jdbcTemplate.executeQuery(preparedStatementBuilder, new ListMapper<User>() {
 
             @Override
             protected User createRow(ResultSet resultSet) throws SQLException {
@@ -60,10 +63,11 @@ public class UserDao {
 
     public User findByUserId(String userId) {
         JdbcTemplate jdbcTemplate = getJdbcTemplate();
-        SqlMapper sqlMapper = new SqlMapper("SELECT userId, password, name, email FROM USERS WHERE userid=?");
-        sqlMapper.addAttribute(userId);
+        PreparedStatementBuilder preparedStatementBuilder = new PreparedStatementBuilder(
+                "SELECT userId, password, name, email FROM USERS WHERE userid=?");
+        preparedStatementBuilder.addAttribute(userId);
 
-        return jdbcTemplate.executeQuery(sqlMapper, new ObjectMapper<User>() {
+        return jdbcTemplate.executeQuery(preparedStatementBuilder, new ObjectMapper<User>() {
 
             @Override
             protected User createRow(ResultSet resultSet) throws SQLException {

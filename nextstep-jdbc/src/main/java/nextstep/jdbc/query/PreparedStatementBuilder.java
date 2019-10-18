@@ -7,16 +7,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class SqlMapper {
+public class PreparedStatementBuilder {
     private String query;
     private List<String> attributes;
 
-    public SqlMapper(String query) {
+    public PreparedStatementBuilder(String query) {
         this.query = query;
         attributes = new ArrayList<>();
     }
 
-    public SqlMapper addAttribute(String attribute) {
+    public PreparedStatementBuilder addAttribute(String attribute) {
         attributes.add(attribute);
 
         return this;
@@ -35,8 +35,8 @@ public class SqlMapper {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        SqlMapper sqlMapper = (SqlMapper) o;
-        return Objects.equals(query, sqlMapper.query);
+        PreparedStatementBuilder preparedStatementBuilder = (PreparedStatementBuilder) o;
+        return Objects.equals(query, preparedStatementBuilder.query);
     }
 
     @Override
