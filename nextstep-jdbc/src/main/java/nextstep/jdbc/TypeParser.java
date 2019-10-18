@@ -17,10 +17,10 @@ public enum TypeParser {
     STRING(String.class, TypeParser::getString, null);
 
     private Class<?> valueType;
-    private BiFunction<ResultSet,String, Object> biFunction;
+    private BiFunction<ResultSet, String, Object> biFunction;
     private Object defaultValue;
 
-    TypeParser(Class<?> valueType, BiFunction<ResultSet,String, Object> biFunction, Object defaultValue) {
+    TypeParser(Class<?> valueType, BiFunction<ResultSet, String, Object> biFunction, Object defaultValue) {
         this.valueType = valueType;
         this.biFunction = biFunction;
         this.defaultValue = defaultValue;
