@@ -31,6 +31,9 @@ docker-compose up -d
 
 > https://dev.mysql.com/doc/workbench/en/wb-admin-export-import-table.html
 
+## CONVENTION RULE
+> https://gist.github.com/joshbuchea/6f47e86d2510bce28f8e7f42ae84c716
+
 ## 요구사항
 
 1. UserDao.class update(), findAll() 구현 (O)
