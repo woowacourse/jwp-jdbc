@@ -2,34 +2,22 @@ package nextstep.jdbc;
 
 import nextstep.jdbc.exception.ConnectionFailedException;
 import nextstep.jdbc.exception.ExecuteUpdateFailedException;
-import nextstep.jdbc.queryexecutor.EntityJdbcQueryExecutor;
-import nextstep.jdbc.queryexecutor.JdbcQueryExecutor;
-import nextstep.jdbc.queryexecutor.UpdateJdbcQueryExecutor;
 import nextstep.jdbc.resultsetextractionstrategy.MultipleEntitiesResultSetExtractionStrategy;
 import nextstep.jdbc.resultsetextractionstrategy.ResultSetExtractionStrategy;
 import nextstep.jdbc.resultsetextractionstrategy.SingleEntityResultSetExtractionStrategy;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.List;
 
 public class JdbcTemplate {
 
-    private static final Logger log = LoggerFactory.getLogger(JdbcTemplate.class);
-    private static final int START_INDEX = 1;
-    private static final int INDEX_OF_SINGLE_ENTITY = 0;
-
     private DataSource dataSource;
-    private List<JdbcQueryExecutor> jdbcQueryExecutors;
 
     public JdbcTemplate(final DataSource dataSource) {
         this.dataSource = dataSource;
-        this.jdbcQueryExecutors = Arrays.asList(new UpdateJdbcQueryExecutor(), new EntityJdbcQueryExecutor());
     }
 
     private Connection getConnection() {
