@@ -17,6 +17,8 @@ import java.util.Optional;
 public class JdbcTemplate {
     private static final Logger logger = LoggerFactory.getLogger(JdbcTemplate.class);
     private static final String TAG = "JdbcTemplate";
+    private static final int EMPTY = 0;
+    private static final int ONE_OBJECT = 1;
 
     private DataSource dataSource;
 
@@ -73,11 +75,11 @@ public class JdbcTemplate {
     }
 
     private <T> Optional<T> getSingleObject(final List<T> results) {
-        if (results.size() == 0) {
+        if (results.size() == EMPTY) {
             return Optional.empty();
         }
 
-        if (results.size() == 1) {
+        if (results.size() == ONE_OBJECT) {
             return Optional.of(results.iterator().next());
         }
 
