@@ -35,19 +35,19 @@ public class UserDao {
     public List<User> findAll() {
         String sql = "SELECT userId, password, name, email FROM USERS";
         return jdbcTemplate.query(sql,
-                rs -> new User(rs.getString("userId"),
-                        rs.getString("password"),
-                        rs.getString("name"),
-                        rs.getString("email")));
+                resultSet -> new User(resultSet.getString("userId"),
+                        resultSet.getString("password"),
+                        resultSet.getString("name"),
+                        resultSet.getString("email")));
     }
 
     public User findByUserId(String userId) {
         String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
         User user = jdbcTemplate.queryForObject(sql,
-                rs -> new User(rs.getString("userId"),
-                        rs.getString("password"),
-                        rs.getString("name"),
-                        rs.getString("email")),
+                resultSet -> new User(resultSet.getString("userId"),
+                        resultSet.getString("password"),
+                        resultSet.getString("name"),
+                        resultSet.getString("email")),
                 pstmt -> pstmt.setString(1, userId));
 
         if (user == null) {

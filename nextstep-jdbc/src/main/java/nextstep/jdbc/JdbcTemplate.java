@@ -76,7 +76,6 @@ public class JdbcTemplate {
             if (rs.next()) {
                 return rowMapper.mapRow(rs);
             }
-
             return null;
         }
     }
