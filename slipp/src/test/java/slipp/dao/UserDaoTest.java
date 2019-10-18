@@ -36,9 +36,31 @@ public class UserDaoTest {
     }
 
     @Test
+    public void crudWithoutRowMapper() throws Exception {
+        User expected = new User("kjm", "password", "name", "javajigi@email.com");
+        UserDao userDao = new UserDao();
+        userDao.insert(expected);
+        User actual = userDao.findByUserIdWithoutRowMapper(expected.getUserId());
+        assertThat(actual).isEqualTo(expected);
+
+        expected.update(new UserUpdatedDto("password2", "name2", "sanjigi@email.com"));
+        userDao.update(expected);
+        actual = userDao.findByUserIdWithoutRowMapper(expected.getUserId());
+        assertThat(actual).isEqualTo(expected);
+    }
+
+    @Test
     public void findAll() throws Exception {
         UserDao userDao = new UserDao();
         List<User> users = userDao.findAll();
         assertThat(users).hasSize(1);
+    }
+
+    @Test
+    public void findAllWithoutRowMapper() throws Exception {
+        UserDao userDao = new UserDao();
+        List<User> users = userDao.findAllWithoutRowMapper();
+        assertThat(users).hasSize(1);
+        assertThat(users.get(0).getEmail()).isEqualTo("admin@slipp.net");
     }
 }

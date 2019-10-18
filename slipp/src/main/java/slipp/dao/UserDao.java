@@ -52,6 +52,14 @@ public class UserDao {
         return jdbcTemplate.queryForMultipleEntities(sql, preparedStatementSetter, rowMapper);
     }
 
+    public List<User> findAllWithoutRowMapper() {
+        String sql = "SELECT * FROM USERS";
+        PreparedStatementSetter preparedStatementSetter = pstmt -> {
+
+        };
+        return jdbcTemplate.queryForMultipleEntitiesWithoutRowMapper(sql, preparedStatementSetter, User.class);
+    }
+
     public User findByUserId(String userId) {
         String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
         PreparedStatementSetter preparedStatementSetter = pstmt -> {
@@ -60,6 +68,16 @@ public class UserDao {
         RowMapper<User> rowMapper = makeRowMapper();
         return jdbcTemplate.queryForSingleEntity(sql, preparedStatementSetter, rowMapper);
     }
+
+    public User findByUserIdWithoutRowMapper(String userId) {
+        String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
+        PreparedStatementSetter preparedStatementSetter = pstmt -> {
+            pstmt.setString(1, userId);
+        };
+        RowMapper<User> rowMapper = makeRowMapper();
+        return jdbcTemplate.queryForSingleEntityWithoutRowMapper(sql, preparedStatementSetter, User.class);
+    }
+
 
     private RowMapper<User> makeRowMapper() {
         return rs -> {
