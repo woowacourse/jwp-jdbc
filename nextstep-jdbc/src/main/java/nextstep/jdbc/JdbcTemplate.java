@@ -48,6 +48,29 @@ public class JdbcTemplate {
         return entities.get(INDEX_OF_SINGLE_ENTITY);
     }
 
+    public <T> T queryForSingleEntity2(String sql, PreparedStatementSetter preparedStatementSetter, RowMapper<T> rowMapper) {
+        List<T> entities = queryForMultipleEntities2(sql, preparedStatementSetter, rowMapper);
+        return entities.get(0);
+    }
+
+    public <T> List<T> queryForMultipleEntities2(String sql, PreparedStatementSetter preparedStatementSetter, RowMapper<T> rowMapper) {
+        return execute2(sql, preparedStatementSetter, rowMapper);
+    }
+
+    private <T> List<T> execute2(String sql, PreparedStatementSetter preparedStatementSetter, RowMapper<T> rowMapper) {
+        try (Connection con = getConnection();
+             PreparedStatement pstmt = con.prepareStatement(sql)) {
+
+            preparedStatementSetter.setPreparedStatement(pstmt);
+            JdbcQueryExecutor queryExecutor = getQueryExecutor(sql);
+            return queryExecutor.execute(pstmt, rowMapper);
+
+        } catch (SQLException e) {
+            throw new ExecuteUpdateFailedException(e);
+        }
+
+    }
+
     public <T> List<T> queryForMultipleEntities(final String sql, RowMapper<T> rowMapper, Object... values) {
         log.debug("queryForMultipleEntities sql={}", sql);
 
