@@ -5,7 +5,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class ListMapper<T> implements JdbcMapper<List<T>> {
+public abstract class ListMapper<T> implements TableMapper<List<T>> {
 
     @Override
     public List<T> mapped(ResultSet resultSet) throws SQLException {
