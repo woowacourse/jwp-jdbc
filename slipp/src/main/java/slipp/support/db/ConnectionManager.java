@@ -10,8 +10,10 @@ public class ConnectionManager {
     private static final String DB_USERNAME = "sa";
     private static final String DB_PW = "";
 
+    private static final BasicDataSource ds = new BasicDataSource();
+
     public static DataSource getDataSource() {
-        BasicDataSource ds = new BasicDataSource();
+
         ds.setDriverClassName(DB_DRIVER);
         ds.setUrl(DB_URL);
         ds.setUsername(DB_USERNAME);

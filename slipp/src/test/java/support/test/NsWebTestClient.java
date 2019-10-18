@@ -49,6 +49,14 @@ public class NsWebTestClient {
                 .expectStatus().isOk();
     }
 
+    public <T> void removeResource(URI location) {
+        testClientBuilder.build()
+                .delete()
+                .uri(location.toString())
+                .exchange()
+                .expectStatus().isOk();
+    }
+
     public <T> T getResource(URI location, Class<T> clazz) {
         return testClientBuilder.build()
                 .get()

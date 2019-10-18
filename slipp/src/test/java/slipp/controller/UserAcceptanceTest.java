@@ -47,5 +47,8 @@ public class UserAcceptanceTest {
         assertThat(actual.getPassword()).isEqualTo(updateUser.getPassword());
         assertThat(actual.getName()).isEqualTo(updateUser.getName());
         assertThat(actual.getEmail()).isEqualTo(updateUser.getEmail());
+
+        // 삭제
+        client.removeResource(location);
     }
 }
