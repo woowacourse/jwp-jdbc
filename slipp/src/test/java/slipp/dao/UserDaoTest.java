@@ -16,29 +16,34 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class UserDaoTest {
     @BeforeEach
     public void setup() {
-        ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
+        final ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
         populator.addScript(new ClassPathResource("jwp.sql"));
         DatabasePopulatorUtils.execute(populator, ConnectionManager.getDataSource());
     }
 
     @Test
-    public void crud() throws Exception {
-        User expected = new User("userId", "password", "name", "javajigi@email.com");
-        UserDao userDao = new UserDao();
-        userDao.insert(expected);
-        User actual = userDao.findByUserId(expected.getUserId());
+    public void crud() {
+        final User expected = new User("userId", "password", "name", "javajigi@email.com");
+        final UserDao userDao = new UserDao(ConnectionManager.getDataSource());
+
+        userDao.create(expected);
+        User actual = userDao.findByUserId(expected.getUserId()).get();
         assertThat(actual).isEqualTo(expected);
 
         expected.update(new UserUpdatedDto("password2", "name2", "sanjigi@email.com"));
         userDao.update(expected);
-        actual = userDao.findByUserId(expected.getUserId());
+        actual = userDao.findByUserId(expected.getUserId()).get();
         assertThat(actual).isEqualTo(expected);
+
+        userDao.deleteByUserId(expected.getUserId());
+        actual = userDao.findByUserId(expected.getUserId()).orElse(null);
+        assertThat(actual).isNull();
     }
 
     @Test
-    public void findAll() throws Exception {
-        UserDao userDao = new UserDao();
-        List<User> users = userDao.findAll();
+    public void findAll() {
+        final UserDao userDao = new UserDao(ConnectionManager.getDataSource());
+        final List<User> users = userDao.findAll();
         assertThat(users).hasSize(1);
     }
 }

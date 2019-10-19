@@ -3,6 +3,7 @@ package nextstep.mvc.tobe;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import nextstep.mvc.HandlerMapping;
+import nextstep.mvc.SingletonRegistry;
 import nextstep.web.annotation.RequestMapping;
 import nextstep.web.annotation.RequestMethod;
 import org.reflections.ReflectionUtils;
@@ -20,16 +21,17 @@ import java.util.stream.Collectors;
 public class AnnotationHandlerMapping implements HandlerMapping {
     private static final Logger logger = LoggerFactory.getLogger(AnnotationHandlerMapping.class);
 
-    private Object[] basePackage;
+    private final SingletonRegistry singletonRegistry;
+    private final Object[] basePackage;
+    private final Map<HandlerKey, HandlerExecution> handlerExecutions = Maps.newHashMap();
 
-    private Map<HandlerKey, HandlerExecution> handlerExecutions = Maps.newHashMap();
-
-    public AnnotationHandlerMapping(Object... basePackage) {
+    public AnnotationHandlerMapping(SingletonRegistry singletonRegistry, Object... basePackage) {
+        this.singletonRegistry = singletonRegistry;
         this.basePackage = basePackage;
     }
 
     public void initialize() {
-        ControllerScanner controllerScanner = new ControllerScanner(basePackage);
+        ControllerScanner controllerScanner = new ControllerScanner(this.singletonRegistry, this.basePackage);
         Map<Class<?>, Object> controllers = controllerScanner.getControllers();
         Set<Method> methods = getRequestMappingMethods(controllers.keySet());
         for (Method method : methods) {
