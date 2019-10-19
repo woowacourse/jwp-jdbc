@@ -6,6 +6,15 @@ import slipp.domain.User;
 import java.util.List;
 
 public class UserDao {
+    private static final UserDao instance = new UserDao();
+
+    private UserDao() {
+    }
+
+    public static UserDao getInstance() {
+        return instance;
+    }
+
     public void insert(User user) {
         String query = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
         JdbcTemplate<User> jdbcTemplate = new JdbcTemplate<>();
