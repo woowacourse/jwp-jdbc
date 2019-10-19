@@ -58,6 +58,13 @@ public class JdbcTemplate {
 
     private <T> Optional<T> executeQueryForObject(RowMapper<T> rowMapper, PreparedStatement pstmt, Object[] objects) {
         setValues(pstmt, objects);
-        return Optional.ofNullable(ResultSetHelper.getData(rowMapper, pstmt).get(0));
+        return maybeObject(ResultSetHelper.getData(rowMapper, pstmt));
+    }
+
+    private <T> Optional<T> maybeObject(List<T> list) {
+        if (list.size() == 0) {
+            return Optional.empty();
+        }
+        return Optional.of(list.get(0));
     }
 }

@@ -37,6 +37,13 @@ public class JdbcTemplateByPreparedStatementSetter<T> {
 
     private Optional<T> executeQueryForObject(RowMapper<T> rowMapper, PreparedStatementSetter pstmtSetter, PreparedStatement pstmt) throws SQLException {
         pstmtSetter.setValues(pstmt);
-        return Optional.ofNullable(ResultSetHelper.getData(rowMapper, pstmt).get(0));
+        return maybeObject(ResultSetHelper.getData(rowMapper, pstmt));
+    }
+
+    private Optional<T> maybeObject(List<T> list) {
+        if (list.size() == 0) {
+            return Optional.empty();
+        }
+        return Optional.of(list.get(0));
     }
 }
