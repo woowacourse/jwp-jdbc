@@ -20,7 +20,7 @@ public class JdbcTemplate {
         this.dataSource = dataSource;
     }
 
-    public void update(final List<Object> params, final String sql) {
+    public void update(final String sql, final List<Object> params) {
         try (final Connection con = dataSource.getConnection();
              final PreparedStatement pstmt = con.prepareStatement(sql)) {
 
@@ -34,10 +34,10 @@ public class JdbcTemplate {
     }
 
     public <T> T executeQuery(final String sql, final RowMapper<T> rowMapper) {
-        return executeQuery(Collections.emptyList(), sql, rowMapper);
+        return executeQuery(sql, Collections.emptyList(), rowMapper);
     }
 
-    public <T> T executeQuery(final List<Object> params, final String sql, final RowMapper<T> rowMapper) {
+    public <T> T executeQuery(final String sql, final List<Object> params,final RowMapper<T> rowMapper) {
         try (final Connection con = dataSource.getConnection();
              final PreparedStatement pstmt = con.prepareStatement(sql);
              final ResultSet rs = createResultSet(pstmt, params)) {

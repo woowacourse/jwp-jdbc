@@ -23,13 +23,13 @@ public class UserDao {
     public void insert(final User user) {
         final String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
         final List<Object> params = List.of(user.getUserId(), user.getPassword(), user.getName(), user.getEmail());
-        jdbcTemplate.update(params, sql);
+        jdbcTemplate.update(sql, params);
     }
 
     public void update(User user) {
         final String sql = "UPDATE USERS SET password = ?, name = ?, email = ? WHERE userid = ?";
         final List<Object> params = List.of(user.getPassword(), user.getName(), user.getEmail(), user.getUserId());
-        jdbcTemplate.update(params, sql);
+        jdbcTemplate.update(sql, params);
     }
 
     public List<User> findAll() {
@@ -52,7 +52,7 @@ public class UserDao {
         final String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
         final List<Object> params = List.of(userId);
 
-        return jdbcTemplate.executeQuery(params, sql, rs -> {
+        return jdbcTemplate.executeQuery(sql, params, rs -> {
             User user = null;
             if (rs.next()) {
                 user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
@@ -65,6 +65,6 @@ public class UserDao {
     public void deleteByUserId(final String userId) {
         final String sql = "DELETE FROM USERS WHERE userId = ?";
         final List<Object> params = List.of(userId);
-        jdbcTemplate.update(params, sql);
+        jdbcTemplate.update(sql, params);
     }
 }
