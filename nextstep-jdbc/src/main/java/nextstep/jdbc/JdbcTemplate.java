@@ -17,25 +17,34 @@ public class JdbcTemplate {
 
     public <T> List<T> query(Connection con, String sql, RowMapper<T> rm) throws SQLException {
         try (PreparedStatement pstmt = con.prepareStatement(sql)) {
-            try (ResultSet rs = pstmt.executeQuery()) {
-                List<T> values = new ArrayList<>();
-                while (rs.next()) {
-                    values.add(rm.mapRow(rs));
-                }
-                return values;
-            }
+            return getListObject(rm, pstmt);
         }
     }
 
     public <T> T queryForObject(Connection con, String sql, RowMapper<T> rm, Object... objects) throws SQLException {
         try (PreparedStatement pstmt = con.prepareStatement(sql)) {
-            setValues(pstmt, objects);
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    return rm.mapRow(rs);
-                }
+            return getObject(rm, pstmt, objects);
+        }
+    }
+
+    private <T> T getObject(RowMapper<T> rm, PreparedStatement pstmt, Object[] objects) throws SQLException {
+        setValues(pstmt, objects);
+
+        try (ResultSet rs = pstmt.executeQuery()) {
+            if (rs.next()) {
+                return rm.mapRow(rs);
             }
-            return null;
+        }
+        return null;
+    }
+
+    private <T> List<T> getListObject(RowMapper<T> rm, PreparedStatement pstmt) throws SQLException {
+        try (ResultSet rs = pstmt.executeQuery()) {
+            List<T> values = new ArrayList<>();
+            while (rs.next()) {
+                values.add(rm.mapRow(rs));
+            }
+            return values;
         }
     }
 
