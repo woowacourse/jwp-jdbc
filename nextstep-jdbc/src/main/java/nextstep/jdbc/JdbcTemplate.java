@@ -13,9 +13,6 @@ import java.util.List;
 public class JdbcTemplate {
     private static final Logger log = LoggerFactory.getLogger(JdbcTemplate.class);
 
-    private static void values(PreparedStatement pstmt) {
-    }
-
     public int update(String query, PreparedStatementSetter setter) {
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = con.prepareStatement(query)) {
@@ -57,7 +54,7 @@ public class JdbcTemplate {
     }
 
     public <T> List<T> query(String query, RowMapper<T> rowMapper) {
-        return query(query, rowMapper, JdbcTemplate::values);
+        return query(query, rowMapper, pstmt -> {});
     }
 
     public <T> T queryForObject(String query, RowMapper<T> rowMapper, PreparedStatementSetter setter) {
