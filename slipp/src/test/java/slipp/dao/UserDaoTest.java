@@ -17,12 +17,12 @@ public class UserDaoTest {
     @BeforeEach
     public void setup() {
         ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
-        populator.addScript(new ClassPathResource("jwp.sql"));
+        populator.addScript(new ClassPathResource("jwp_test.sql"));
         DatabasePopulatorUtils.execute(populator, ConnectionManager.getDataSource());
     }
 
     @Test
-    public void crud() throws Exception {
+    public void crud() {
         User expected = new User("userId", "password", "name", "javajigi@email.com");
         UserDao userDao = new UserDao();
         userDao.insert(expected);
@@ -36,9 +36,20 @@ public class UserDaoTest {
     }
 
     @Test
-    public void findAll() throws Exception {
+    public void findAll() {
         UserDao userDao = new UserDao();
         List<User> users = userDao.findAll();
         assertThat(users).hasSize(1);
+    }
+
+    @Test
+    void deleteAll() {
+        UserDao userDao = new UserDao();
+        List<User> users = userDao.findAll();
+        assertThat(users.size()).isGreaterThan(0);
+        userDao.deleteAll();
+
+        List<User> deletedUsers = userDao.findAll();
+        assertThat(deletedUsers).hasSize(0);
     }
 }
