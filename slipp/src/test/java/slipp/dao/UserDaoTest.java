@@ -51,9 +51,5 @@ public class UserDaoTest {
 
         List<User> deletedUsers = userDao.findAll();
         assertThat(deletedUsers).hasSize(0);
-
-        for (User user : users) {
-            userDao.insert(user);
-        }
     }
 }
