@@ -1,6 +1,8 @@
 package slipp.dao;
 
 import nextstep.jdbc.JdbcTemplate;
+import nextstep.jdbc.PropertyRowMapper;
+import nextstep.jdbc.RowMapper;
 import slipp.domain.User;
 import slipp.support.db.ConnectionManager;
 
@@ -34,7 +36,7 @@ public class UserDao {
 
     public List<User> findAll() {
         final String sql = "SELECT * FROM USERS";
-        return jdbcTemplate.executeQuery(sql, rs -> {
+        return jdbcTemplate.executeForObject(sql, rs -> {
             final List<User> result = new ArrayList<>();
             while (rs.next()) {
                 User user = new User(
@@ -51,15 +53,8 @@ public class UserDao {
     public User findByUserId(final String userId) {
         final String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
         final List<Object> params = List.of(userId);
-
-        return jdbcTemplate.executeQuery(sql, params, rs -> {
-            User user = null;
-            if (rs.next()) {
-                user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
-                        rs.getString("email"));
-            }
-            return user;
-        });
+        final RowMapper<User> rowMapper = PropertyRowMapper.from(User.class);
+        return jdbcTemplate.executeForObject(sql, params, rowMapper);
     }
 
     public void deleteByUserId(final String userId) {
