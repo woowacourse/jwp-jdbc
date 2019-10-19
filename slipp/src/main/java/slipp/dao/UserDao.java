@@ -3,7 +3,7 @@ package slipp.dao;
 import nextstep.jdbc.JdbcTemplate;
 import nextstep.jdbc.RowMapper;
 import slipp.domain.User;
-import slipp.support.db.DataBaseManager;
+import slipp.ApplicationContext;
 
 import java.util.List;
 
@@ -14,7 +14,7 @@ public class UserDao {
                     resultSet.getString("name"),
                     resultSet.getString("email"));
 
-    private JdbcTemplate jdbcTemplate = DataBaseManager.getJdbcTemplate();
+    private JdbcTemplate jdbcTemplate = ApplicationContext.getBean(JdbcTemplate.class);
 
     public void insert(User user) {
         String query = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
