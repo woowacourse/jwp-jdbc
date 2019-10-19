@@ -1,4 +1,4 @@
-package slipp;
+package slipp.support.context;
 
 import java.util.HashMap;
 import java.util.Map;

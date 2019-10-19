@@ -3,7 +3,7 @@ package slipp.dao;
 import nextstep.jdbc.JdbcTemplate;
 import nextstep.jdbc.RowMapper;
 import slipp.domain.User;
-import slipp.ApplicationContext;
+import slipp.support.context.ApplicationContext;
 
 import java.util.List;
 
