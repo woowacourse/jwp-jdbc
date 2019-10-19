@@ -19,7 +19,7 @@ public class JdbcTemplate {
             setter.values(pstmt);
             return pstmt.executeUpdate();
         } catch (SQLException e) {
-            log.error("Error :", e);
+            log.error("Fail update", e);
             throw new DataAccessException(e);
         }
     }
@@ -34,7 +34,7 @@ public class JdbcTemplate {
             setter.values(pstmt);
             return getQueryResults(rowMapper, pstmt);
         } catch (SQLException e) {
-            log.error("Error :", e);
+            log.error("Fail query :", e);
             throw new DataAccessException(e);
         }
     }
@@ -63,7 +63,7 @@ public class JdbcTemplate {
             setter.values(pstmt);
             return getQueryResult(rowMapper, pstmt);
         } catch (SQLException e) {
-            log.error("Error :", e);
+            log.error("Fail queryForObject :", e);
             throw new DataAccessException(e);
         }
     }
