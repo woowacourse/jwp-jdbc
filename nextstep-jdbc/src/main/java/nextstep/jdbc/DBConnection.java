@@ -13,8 +13,8 @@ public class DBConnection {
         this.password = password;
     }
 
-    public static DBConnection getInstance() {
-        return new DBConnection("", "", "", "");
+    public static DBConnection getConnection(String driver, String url, String userName, String password) {
+        return new DBConnection(driver, url, userName, password);
     }
 
     public String getDriver() {

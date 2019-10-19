@@ -1,6 +1,5 @@
 package slipp.dao;
 
-import nextstep.jdbc.DBConnection;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
@@ -15,7 +14,6 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class UserDaoTest {
-    private DBConnection dbConnection;
     private UserDao userDao;
 
     @BeforeEach
@@ -23,14 +21,13 @@ public class UserDaoTest {
         ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
         populator.addScript(new ClassPathResource("jwp.sql"));
         DatabasePopulatorUtils.execute(populator, ConnectionManager.getDataSource());
-        dbConnection = new DBConnection("org.h2.Driver", "jdbc:h2:mem:jwp-framework", "sa", "");
-        userDao = new UserDao(dbConnection);
+        userDao = new UserDao();
     }
 
     @Test
     public void crud() {
         User expected = new User("userId", "password", "name", "javajigi@email.com");
-        UserDao userDao = new UserDao(dbConnection);
+        UserDao userDao = new UserDao();
         userDao.insert(expected);
         User actual = userDao.findByUserId(expected.getUserId());
         assertThat(actual).isEqualTo(expected);

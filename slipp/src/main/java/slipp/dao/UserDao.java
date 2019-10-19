@@ -10,7 +10,8 @@ import java.util.List;
 public class UserDao {
     private JdbcProxyTemplate proxyTemplate;
 
-    public UserDao(DBConnection dbConnection) {
+    public UserDao() {
+        DBConnection dbConnection = DBConnection.getConnection("org.h2.Driver", "jdbc:h2:mem:jwp-framework", "sa", "");
         proxyTemplate = new JdbcProxyTemplate(dbConnection);
     }
 
