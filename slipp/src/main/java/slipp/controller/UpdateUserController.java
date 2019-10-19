@@ -1,11 +1,11 @@
 package slipp.controller;
 
-import slipp.domain.User;
-import slipp.dto.UserUpdatedDto;
-import slipp.support.db.DataBase;
 import nextstep.mvc.asis.Controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import slipp.dao.UserDao;
+import slipp.domain.User;
+import slipp.dto.UserUpdatedDto;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -15,7 +15,8 @@ public class UpdateUserController implements Controller {
 
     @Override
     public String execute(HttpServletRequest req, HttpServletResponse resp) throws Exception {
-        User user = DataBase.findUserById(req.getParameter("userId"));
+        UserDao userDao = UserDao.getInstance();
+        User user = userDao.findByUserId(req.getParameter("userId"));
         if (!UserSessionUtils.isSameUser(req.getSession(), user)) {
             throw new IllegalStateException("다른 사용자의 정보를 수정할 수 없습니다.");
         }
@@ -26,6 +27,7 @@ public class UpdateUserController implements Controller {
                 req.getParameter("email"));
         log.debug("Update User : {}", updateUser);
         user.update(updateUser);
+        userDao.update(user);
         return "redirect:/";
     }
 }
