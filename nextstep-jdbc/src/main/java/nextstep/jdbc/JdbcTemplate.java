@@ -1,14 +1,27 @@
 package nextstep.jdbc;
 
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
-import static nextstep.jdbc.ConnectionManager.getConnection;
 
 public class JdbcTemplate {
+    private final DataSource dataSource;
+
+    public JdbcTemplate(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
+
+    private Connection getConnection() {
+        try {
+            return dataSource.getConnection();
+        } catch (SQLException e) {
+            throw new IllegalStateException(e);
+        }
+    }
 
     public void executeQuery(String sql, List<Object> parameters) {
         try (Connection con = getConnection();
