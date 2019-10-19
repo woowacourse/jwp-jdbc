@@ -2,7 +2,6 @@ package slipp.dao;
 
 import nextstep.jdbc.JdbcTemplate;
 import nextstep.jdbc.PreparedStatementSetter;
-import slipp.domain.TestEntity;
 import slipp.support.db.ConnectionManager;
 
 import java.util.List;

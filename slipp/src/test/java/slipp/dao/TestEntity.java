@@ -1,4 +1,4 @@
-package slipp.domain;
+package slipp.dao;
 
 import java.util.Objects;
 

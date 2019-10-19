@@ -1,6 +1,10 @@
 package nextstep.jdbc.resultsetextractionstrategy.support;
 
 
+import nextstep.jdbc.exception.NotSupportedTypeParserException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
@@ -44,8 +48,9 @@ public enum TypeParser {
         try {
             return resultSet.getString(name);
         } catch (SQLException e) {
-            e.printStackTrace();
-            throw new IllegalArgumentException(e);
+            Logger logger = getLogger();
+            logger.error(e.getMessage());
+            throw new NotSupportedTypeParserException(e);
         }
     }
 
@@ -53,8 +58,9 @@ public enum TypeParser {
         try {
             return resultSet.getInt(name);
         } catch (SQLException e) {
-            e.printStackTrace();
-            throw new IllegalArgumentException(e);
+            Logger logger = getLogger();
+            logger.error(e.getMessage());
+            throw new NotSupportedTypeParserException(e);
         }
     }
 
@@ -62,8 +68,9 @@ public enum TypeParser {
         try {
             return resultSet.getLong(name);
         } catch (SQLException e) {
-            e.printStackTrace();
-            throw new IllegalArgumentException(e);
+            Logger logger = getLogger();
+            logger.error(e.getMessage());
+            throw new NotSupportedTypeParserException(e);
         }
     }
 
@@ -71,8 +78,9 @@ public enum TypeParser {
         try {
             return resultSet.getBoolean(name);
         } catch (SQLException e) {
-            e.printStackTrace();
-            throw new IllegalArgumentException(e);
+            Logger logger = getLogger();
+            logger.error(e.getMessage());
+            throw new NotSupportedTypeParserException(e);
         }
     }
 
@@ -80,8 +88,9 @@ public enum TypeParser {
         try {
             return resultSet.getByte(name);
         } catch (SQLException e) {
-            e.printStackTrace();
-            throw new IllegalArgumentException(e);
+            Logger logger = getLogger();
+            logger.error(e.getMessage());
+            throw new NotSupportedTypeParserException(e);
         }
     }
 
@@ -89,8 +98,9 @@ public enum TypeParser {
         try {
             return resultSet.getShort(name);
         } catch (SQLException e) {
-            e.printStackTrace();
-            throw new IllegalArgumentException(e);
+            Logger logger = getLogger();
+            logger.error(e.getMessage());
+            throw new NotSupportedTypeParserException(e);
         }
     }
 
@@ -98,8 +108,9 @@ public enum TypeParser {
         try {
             return resultSet.getDouble(name);
         } catch (SQLException e) {
-            e.printStackTrace();
-            throw new IllegalArgumentException(e);
+            Logger logger = getLogger();
+            logger.error(e.getMessage());
+            throw new NotSupportedTypeParserException(e);
         }
     }
 
@@ -107,8 +118,13 @@ public enum TypeParser {
         try {
             return resultSet.getFloat(name);
         } catch (SQLException e) {
-            e.printStackTrace();
-            throw new IllegalArgumentException(e);
+            Logger logger = getLogger();
+            logger.error(e.getMessage());
+            throw new NotSupportedTypeParserException(e);
         }
+    }
+
+    private static Logger getLogger() {
+        return LoggerFactory.getLogger(TypeParser.class);
     }
 }
