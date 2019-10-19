@@ -10,7 +10,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import slipp.controller.UserSessionUtils;
 import slipp.domain.User;
-import support.test.DataBaseUtils;
+import support.test.TestInitializer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -21,7 +21,7 @@ class DispatcherServletTest {
 
     @BeforeEach
     void setUp() throws Exception {
-        DataBaseUtils.initialize();
+        TestInitializer.initialize();
 
         dispatcher = new DispatcherServlet();
         dispatcher.addHandlerMapping(new ManualHandlerMapping());

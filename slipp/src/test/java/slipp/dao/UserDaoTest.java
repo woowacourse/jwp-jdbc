@@ -4,7 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import slipp.domain.User;
 import slipp.dto.UserUpdatedDto;
-import support.test.DataBaseUtils;
+import support.test.TestInitializer;
 
 import java.util.List;
 
@@ -13,7 +13,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class UserDaoTest {
     @BeforeEach
     public void setup() {
-        DataBaseUtils.initialize();
+        TestInitializer.initialize();
     }
 
     @Test
