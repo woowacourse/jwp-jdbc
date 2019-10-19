@@ -23,19 +23,20 @@ public class JdbcTemplate {
         }
     }
 
-    public void executeQuery(String sql, List<Object> parameters) {
+    public void executeQuery(String sql, ParameterSetter parameterSetter, Object... parameters) {
         try (Connection con = getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
-            executePreparedStatement(pstmt, parameters);
+            executePreparedStatement(pstmt, parameterSetter.set(parameters));
         } catch (SQLException e) {
             throw new DatabaseException();
         }
     }
 
-    public <T> T executeQueryThatHasResultSet(String sql, List<Object> parameters, ResultMapper<T> resultMapper) {
+    public <T> T executeQueryThatHasResultSet(String sql, ResultMapper<T> resultMapper,
+                                              ParameterSetter parameterSetter, Object... parameters) {
         try (Connection con = getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
-            return resultMapper.map(getResultSet(pstmt, parameters));
+            return resultMapper.map(getResultSet(pstmt, parameterSetter.set(parameters)));
         } catch (SQLException e) {
             throw new DatabaseException();
         }

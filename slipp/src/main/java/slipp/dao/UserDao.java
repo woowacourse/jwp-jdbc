@@ -5,6 +5,8 @@ import slipp.domain.User;
 import slipp.support.db.ConnectionManager;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class UserDao {
@@ -13,13 +15,10 @@ public class UserDao {
     public void insert(User user) {
         String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
 
-        List<Object> parameters = new ArrayList<>();
-        parameters.add(user.getUserId());
-        parameters.add(user.getPassword());
-        parameters.add(user.getName());
-        parameters.add(user.getEmail());
-
-        jdbcTemplate.executeQuery(sql, parameters);
+        jdbcTemplate.executeQuery(sql, (Object... objects) -> {
+            List<Object> parameters = new ArrayList<>(Arrays.asList(objects));
+            return parameters;
+        }, user.getUserId(), user.getPassword(), user.getName(), user.getEmail());
 
     }
 
@@ -28,19 +27,16 @@ public class UserDao {
                 "SET password=?, name=?, email=? " +
                 "WHERE userId=?";
 
-        List<Object> parameters = new ArrayList<>();
-        parameters.add(user.getPassword());
-        parameters.add(user.getName());
-        parameters.add(user.getEmail());
-        parameters.add(user.getUserId());
-        jdbcTemplate.executeQuery(sql, parameters);
-
+        jdbcTemplate.executeQuery(sql, (Object... objects) -> {
+            List<Object> parameters = new ArrayList<>(Arrays.asList(objects));
+            return parameters;
+        }, user.getPassword(), user.getName(), user.getEmail(), user.getUserId());
     }
 
     public List<User> findAll() {
         String sql = "SELECT userId, password, name, email FROM USERS";
 
-        return jdbcTemplate.executeQueryThatHasResultSet(sql, new ArrayList<>(),
+        return jdbcTemplate.executeQueryThatHasResultSet(sql,
                 (resultSet) -> {
                     List<User> users = new ArrayList<User>();
                     while (resultSet.next()) {
@@ -51,16 +47,15 @@ public class UserDao {
                         users.add(user);
                     }
                     return users;
-                });
+                },
+                (Object... objects) -> Collections.EMPTY_LIST);
+
     }
 
     public User findByUserId(String userId) {
         String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
 
-        List<Object> parameters = new ArrayList<>();
-        parameters.add(userId);
-
-        return jdbcTemplate.executeQueryThatHasResultSet(sql, parameters,
+        return jdbcTemplate.executeQueryThatHasResultSet(sql,
                 resultSet -> {
                     User user = null;
                     if (resultSet.next()) {
@@ -70,7 +65,11 @@ public class UserDao {
                                 resultSet.getString("email"));
                     }
                     return user;
-                });
+                },
+                (Object... objects) -> {
+                    List<Object> parameters = new ArrayList<>(Arrays.asList(objects));
+                    return parameters;
+                }, userId);
     }
 
 }
