@@ -29,7 +29,7 @@ public class JdbcTemplate {
             pstmt.executeUpdate();
         } catch (final SQLException exception) {
             logger.error(exception.toString());
-            throw new RuntimeSQLException(exception);
+            throw new DataAccessException(exception);
         }
     }
 
@@ -45,7 +45,7 @@ public class JdbcTemplate {
             return rowMapper.mapRow(rs);
         } catch (final SQLException exception) {
             logger.error(exception.toString());
-            throw new RuntimeSQLException(exception);
+            throw new DataAccessException(exception);
         }
     }
 
