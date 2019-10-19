@@ -9,7 +9,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
-public class JdbcTemplate<T> {
+public class JdbcTemplate {
     private static final int START_SET_VALUE_INDEX = 1;
     private final Logger logger = LoggerFactory.getLogger(JdbcTemplate.class);
 
@@ -36,27 +36,27 @@ public class JdbcTemplate<T> {
 
     private void setString(PreparedStatement pstmt, Object object, int index) {
         try {
-            pstmt.setString(index, String.valueOf(object));
+            pstmt.setObject(index, String.valueOf(object));
         } catch (SQLException e) {
             logger.error(e.getMessage(), e);
             throw new DatabaseAccessException(e);
         }
     }
 
-    public List<T> query(String sql, RowMapper<T> rowMapper, Object... objects) {
+    public <T> List<T> query(String sql, RowMapper<T> rowMapper, Object... objects) {
         return jdbcExecutor.execute(sql, pstmt -> executeQuery(rowMapper, pstmt, objects));
     }
 
-    private List<T> executeQuery(RowMapper<T> rowMapper, PreparedStatement pstmt, Object[] objects) {
+    private <T> List<T> executeQuery(RowMapper<T> rowMapper, PreparedStatement pstmt, Object[] objects) {
         setValues(pstmt, objects);
         return ResultSetHelper.getData(rowMapper, pstmt);
     }
 
-    public Optional<T> queryForObject(String sql, RowMapper<T> rowMapper, Object... objects) {
+    public <T> Optional<T> queryForObject(String sql, RowMapper<T> rowMapper, Object... objects) {
         return jdbcExecutor.execute(sql, pstmt -> executeQueryForObject(rowMapper, pstmt, objects));
     }
 
-    private Optional<T> executeQueryForObject(RowMapper<T> rowMapper, PreparedStatement pstmt, Object[] objects) {
+    private <T> Optional<T> executeQueryForObject(RowMapper<T> rowMapper, PreparedStatement pstmt, Object[] objects) {
         setValues(pstmt, objects);
         return Optional.ofNullable(ResultSetHelper.getData(rowMapper, pstmt).get(0));
     }

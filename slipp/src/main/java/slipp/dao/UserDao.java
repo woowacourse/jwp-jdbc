@@ -13,7 +13,7 @@ public class UserDao {
     private static final String FIND_ALL_USER_QUERY = "SELECT * FROM USERS";
     private static final String FIND_USER_BY_ID_QUERY = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
 
-    private final JdbcTemplate<User> jdbcTemplate = new JdbcTemplate<>();
+    private final JdbcTemplate jdbcTemplate = new JdbcTemplate();
     private final RowMapper<User> rowMapper = new RowMapper<>(User.class);
 
     private UserDao() {
