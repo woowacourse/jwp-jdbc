@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
+import slipp.ApplicationContext;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -17,8 +18,6 @@ public class ContextLoaderListener implements ServletContextListener {
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
-        ApplicationContextInitializer.registerBeans();
-
         ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
         populator.addScript(new ClassPathResource("jwp.sql"));
         DatabasePopulatorUtils.execute(populator, ApplicationContext.getBean(BasicDataSource.class));

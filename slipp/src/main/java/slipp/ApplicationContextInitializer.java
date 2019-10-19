@@ -1,4 +1,4 @@
-package slipp.support.context;
+package slipp;
 
 import nextstep.jdbc.JdbcTemplate;
 import org.apache.commons.dbcp2.BasicDataSource;
