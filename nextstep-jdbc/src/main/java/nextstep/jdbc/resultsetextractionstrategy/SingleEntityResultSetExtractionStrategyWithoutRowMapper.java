@@ -1,6 +1,6 @@
 package nextstep.jdbc.resultsetextractionstrategy;
 
-import nextstep.jdbc.TypeParser;
+import nextstep.jdbc.resultsetextractionstrategy.support.TypeParser;
 import nextstep.jdbc.exception.ExecuteUpdateFailedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
