@@ -3,16 +3,14 @@ package slipp.dao;
 import nextstep.jdbc.JdbcTemplate;
 import nextstep.jdbc.mapper.ListMapper;
 import nextstep.jdbc.mapper.ObjectMapper;
-import nextstep.jdbc.query.SqlMapper;
 import slipp.domain.User;
 import slipp.support.db.ConnectionManager;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.List;
 
 public class UserDao {
-    private UserDao() {}
+    private UserDao() {
+    }
 
     public static UserDao getInstance() {
         return UserDaoHolder.instance;
@@ -20,59 +18,59 @@ public class UserDao {
 
     public void insert(User user) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getConnection());
-        SqlMapper sqlMapper = new SqlMapper("INSERT INTO USERS VALUES (?, ?, ?, ?)");
-        sqlMapper.addAttribute(user.getUserId())
-                .addAttribute(user.getPassword())
-                .addAttribute(user.getName())
-                .addAttribute(user.getEmail());
+        String query = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
 
-        jdbcTemplate.updateQuery(sqlMapper);
+        jdbcTemplate.updateQuery(query, pstmt -> {
+            pstmt.setString(1, user.getUserId());
+            pstmt.setString(2, user.getPassword());
+            pstmt.setString(3, user.getName());
+            pstmt.setString(4, user.getEmail());
+        });
     }
 
     public void update(User user) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getConnection());
-        SqlMapper sqlMapper = new SqlMapper("UPDATE USERS SET password = ?, name = ?, email = ? WHERE userId = ?");
-        sqlMapper.addAttribute(user.getPassword())
-                .addAttribute(user.getName())
-                .addAttribute(user.getEmail())
-                .addAttribute(user.getUserId());
+        String query = "UPDATE USERS SET password = ?, name = ?, email = ? WHERE userId = ?";
 
-        jdbcTemplate.updateQuery(sqlMapper);
+        jdbcTemplate.updateQuery(query, pstmt -> {
+            pstmt.setString(1, user.getPassword());
+            pstmt.setString(2, user.getName());
+            pstmt.setString(3, user.getEmail());
+            pstmt.setString(4, user.getUserId());
+        });
     }
 
     public List<User> findAll() {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getConnection());
-        SqlMapper sqlMapper = new SqlMapper("SELECT userId, password, name, email FROM USERS");
+        String query = "SELECT userId, password, name, email FROM USERS";
 
-        return jdbcTemplate.executeQuery(sqlMapper, new ListMapper<User>() {
-
-            @Override
-            protected User createRow(ResultSet resultSet) throws SQLException {
-                return new User(
-                        resultSet.getString("userId"),
-                        resultSet.getString("password"),
-                        resultSet.getString("name"),
-                        resultSet.getString("email"));
-            }
-        });
+        return jdbcTemplate.executeQuery(query,
+                pstmt -> {
+                }, new ListMapper<>(
+                        rs -> new User(
+                                rs.getString("userId"),
+                                rs.getString("password"),
+                                rs.getString("name"),
+                                rs.getString("email"))
+                )
+        );
     }
 
     public User findByUserId(String userId) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getConnection());
-        SqlMapper sqlMapper = new SqlMapper("SELECT userId, password, name, email FROM USERS WHERE userid=?");
-        sqlMapper.addAttribute(userId);
+        String query = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
 
-        return jdbcTemplate.executeQuery(sqlMapper, new ObjectMapper<User>() {
-
-            @Override
-            protected User createRow(ResultSet resultSet) throws SQLException {
-                return new User(
-                        resultSet.getString("userId"),
-                        resultSet.getString("password"),
-                        resultSet.getString("name"),
-                        resultSet.getString("email"));
-            }
-        });
+        return jdbcTemplate.executeQuery(query,
+                pstmt -> {
+                    pstmt.setString(1, userId);
+                }, new ObjectMapper<>(
+                        rs -> new User(
+                                rs.getString("userId"),
+                                rs.getString("password"),
+                                rs.getString("name"),
+                                rs.getString("email"))
+                )
+        );
     }
 
     private static class UserDaoHolder {
