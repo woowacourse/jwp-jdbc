@@ -26,7 +26,7 @@ public class JdbcTemplate {
         try (final Connection con = dataSource.getConnection();
              final PreparedStatement pstmt = createPreparedStatement(con, sql, params)) {
 
-            pstmt.executeUpdate();
+            pstmt.execute();
         } catch (final SQLException exception) {
             logger.error(exception.toString());
             throw new DataAccessException(exception);
@@ -54,6 +54,10 @@ public class JdbcTemplate {
             logger.error(exception.toString());
             throw new DataAccessException(exception);
         }
+    }
+
+    public <T> List<T> executeForList(final String sql, final RowMapper<T> rowMapper){
+        return executeForList(sql, Collections.emptyList(), rowMapper);
     }
 
     public <T> List<T> executeForList(final String sql, final List<Object> params, final RowMapper<T> rowMapper) {

@@ -5,6 +5,7 @@ import nextstep.jdbc.support.SampleDataSource;
 import org.junit.jupiter.api.Test;
 
 import javax.sql.DataSource;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -17,14 +18,14 @@ class JdbcTemplateTest {
     }
 
     @Test
-    void update_가변인자_테스트() {
+    void update_가변인자로_입_테스트() {
         final String userId = "admin";
         final String updateQuery = "UPDATE users SET password = ?, name = ? WHERE userId = ?";
-        final String selectQuery = "SELECT * FROM users WHERE userId = 'admin'";
+        final String selectQuery = "SELECT * FROM users WHERE userId = ?";
 
         jdbcTemplate.update(updateQuery, "password2", "name2", userId);
 
-        final User actual = jdbcTemplate.executeForObject(selectQuery, rs ->
+        final User actual = jdbcTemplate.executeForObject(selectQuery, List.of(userId),rs ->
                 new User(rs.getString("userId"),
                         rs.getString("password"),
                         rs.getString("name"),

@@ -1,21 +1,26 @@
 package slipp.dao;
 
 import nextstep.jdbc.JdbcTemplate;
+import nextstep.jdbc.NamedParameterJdbcTemplate;
 import nextstep.jdbc.PropertyRowMapper;
 import nextstep.jdbc.RowMapper;
 import slipp.domain.User;
-import slipp.support.db.ConnectionManager;
+import slipp.support.db.DataSource;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class UserDao {
     private static final UserDao INSTANCE = new UserDao();
 
-    private JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
+    private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+    private final RowMapper<User> rowMapper = PropertyRowMapper.from(User.class);
 
     private UserDao() {
-        this.jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+        this.jdbcTemplate = new JdbcTemplate(DataSource.getDataSource());
+        this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(DataSource.getDataSource());
     }
 
     public static UserDao getInstance() {
@@ -29,37 +34,29 @@ public class UserDao {
     }
 
     public void update(User user) {
-        final String sql = "UPDATE USERS SET password = ?, name = ?, email = ? WHERE userid = ?";
-        final List<Object> params = List.of(user.getPassword(), user.getName(), user.getEmail(), user.getUserId());
-        jdbcTemplate.update(sql, params);
+        final String sql = "UPDATE USERS SET password = :password, name = :name, email = :email WHERE userId = :userId";
+        final Map<String, Object> params = new HashMap<>();
+        params.put("name", user.getName());
+        params.put("email", user.getEmail());
+        params.put("userId", user.getUserId());
+        params.put("password", user.getPassword());
+        namedParameterJdbcTemplate.update(sql, params);
     }
 
     public List<User> findAll() {
         final String sql = "SELECT * FROM USERS";
-        return jdbcTemplate.executeForObject(sql, rs -> {
-            final List<User> result = new ArrayList<>();
-            while (rs.next()) {
-                User user = new User(
-                        rs.getString("userId"),
-                        rs.getString("password"),
-                        rs.getString("name"),
-                        rs.getString("email"));
-                result.add(user);
-            }
-            return result;
-        });
+        return jdbcTemplate.executeForList(sql, rowMapper);
     }
 
     public User findByUserId(final String userId) {
-        final String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
-        final List<Object> params = List.of(userId);
-        final RowMapper<User> rowMapper = PropertyRowMapper.from(User.class);
-        return jdbcTemplate.executeForObject(sql, params, rowMapper);
+        final String sql = "SELECT userId, password, name, email FROM USERS WHERE userId=:userId";
+        final Map<String, Object> params = Map.of("userId", userId);
+        return namedParameterJdbcTemplate.executeForObject(sql, params, rowMapper);
     }
 
     public void deleteByUserId(final String userId) {
-        final String sql = "DELETE FROM USERS WHERE userId = ?";
-        final List<Object> params = List.of(userId);
-        jdbcTemplate.update(sql, params);
+        final String sql = "DELETE FROM USERS WHERE userId = :userId";
+        final Map<String, Object> params = Map.of("userId", userId);
+        namedParameterJdbcTemplate.update(sql, params);
     }
 }
