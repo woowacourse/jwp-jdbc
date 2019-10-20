@@ -3,7 +3,7 @@ package nextstep.jdbc.mapper;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class ObjectMapper<T> implements JdbcMapper<T> {
+public class ObjectMapper<T> implements TableMapper<T> {
     private RowMapper<T> rowMapper;
 
     public ObjectMapper(RowMapper rowMapper) {

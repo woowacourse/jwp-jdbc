@@ -5,7 +5,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ListMapper<T> implements JdbcMapper<List<T>> {
+public class ListMapper<T> implements TableMapper<List<T>> {
     private RowMapper<T> rowMapper;
 
     public ListMapper(RowMapper rowMapper) {
