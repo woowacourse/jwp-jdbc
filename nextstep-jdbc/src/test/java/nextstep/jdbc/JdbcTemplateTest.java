@@ -1,15 +1,13 @@
 package nextstep.jdbc;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -37,7 +35,7 @@ class JdbcTemplateTest {
 
             // then
             assertThat(results).hasSize(1);
-            assertThat(results.get(0)).isEqualTo(1);
+            assertThat(results).first().isEqualTo(1L);
         }
 
     }
@@ -58,6 +56,42 @@ class JdbcTemplateTest {
             // then
             assertThat(affected).isEqualTo(1);
         }
+    }
+
+    @Test
+    void execute_query_single_query1() {
+        // given
+        Map<String, Object> params = new HashMap<>();
+        params.put("questionId", 1);
+
+        // when
+        try (JdbcTemplate jdbcTemplate = new JdbcTemplate()) {
+            Optional<Long> result = jdbcTemplate.executeQueryForSingleObject("SELECT * FROM questions WHERE questionId=:questionId",
+                    params,
+                    resultSet -> resultSet.getLong("questionId"));
+
+            // then
+            assertThat(result).isEqualTo(Optional.of(1L));
+        }
+    }
+
+    @Test
+    @DisplayName("쿼리 결과 size가 0일 때 Optional.empty() 반환하는지 테스트")
+    void execute_query_single_query2() {
+        // given
+        Map<String, Object> params = new HashMap<>();
+        params.put("questionId", 10);
+
+        // when
+        try (JdbcTemplate jdbcTemplate = new JdbcTemplate()) {
+            Optional<Long> result = jdbcTemplate.executeQueryForSingleObject("SELECT * FROM questions WHERE questionId=:questionId",
+                    params,
+                    resultSet -> resultSet.getLong("questionId"));
+
+            // then
+            assertThat(result).isEqualTo(Optional.empty());
+        }
+
     }
 
     @Test

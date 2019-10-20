@@ -14,7 +14,7 @@ public class LoginController implements Controller {
     public String execute(HttpServletRequest req, HttpServletResponse resp) throws Exception {
         String userId = req.getParameter("userId");
         String password = req.getParameter("password");
-        User user = UserDao.getInstance().findByUserId(userId)
+        User user = UserDao.getInstance().findBy(userId)
                 .orElseThrow(NoSuchUserException::new);
         if (user == null) {
             req.setAttribute("loginFailed", true);

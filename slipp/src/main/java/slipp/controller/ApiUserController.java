@@ -49,7 +49,7 @@ public class ApiUserController {
         logger.debug("userId : {}", userId);
 
         ModelAndView mav = new ModelAndView(new JsonView());
-        User user = userDao.findByUserId(userId)
+        User user = userDao.findBy(userId)
                 .orElseThrow(NoSuchUserException::new);
         mav.addObject("user", user);
         return mav;
@@ -62,7 +62,7 @@ public class ApiUserController {
         UserUpdatedDto updateDto = objectMapper.readValue(request.getInputStream(), UserUpdatedDto.class);
         logger.debug("Updated User : {}", updateDto);
 
-        User user = userDao.findByUserId(userId)
+        User user = userDao.findBy(userId)
                 .orElseThrow(NoSuchUserException::new);
         user.update(updateDto);
 

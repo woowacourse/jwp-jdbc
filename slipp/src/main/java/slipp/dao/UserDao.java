@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-public class UserDao {
+public class UserDao implements Dao<User> {
     private UserDao() {
     }
 
@@ -19,6 +19,7 @@ public class UserDao {
         return LazyHolder.userDao;
     }
 
+    @Override
     public void insert(User user) {
         try (JdbcTemplate jdbcTemplate = new JdbcTemplate()) {
             Map<String, Object> params = createUserParams(user);
@@ -26,6 +27,7 @@ public class UserDao {
         }
     }
 
+    @Override
     public int update(User user) {
         try (JdbcTemplate jdbcTemplate = new JdbcTemplate()) {
             Map<String, Object> params = createUserParams(user);
@@ -42,6 +44,16 @@ public class UserDao {
         return params;
     }
 
+    @Override
+    public int delete(User user) {
+        try (JdbcTemplate jdbcTemplate = new JdbcTemplate()) {
+            Map<String, Object> params = Maps.newHashMap();
+            params.put("userId", user.getUserId());
+            return jdbcTemplate.executeUpdate("DELETE FROM users WHERE userid = :userId", params);
+        }
+    }
+
+    @Override
     public List<User> findAll() {
         List<User> users;
         try (JdbcTemplate jdbcTemplate = new JdbcTemplate()) {
@@ -60,9 +72,10 @@ public class UserDao {
         );
     }
 
-    public Optional<User> findByUserId(String userId) {
+    @Override
+    public Optional<User> findBy(String userId) {
         try (JdbcTemplate jdbcTemplate = new JdbcTemplate()) {
-            return jdbcTemplate.executeQuery2("SELECT userId, password, name, email FROM USERS WHERE userid=:userId",
+            return jdbcTemplate.executeQueryForSingleObject("SELECT userId, password, name, email FROM USERS WHERE userid=:userId",
                     Collections.singletonMap("userId", userId),
                     this::extractUser);
         }
