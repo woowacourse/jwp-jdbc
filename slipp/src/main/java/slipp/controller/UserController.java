@@ -7,8 +7,8 @@ import nextstep.web.annotation.RequestMapping;
 import nextstep.web.annotation.RequestMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import slipp.dao.UserDao;
 import slipp.domain.User;
-import slipp.support.db.DataBase;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -19,13 +19,15 @@ public class UserController {
 
     @RequestMapping(value = "/users/create", method = RequestMethod.POST)
     public ModelAndView create(HttpServletRequest req, HttpServletResponse resp) throws Exception {
+        UserDao userDao = UserDao.getInstance();
         User user = new User(
                 req.getParameter("userId"),
                 req.getParameter("password"),
                 req.getParameter("name"),
                 req.getParameter("email"));
         logger.debug("User : {}", user);
-        DataBase.addUser(user);
+
+        userDao.insert(user);
         return redirect("/");
     }
 
@@ -41,7 +43,8 @@ public class UserController {
         }
 
         ModelAndView mav = new ModelAndView(new JspView("/user/list.jsp"));
-        mav.addObject("users", DataBase.findAll());
+        UserDao userDao = UserDao.getInstance();
+        mav.addObject("users", userDao.findAll());
         return mav;
     }
 }

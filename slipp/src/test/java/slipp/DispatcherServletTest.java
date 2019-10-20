@@ -1,11 +1,15 @@
 package slipp;
 
+import nextstep.jdbc.ConnectionManager;
 import nextstep.mvc.DispatcherServlet;
 import nextstep.mvc.asis.ControllerHandlerAdapter;
 import nextstep.mvc.tobe.AnnotationHandlerMapping;
 import nextstep.mvc.tobe.HandlerExecutionHandlerAdapter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
+import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import slipp.controller.UserSessionUtils;
@@ -14,6 +18,11 @@ import slipp.domain.User;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class DispatcherServletTest {
+    private static final String DB_DRIVER = "org.h2.Driver";
+    private static final String DB_URL = "jdbc:h2:mem:jwp-framework";
+    private static final String DB_USERNAME = "sa";
+    private static final String DB_PW = "";
+
     private DispatcherServlet dispatcher;
     private MockHttpServletRequest request;
     private MockHttpServletResponse response;
@@ -31,6 +40,11 @@ class DispatcherServletTest {
 
         request = new MockHttpServletRequest();
         response = new MockHttpServletResponse();
+
+        ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
+        populator.addScript(new ClassPathResource("jwp.sql"));
+        ConnectionManager.initialize(DB_DRIVER, DB_URL, DB_USERNAME, DB_PW);
+        DatabasePopulatorUtils.execute(populator, ConnectionManager.getDataSource());
     }
 
     @Test
