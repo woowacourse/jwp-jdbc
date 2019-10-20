@@ -18,13 +18,20 @@ public class JdbcTemplate<T> {
         this.dataSource = dataSource;
     }
 
-    public Optional<T> queryForObject(String sql, PreparedStatementSetter pstmtSetter, RowMapper<T> rowMapper) throws SQLException {
-        try {
-            List<T> result = query(sql, pstmtSetter, rowMapper);
-            return Optional.of(result.get(0));
-        } catch (IndexOutOfBoundsException e) {
-            return Optional.empty();
+    public void update(String sql, PreparedStatementSetter pstmtSetter) throws SQLException {
+        try (Connection con = dataSource.getConnection();
+             PreparedStatement pstmt = con.prepareStatement(sql)) {
+            pstmtSetter.setValues(pstmt);
+            pstmt.executeUpdate();
         }
+    }
+
+    public void update(String sql, Object... values) throws SQLException {
+        update(sql, pstmt -> {
+            for (int i = 0; i < values.length; i++) {
+                pstmt.setObject(i + 1, values[i]);
+            }
+        });
     }
 
     public List<T> query(String sql, PreparedStatementSetter pstmtSetter, RowMapper<T> rowMapper) throws SQLException {
@@ -52,19 +59,12 @@ public class JdbcTemplate<T> {
         return query(sql, pstmt -> {}, rowMapper);
     }
 
-    public void update(String sql, PreparedStatementSetter pstmtSetter) throws SQLException {
-        try (Connection con = dataSource.getConnection();
-             PreparedStatement pstmt = con.prepareStatement(sql)) {
-            pstmtSetter.setValues(pstmt);
-            pstmt.executeUpdate();
+    public Optional<T> queryForObject(String sql, PreparedStatementSetter pstmtSetter, RowMapper<T> rowMapper) throws SQLException {
+        try {
+            List<T> result = query(sql, pstmtSetter, rowMapper);
+            return Optional.of(result.get(0));
+        } catch (IndexOutOfBoundsException e) {
+            return Optional.empty();
         }
-    }
-
-    public void update(String sql, Object... values) throws SQLException {
-        update(sql, pstmt -> {
-            for (int i = 0; i < values.length; i++) {
-                pstmt.setObject(i + 1, values[i]);
-            }
-        });
     }
 }
