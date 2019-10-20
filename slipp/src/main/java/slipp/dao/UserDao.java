@@ -44,11 +44,12 @@ public class UserDao {
 
         PreparedStatementSetter preparedStatementSetter = pstmt -> pstmt.setString(1, userId);
         RowMapper<User> userRowMapper = rs ->
-            new User(rs.getString("userId"),
-                rs.getString("password"),
-                rs.getString("name"),
-                rs.getString("email"));
+                new User(rs.getString("userId"),
+                        rs.getString("password"),
+                        rs.getString("name"),
+                        rs.getString("email"));
 
-        return jdbcTemplate.queryForObject(sql, preparedStatementSetter, userRowMapper);
+        return jdbcTemplate.queryForObject(sql, preparedStatementSetter, userRowMapper)
+                .orElseThrow(SQLException::new);
     }
 }
