@@ -9,6 +9,12 @@ import slipp.support.db.ConnectionManager;
 import java.util.List;
 
 public class UserDao {
+
+    private static final String INSERT_SQL = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
+    private static final String UPDATE_SQL = "UPDATE USERS SET password = ?, name = ?, email = ? WHERE userId = ?";
+    private static final String SELECT_USERS_SQL = "SELECT userId, password, name, email FROM USERS";
+    private static final String SELECT_USER_SQL = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
+
     private UserDao() {
     }
 
@@ -18,7 +24,7 @@ public class UserDao {
 
     public void insert(User user) {
         JdbcTemplate jdbcTemplate = getJdbcTemplate();
-        jdbcTemplate.update("INSERT INTO USERS VALUES (?, ?, ?, ?)",
+        jdbcTemplate.update(INSERT_SQL,
                 user.getUserId(),
                 user.getPassword(),
                 user.getName(),
@@ -27,7 +33,7 @@ public class UserDao {
 
     public void update(User user) {
         JdbcTemplate jdbcTemplate = getJdbcTemplate();
-        jdbcTemplate.update("UPDATE USERS SET password = ?, name = ?, email = ? WHERE userId = ?",
+        jdbcTemplate.update(UPDATE_SQL,
                 user.getPassword(),
                 user.getName(),
                 user.getEmail(),
@@ -37,7 +43,7 @@ public class UserDao {
     public List<User> findAll() {
         JdbcTemplate jdbcTemplate = getJdbcTemplate();
 
-        return jdbcTemplate.execute("SELECT userId, password, name, email FROM USERS",
+        return jdbcTemplate.execute(SELECT_USERS_SQL,
                 new ListMapper<>(resultSet -> new User(
                         resultSet.getString("userId"),
                         resultSet.getString("password"),
@@ -48,7 +54,7 @@ public class UserDao {
     public User findByUserId(String userId) {
         JdbcTemplate jdbcTemplate = getJdbcTemplate();
 
-        return jdbcTemplate.execute("SELECT userId, password, name, email FROM USERS WHERE userid=?",
+        return jdbcTemplate.execute(SELECT_USER_SQL,
                 new ObjectMapper<>(resultSet -> new User(
                         resultSet.getString("userId"),
                         resultSet.getString("password"),
