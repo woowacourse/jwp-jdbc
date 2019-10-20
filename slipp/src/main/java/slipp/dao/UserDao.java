@@ -1,11 +1,11 @@
 package slipp.dao;
 
-import nextstep.jdbc.mapper.Mapper;
+import nextstep.jdbc.mapper.ListMapper;
+import nextstep.jdbc.mapper.ObjectMapper;
 import nextstep.jdbc.template.JdbcTemplate;
 import slipp.domain.User;
 import slipp.support.db.ConnectionManager;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class UserDao {
@@ -37,38 +37,23 @@ public class UserDao {
     public List<User> findAll() {
         JdbcTemplate jdbcTemplate = getJdbcTemplate();
 
-        Mapper<List<User>> userMapper = resultSet -> {
-            List<User> users = new ArrayList<>();
-            while (resultSet.next()) {
-                users.add(new User(
+        return jdbcTemplate.execute("SELECT userId, password, name, email FROM USERS",
+                new ListMapper<>(resultSet -> new User(
                         resultSet.getString("userId"),
                         resultSet.getString("password"),
                         resultSet.getString("name"),
-                        resultSet.getString("email")));
-            }
-            return users;
-        };
-
-        return jdbcTemplate.execute("SELECT userId, password, name, email FROM USERS",
-                userMapper);
+                        resultSet.getString("email"))));
     }
 
     public User findByUserId(String userId) {
         JdbcTemplate jdbcTemplate = getJdbcTemplate();
 
-        Mapper<User> userMapper = resultSet -> {
-            if (resultSet.next()) {
-                return new User(
+        return jdbcTemplate.execute("SELECT userId, password, name, email FROM USERS WHERE userid=?",
+                new ObjectMapper<>(resultSet -> new User(
                         resultSet.getString("userId"),
                         resultSet.getString("password"),
                         resultSet.getString("name"),
-                        resultSet.getString("email"));
-            }
-            return new User();
-        };
-
-        return jdbcTemplate.execute("SELECT userId, password, name, email FROM USERS WHERE userid=?",
-                userMapper,
+                        resultSet.getString("email"))),
                 userId);
     }
 

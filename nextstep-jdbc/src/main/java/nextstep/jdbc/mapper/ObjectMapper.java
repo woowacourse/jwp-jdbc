@@ -3,15 +3,18 @@ package nextstep.jdbc.mapper;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public abstract class ObjectMapper<T> implements TableMapper<T> {
+public class ObjectMapper<T> implements TableMapper<T> {
+    private final RowMapper<T> rowMapper;
+
+    public ObjectMapper(RowMapper<T> rowMapper) {
+        this.rowMapper = rowMapper;
+    }
 
     @Override
     public T create(ResultSet resultSet) throws SQLException {
         if (resultSet.next()) {
-            return createRow(resultSet);
+            return rowMapper.create(resultSet);
         }
         return null;
     }
-
-    protected abstract T createRow(ResultSet resultSet) throws SQLException;
 }

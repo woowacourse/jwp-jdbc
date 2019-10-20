@@ -1,7 +1,6 @@
 package nextstep.jdbc.template;
 
 import nextstep.jdbc.exception.JdbcTemplateSqlException;
-import nextstep.jdbc.mapper.Mapper;
 import nextstep.jdbc.mapper.TableMapper;
 
 import java.sql.Connection;
@@ -27,11 +26,11 @@ public class JdbcTemplate {
         }
     }
 
-    public <T> T execute(String sql, Mapper<T> mapper, Object... parameters) {
+    public <T> T execute(String sql, TableMapper<T> mapper, Object... parameters) {
         try (PreparedStatement pstmt = con.prepareStatement(sql)) {
             setParameters(pstmt, Arrays.asList(parameters));
             ResultSet resultSet = pstmt.executeQuery();
-            return mapper.createRow(resultSet);
+            return mapper.create(resultSet);
         } catch (SQLException e) {
             throw new JdbcTemplateSqlException(e);
         }
