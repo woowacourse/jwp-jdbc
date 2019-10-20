@@ -3,16 +3,19 @@ package nextstep.jdbc.mapper;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public abstract class ObjectMapper<T> implements JdbcMapper<T> {
+public class ObjectMapper<T> implements JdbcMapper<T> {
+    private RowMapper<T> rowMapper;
+
+    public ObjectMapper(RowMapper rowMapper) {
+        this.rowMapper = rowMapper;
+    }
 
     @Override
     public T mapped(ResultSet resultSet) throws SQLException {
         if (resultSet.next()) {
-            return createRow(resultSet);
+            return rowMapper.createRow(resultSet);
         }
 
         return null;
     }
-
-    protected abstract T createRow(ResultSet resultSet) throws SQLException;
 }
