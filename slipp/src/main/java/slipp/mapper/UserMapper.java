@@ -1,5 +1,6 @@
-package nextstep.jdbc.mapper;
+package slipp.mapper;
 
+import nextstep.jdbc.mapper.RowMapper;
 import slipp.domain.User;
 
 import java.sql.ResultSet;

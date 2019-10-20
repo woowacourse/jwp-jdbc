@@ -1,6 +1,6 @@
 package slipp.dao;
 
-import nextstep.jdbc.mapper.support.MapperRegistry;
+import slipp.mapper.MapperRegistry;
 import nextstep.jdbc.template.JdbcTemplate;
 import slipp.domain.User;
 import slipp.support.db.ConnectionManager;

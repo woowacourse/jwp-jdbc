@@ -1,8 +1,7 @@
-package nextstep.jdbc.mapper.support;
+package slipp.mapper;
 
 import nextstep.jdbc.mapper.ListMapper;
 import nextstep.jdbc.mapper.ObjectMapper;
-import nextstep.jdbc.mapper.UserMapper;
 import slipp.domain.User;
 
 import java.util.HashMap;
