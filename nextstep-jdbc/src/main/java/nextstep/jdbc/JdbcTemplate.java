@@ -49,17 +49,7 @@ public class JdbcTemplate<T> {
     }
 
     public List<T> query(String sql, RowMapper<T> rowMapper) throws SQLException {
-        List<T> result = new ArrayList<>();
-        try (Connection con = dataSource.getConnection();
-             PreparedStatement pstmt = con.prepareStatement(sql);
-             ResultSet rs = pstmt.executeQuery()) {
-
-            while (rs.next()) {
-                result.add(rowMapper.mapRow(rs));
-            }
-
-            return result;
-        }
+        return query(sql, pstmtSetter -> {}, rowMapper);
     }
 
     public void update(String sql, PreparedStatementSetter pstmtSetter) throws SQLException {
