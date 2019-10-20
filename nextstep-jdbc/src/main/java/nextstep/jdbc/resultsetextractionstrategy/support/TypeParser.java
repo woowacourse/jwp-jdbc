@@ -41,7 +41,6 @@ public enum TypeParser {
             return parser.defaultValue;
         }
         return result;
-
     }
 
     private static String getString(ResultSet resultSet, String name) {
