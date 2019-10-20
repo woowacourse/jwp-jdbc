@@ -8,6 +8,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class JdbcTemplate<T> {
 
@@ -17,12 +18,13 @@ public class JdbcTemplate<T> {
         this.dataSource = dataSource;
     }
 
-    public T queryForObject(String sql, PreparedStatementSetter pstmtSetter, RowMapper<T> rowMapper) throws SQLException {
-        List<T> result = query(sql, pstmtSetter, rowMapper);
-        if (result.isEmpty()) {
-            throw new SQLException();
+    public Optional<T> queryForObject(String sql, PreparedStatementSetter pstmtSetter, RowMapper<T> rowMapper) throws SQLException {
+        try {
+            List<T> result = query(sql, pstmtSetter, rowMapper);
+            return Optional.of(result.get(0));
+        } catch (IndexOutOfBoundsException e) {
+            return Optional.empty();
         }
-        return query(sql, pstmtSetter, rowMapper).get(0);
     }
 
     public List<T> query(String sql, PreparedStatementSetter pstmtSetter, RowMapper<T> rowMapper) throws SQLException {
