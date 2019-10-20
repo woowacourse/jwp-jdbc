@@ -49,7 +49,7 @@ public class JdbcTemplate<T> {
     }
 
     public List<T> query(String sql, RowMapper<T> rowMapper) throws SQLException {
-        return query(sql, pstmtSetter -> {}, rowMapper);
+        return query(sql, pstmt -> {}, rowMapper);
     }
 
     public void update(String sql, PreparedStatementSetter pstmtSetter) throws SQLException {
@@ -61,12 +61,10 @@ public class JdbcTemplate<T> {
     }
 
     public void update(String sql, Object... values) throws SQLException {
-        try (Connection con = dataSource.getConnection();
-             PreparedStatement pstmt = con.prepareStatement(sql)) {
+        update(sql, pstmt -> {
             for (int i = 0; i < values.length; i++) {
                 pstmt.setObject(i + 1, values[i]);
             }
-            pstmt.executeUpdate();
-        }
+        });
     }
 }
