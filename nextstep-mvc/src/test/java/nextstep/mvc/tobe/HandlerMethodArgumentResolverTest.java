@@ -44,8 +44,8 @@ public class HandlerMethodArgumentResolverTest {
 
     private Method getMethod(String name, Method[] methods) {
         return Arrays.stream(methods)
-                .filter(method -> method.getName().equals(name))
-                .findFirst()
-                .get();
+            .filter(method -> method.getName().equals(name))
+            .findFirst()
+            .get();
     }
 }

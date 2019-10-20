@@ -35,7 +35,7 @@ public class AnnotationHandlerMapping implements HandlerMapping {
         for (Method method : methods) {
             RequestMapping rm = method.getAnnotation(RequestMapping.class);
             logger.debug("register handlerExecution : url is {}, request method : {}, method is {}",
-                    rm.value(), rm.method(), method);
+                rm.value(), rm.method(), method);
             addHandlerExecutions(controllers, method, rm);
         }
 
@@ -55,8 +55,8 @@ public class AnnotationHandlerMapping implements HandlerMapping {
             targetMethods = RequestMethod.values();
         }
         return Arrays.stream(targetMethods)
-                .map(method -> new HandlerKey(value, method))
-                .collect(Collectors.toList());
+            .map(method -> new HandlerKey(value, method))
+            .collect(Collectors.toList());
     }
 
     @SuppressWarnings("unchecked")
@@ -64,7 +64,7 @@ public class AnnotationHandlerMapping implements HandlerMapping {
         Set<Method> requestMappingMethods = Sets.newHashSet();
         for (Class<?> clazz : controlleers) {
             requestMappingMethods
-                    .addAll(ReflectionUtils.getAllMethods(clazz, ReflectionUtils.withAnnotation(RequestMapping.class)));
+                .addAll(ReflectionUtils.getAllMethods(clazz, ReflectionUtils.withAnnotation(RequestMapping.class)));
         }
         return requestMappingMethods;
     }
