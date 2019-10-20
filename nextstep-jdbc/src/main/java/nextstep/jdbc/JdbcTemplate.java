@@ -1,7 +1,6 @@
 package nextstep.jdbc;
 
 import nextstep.jdbc.exception.DataAccessException;
-import nextstep.jdbc.exception.NotObjectFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,11 +29,11 @@ public class JdbcTemplate<T> {
             while (resultSet.next()) {
                 list.add(rowMapper.mapRow(resultSet));
             }
+            return list;
         } catch (SQLException e) {
             log.debug(e.getMessage());
             throw new DataAccessException(e.getMessage());
         }
-        return list;
     }
 
     public int update(String query, Object... values) {
@@ -52,23 +51,15 @@ public class JdbcTemplate<T> {
         }
     }
 
-    public T selectForObject(String query, RowMapper<T> rowMapper, Object... values) {
+    public Optional<T> selectForObject(String query, RowMapper<T> rowMapper, Object... values) {
         return selectForObject(query, rowMapper, pstmt -> setValues(pstmt, values));
     }
 
-    public T selectForObject(String query, RowMapper<T> rowMapper, PreparedStatementSetter pstmtSetter) {
+    public Optional<T> selectForObject(String query, RowMapper<T> rowMapper, PreparedStatementSetter pstmtSetter) {
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = con.prepareStatement(query)) {
             pstmtSetter.setValues(pstmt);
-            return execute(pstmt, rowMapper).orElseThrow(NotObjectFoundException::new);
-        } catch (SQLException e) {
-            log.debug(e.getMessage());
-            throw new DataAccessException(e.getMessage());
-        }
-    }
-
-    private Optional<T> execute(PreparedStatement pstmt, RowMapper<T> rowMapper) {
-        try (ResultSet resultSet = pstmt.executeQuery()) {
+            ResultSet resultSet = pstmt.executeQuery();
             if (resultSet.next()) {
                 return Optional.of(rowMapper.mapRow(resultSet));
             }

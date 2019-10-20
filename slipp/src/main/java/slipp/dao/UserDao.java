@@ -1,6 +1,7 @@
 package slipp.dao;
 
 import nextstep.jdbc.JdbcTemplate;
+import nextstep.jdbc.exception.NotObjectFoundException;
 import slipp.domain.User;
 
 import java.util.List;
@@ -55,6 +56,6 @@ public class UserDao {
                         resultSet.getString("password"),
                         resultSet.getString("name"),
                         resultSet.getString("email")),
-                userId);
+                userId).orElseThrow(NotObjectFoundException::new);
     }
 }
