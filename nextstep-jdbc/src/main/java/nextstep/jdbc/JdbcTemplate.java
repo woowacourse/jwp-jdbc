@@ -1,54 +1,23 @@
 package nextstep.jdbc;
 
-import nextstep.jdbc.exception.DataAccessException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import nextstep.jdbc.executeStrategy.ExecuteStrategy;
+import nextstep.jdbc.executeStrategy.ModifyStrategy;
+import nextstep.jdbc.executeStrategy.SelectAllStrategy;
+import nextstep.jdbc.executeStrategy.SelectForObjectStrategy;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 public class JdbcTemplate<T> {
-    private static final Logger log = LoggerFactory.getLogger(JdbcTemplate.class);
-
     public List<T> select(String query, RowMapper<T> rowMapper, Object... values) {
         return select(query, rowMapper, (pstmt -> setValues(pstmt, values)));
     }
 
     public List<T> select(String query, RowMapper<T> rowMapper, PreparedStatementSetter pstmtSetter) {
-        List<T> list = new ArrayList<>();
-
-        try (Connection con = ConnectionManager.getConnection();
-             PreparedStatement pstmt = con.prepareStatement(query);
-             ResultSet resultSet = pstmt.executeQuery()) {
-            pstmtSetter.setValues(pstmt);
-            while (resultSet.next()) {
-                list.add(rowMapper.mapRow(resultSet));
-            }
-            return list;
-        } catch (SQLException e) {
-            log.debug(e.getMessage());
-            throw new DataAccessException(e.getMessage());
-        }
-    }
-
-    public int update(String query, Object... values) {
-        return update(query, pstmt -> setValues(pstmt, values));
-    }
-
-    public int update(String query, PreparedStatementSetter pstmtSetter) {
-        try (Connection con = ConnectionManager.getConnection();
-             PreparedStatement pstmt = con.prepareStatement(query)) {
-            pstmtSetter.setValues(pstmt);
-            return pstmt.executeUpdate();
-        } catch (SQLException e) {
-            log.debug(e.getMessage());
-            throw new DataAccessException(e.getMessage());
-        }
+        ExecuteStrategy<List<T>> executeStrategy = new SelectAllStrategy<>(rowMapper);
+        return executeStrategy.execute(query, pstmtSetter);
     }
 
     public Optional<T> selectForObject(String query, RowMapper<T> rowMapper, Object... values) {
@@ -56,18 +25,17 @@ public class JdbcTemplate<T> {
     }
 
     public Optional<T> selectForObject(String query, RowMapper<T> rowMapper, PreparedStatementSetter pstmtSetter) {
-        try (Connection con = ConnectionManager.getConnection();
-             PreparedStatement pstmt = con.prepareStatement(query)) {
-            pstmtSetter.setValues(pstmt);
-            ResultSet resultSet = pstmt.executeQuery();
-            if (resultSet.next()) {
-                return Optional.of(rowMapper.mapRow(resultSet));
-            }
-            return Optional.empty();
-        } catch (SQLException e) {
-            log.debug(e.getMessage());
-            throw new DataAccessException(e.getMessage());
-        }
+        ExecuteStrategy<T> executeStrategy = new SelectForObjectStrategy<>(rowMapper);
+        return Optional.ofNullable(executeStrategy.execute(query, pstmtSetter));
+    }
+
+    public int update(String query, Object... values) {
+        return update(query, pstmt -> setValues(pstmt, values));
+    }
+
+    public int update(String query, PreparedStatementSetter pstmtSetter) {
+        ExecuteStrategy<Integer> executeStrategy = new ModifyStrategy();
+        return executeStrategy.execute(query, pstmtSetter);
     }
 
     private void setValues(PreparedStatement pstmt, Object[] values) throws SQLException {
