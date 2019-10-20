@@ -15,6 +15,7 @@ public class JdbcTemplate {
     public void executeUpdate(String sql, Object... queryParams) {
         try (Connection con = connectionManager.getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
+
             setQueryParams(pstmt, queryParams);
             pstmt.executeUpdate();
         } catch (SQLException e) {
