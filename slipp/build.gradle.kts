@@ -27,4 +27,5 @@ dependencies {
     implementation("org.apache.tomcat.embed:tomcat-embed-core:$tomcatVersion")
     implementation("org.apache.tomcat.embed:tomcat-embed-logging-juli:8.5.2")
     implementation("org.apache.tomcat.embed:tomcat-embed-jasper:$tomcatVersion")
+    implementation("org.junit.platform:junit-platform-launcher:1.5.1")
 }
