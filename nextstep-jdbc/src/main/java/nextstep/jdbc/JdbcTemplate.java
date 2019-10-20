@@ -17,6 +17,8 @@ public class JdbcTemplate implements AutoCloseable {
     private static final Logger logger = LoggerFactory.getLogger(JdbcTemplate.class);
     private static final String TAG = "JdbcTemplate";
 
+    private static final int FIRST_INDEX = 0;
+
     private final Connection conn;
 
     public JdbcTemplate() {
@@ -24,13 +26,14 @@ public class JdbcTemplate implements AutoCloseable {
     }
 
     // TODO 메서드명
-    public <T> T executeQuery2(String query, Map<String, Object> params, ResultSetMapper<T> mapper) {
-        return executeQuery(query, params, mapper).get(0);
+    public <T> Optional<T> executeQuery2(String query, Map<String, Object> params, ResultSetMapper<T> mapper) {
+        return Optional.of(executeQuery(query, params, mapper).get(FIRST_INDEX));
     }
 
     public <T> List<T> executeQuery(String query, Map<String, Object> params, ResultSetMapper<T> mapper) {
         try (PreparedStatement pstmt = getStatement(query, params);
              ResultSet rs = pstmt.executeQuery()) {
+
             return iterateResultSet(mapper, rs);
         } catch (SQLException e) {
             logger.error("{}.executeQuery() >> {} ", TAG, e);

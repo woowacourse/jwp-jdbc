@@ -9,6 +9,7 @@ import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class UserDao {
     private UserDao() {
@@ -59,7 +60,7 @@ public class UserDao {
         );
     }
 
-    public User findByUserId(String userId) {
+    public Optional<User> findByUserId(String userId) {
         try (JdbcTemplate jdbcTemplate = new JdbcTemplate()) {
             return jdbcTemplate.executeQuery2("SELECT userId, password, name, email FROM USERS WHERE userid=:userId",
                     Collections.singletonMap("userId", userId),
