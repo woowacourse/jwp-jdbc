@@ -20,11 +20,11 @@ public class UserDao {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getConnection());
         String query = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
 
-        jdbcTemplate.updateQuery(query, pstmt -> {
-            pstmt.setString(1, user.getUserId());
-            pstmt.setString(2, user.getPassword());
-            pstmt.setString(3, user.getName());
-            pstmt.setString(4, user.getEmail());
+        jdbcTemplate.updateQuery(query, pst -> {
+            pst.setString(1, user.getUserId());
+            pst.setString(2, user.getPassword());
+            pst.setString(3, user.getName());
+            pst.setString(4, user.getEmail());
         });
     }
 
@@ -32,11 +32,11 @@ public class UserDao {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getConnection());
         String query = "UPDATE USERS SET password = ?, name = ?, email = ? WHERE userId = ?";
 
-        jdbcTemplate.updateQuery(query, pstmt -> {
-            pstmt.setString(1, user.getPassword());
-            pstmt.setString(2, user.getName());
-            pstmt.setString(3, user.getEmail());
-            pstmt.setString(4, user.getUserId());
+        jdbcTemplate.updateQuery(query, pst -> {
+            pst.setString(1, user.getPassword());
+            pst.setString(2, user.getName());
+            pst.setString(3, user.getEmail());
+            pst.setString(4, user.getUserId());
         });
     }
 
@@ -45,7 +45,7 @@ public class UserDao {
         String query = "SELECT userId, password, name, email FROM USERS";
 
         return jdbcTemplate.executeQuery(query,
-                pstmt -> {
+                pst -> {
                 }, new ListMapper<>(
                         rs -> new User(
                                 rs.getString("userId"),
@@ -61,8 +61,8 @@ public class UserDao {
         String query = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
 
         return jdbcTemplate.executeQuery(query,
-                pstmt -> {
-                    pstmt.setString(1, userId);
+                pst -> {
+                    pst.setString(1, userId);
                 }, new ObjectMapper<>(
                         rs -> new User(
                                 rs.getString("userId"),

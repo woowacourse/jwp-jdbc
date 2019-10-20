@@ -4,5 +4,5 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public interface PreparedStatementBuilder {
-    void build(PreparedStatement pstmt) throws SQLException;
+    void build(PreparedStatement pst) throws SQLException;
 }
