@@ -13,6 +13,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class JdbcTemplateTest {
+    private JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
 
     @BeforeEach
     public void setup() {
@@ -28,16 +29,13 @@ class JdbcTemplateTest {
         params.put("questionId", 1);
 
         // when
-        try (JdbcTemplate jdbcTemplate = new JdbcTemplate()) {
-            List<Long> results = jdbcTemplate.executeQuery("SELECT * FROM questions WHERE questionId=:questionId",
-                    params,
-                    resultSet -> resultSet.getLong("questionId"));
+        List<Long> results = jdbcTemplate.executeQuery("SELECT * FROM questions WHERE questionId=:questionId",
+                params,
+                resultSet -> resultSet.getLong("questionId"));
 
-            // then
-            assertThat(results).hasSize(1);
-            assertThat(results).first().isEqualTo(1L);
-        }
-
+        // then
+        assertThat(results).hasSize(1);
+        assertThat(results).first().isEqualTo(1L);
     }
 
     @Test
@@ -50,12 +48,10 @@ class JdbcTemplateTest {
         params.put("email", "ehem@ehem.com");
 
         // when
-        try (JdbcTemplate jdbcTemplate = new JdbcTemplate()) {
-            int affected = jdbcTemplate.executeUpdate("INSERT INTO users VALUES(:userId, :password, :name, :email);", params);
+        int affected = jdbcTemplate.executeUpdate("INSERT INTO users VALUES(:userId, :password, :name, :email);", params);
 
-            // then
-            assertThat(affected).isEqualTo(1);
-        }
+        // then
+        assertThat(affected).isEqualTo(1);
     }
 
     @Test
@@ -65,14 +61,12 @@ class JdbcTemplateTest {
         params.put("questionId", 1);
 
         // when
-        try (JdbcTemplate jdbcTemplate = new JdbcTemplate()) {
-            Optional<Long> result = jdbcTemplate.executeQueryForSingleObject("SELECT * FROM questions WHERE questionId=:questionId",
-                    params,
-                    resultSet -> resultSet.getLong("questionId"));
+        Optional<Long> result = jdbcTemplate.executeQueryForSingleObject("SELECT * FROM questions WHERE questionId=:questionId",
+                params,
+                resultSet -> resultSet.getLong("questionId"));
 
-            // then
-            assertThat(result).isEqualTo(Optional.of(1L));
-        }
+        // then
+        assertThat(result).isEqualTo(Optional.of(1L));
     }
 
     @Test
@@ -83,25 +77,19 @@ class JdbcTemplateTest {
         params.put("questionId", 10);
 
         // when
-        try (JdbcTemplate jdbcTemplate = new JdbcTemplate()) {
-            Optional<Long> result = jdbcTemplate.executeQueryForSingleObject("SELECT * FROM questions WHERE questionId=:questionId",
-                    params,
-                    resultSet -> resultSet.getLong("questionId"));
+        Optional<Long> result = jdbcTemplate.executeQueryForSingleObject("SELECT * FROM questions WHERE questionId=:questionId",
+                params,
+                resultSet -> resultSet.getLong("questionId"));
 
-            // then
-            assertThat(result).isEqualTo(Optional.empty());
-        }
-
+        // then
+        assertThat(result).isEqualTo(Optional.empty());
     }
 
     @Test
     void invalid_query() {
-        // when
-        try (JdbcTemplate jdbcTemplate = new JdbcTemplate()) {
-            // then
-            assertThrows(JdbcTemplateException.class,
-                    () -> jdbcTemplate.executeUpdate("abcdefg", Collections.emptyMap()));
-        }
+        // then
+        assertThrows(JdbcTemplateException.class,
+                () -> jdbcTemplate.executeUpdate("abcdefg", Collections.emptyMap()));
     }
 
 }

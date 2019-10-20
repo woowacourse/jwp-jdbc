@@ -65,6 +65,7 @@ public class ApiUserController {
         User user = userDao.findBy(userId)
                 .orElseThrow(NoSuchUserException::new);
         user.update(updateDto);
+        userDao.update(user);
 
         return new ModelAndView(new JsonView());
     }

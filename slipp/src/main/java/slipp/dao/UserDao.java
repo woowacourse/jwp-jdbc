@@ -3,6 +3,7 @@ package slipp.dao;
 import com.google.common.collect.Maps;
 import nextstep.jdbc.JdbcTemplate;
 import slipp.domain.User;
+import slipp.support.db.ConnectionManager;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -12,7 +13,10 @@ import java.util.Map;
 import java.util.Optional;
 
 public class UserDao implements Dao<User> {
+    private JdbcTemplate jdbcTemplate;
+
     private UserDao() {
+        this.jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
     }
 
     public static UserDao getInstance() {
@@ -21,18 +25,14 @@ public class UserDao implements Dao<User> {
 
     @Override
     public void insert(User user) {
-        try (JdbcTemplate jdbcTemplate = new JdbcTemplate()) {
-            Map<String, Object> params = createUserParams(user);
-            jdbcTemplate.executeUpdate("INSERT INTO USERS VALUES (:userId, :password, :name, :email)", params);
-        }
+        Map<String, Object> params = createUserParams(user);
+        jdbcTemplate.executeUpdate("INSERT INTO USERS VALUES (:userId, :password, :name, :email)", params);
     }
 
     @Override
     public int update(User user) {
-        try (JdbcTemplate jdbcTemplate = new JdbcTemplate()) {
-            Map<String, Object> params = createUserParams(user);
-            return jdbcTemplate.executeUpdate("UPDATE USERS SET PASSWORD = :password, NAME = :name, EMAIL = :email WHERE USERID = :userId", params);
-        }
+        Map<String, Object> params = createUserParams(user);
+        return jdbcTemplate.executeUpdate("UPDATE USERS SET PASSWORD=:password, NAME=:name, EMAIL=:email WHERE USERID=:userId", params);
     }
 
     private Map<String, Object> createUserParams(User user) {
@@ -46,21 +46,23 @@ public class UserDao implements Dao<User> {
 
     @Override
     public int delete(User user) {
-        try (JdbcTemplate jdbcTemplate = new JdbcTemplate()) {
-            Map<String, Object> params = Maps.newHashMap();
-            params.put("userId", user.getUserId());
-            return jdbcTemplate.executeUpdate("DELETE FROM users WHERE userid = :userId", params);
-        }
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("userId", user.getUserId());
+        return jdbcTemplate.executeUpdate("DELETE FROM users WHERE userid = :userId", params);
     }
 
     @Override
     public List<User> findAll() {
-        List<User> users;
-        try (JdbcTemplate jdbcTemplate = new JdbcTemplate()) {
-            users = jdbcTemplate.executeQuery("SELECT * FROM USERS", Collections.emptyMap(), this::extractUser);
-        }
+        List<User> users = jdbcTemplate.executeQuery("SELECT * FROM USERS", Collections.emptyMap(), this::extractUser);
 
         return users;
+    }
+
+    @Override
+    public Optional<User> findBy(String userId) {
+        return jdbcTemplate.executeQueryForSingleObject("SELECT userId, password, name, email FROM USERS WHERE userid=:userId",
+                Collections.singletonMap("userId", userId),
+                this::extractUser);
     }
 
     private User extractUser(ResultSet rs) throws SQLException {
@@ -70,15 +72,6 @@ public class UserDao implements Dao<User> {
                 rs.getString("name"),
                 rs.getString("email")
         );
-    }
-
-    @Override
-    public Optional<User> findBy(String userId) {
-        try (JdbcTemplate jdbcTemplate = new JdbcTemplate()) {
-            return jdbcTemplate.executeQueryForSingleObject("SELECT userId, password, name, email FROM USERS WHERE userid=:userId",
-                    Collections.singletonMap("userId", userId),
-                    this::extractUser);
-        }
     }
 
     private static class LazyHolder {
