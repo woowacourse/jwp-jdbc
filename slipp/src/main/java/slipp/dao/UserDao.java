@@ -2,7 +2,7 @@ package slipp.dao;
 
 import nextstep.jdbc.JdbcTemplate;
 import nextstep.jdbc.PreparedStatementSetter;
-import nextstep.jdbc.RowMapper;
+import nextstep.jdbc.rowmapper.RowMapper;
 import slipp.domain.User;
 import slipp.support.db.ConnectionManager;
 
@@ -49,7 +49,7 @@ public class UserDao {
 
         };
         RowMapper<User> rowMapper = makeRowMapper();
-        return jdbcTemplate.queryForMultipleEntities(sql, preparedStatementSetter, rowMapper);
+        return jdbcTemplate.queryMultiple(sql, preparedStatementSetter, rowMapper);
     }
 
     public List<User> findAllWithoutRowMapper() {
@@ -57,7 +57,7 @@ public class UserDao {
         PreparedStatementSetter preparedStatementSetter = pstmt -> {
 
         };
-        return jdbcTemplate.queryForMultipleEntitiesWithoutRowMapper(sql, preparedStatementSetter, User.class);
+        return jdbcTemplate.queryMultiple(sql, preparedStatementSetter, User.class);
     }
 
     public User findByUserId(String userId) {
@@ -66,7 +66,7 @@ public class UserDao {
             pstmt.setString(1, userId);
         };
         RowMapper<User> rowMapper = makeRowMapper();
-        return jdbcTemplate.queryForSingleEntity(sql, preparedStatementSetter, rowMapper);
+        return jdbcTemplate.querySingle(sql, preparedStatementSetter, rowMapper);
     }
 
     public User findByUserIdWithoutRowMapper(String userId) {
@@ -74,7 +74,7 @@ public class UserDao {
         PreparedStatementSetter preparedStatementSetter = pstmt -> {
             pstmt.setString(1, userId);
         };
-        return jdbcTemplate.queryForSingleEntityWithoutRowMapper(sql, preparedStatementSetter, User.class);
+        return jdbcTemplate.querySingle(sql, preparedStatementSetter, User.class);
     }
 
 

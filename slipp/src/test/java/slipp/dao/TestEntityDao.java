@@ -34,7 +34,7 @@ public class TestEntityDao {
         PreparedStatementSetter preparedStatementSetter = pstmt -> {
 
         };
-        return jdbcTemplate.queryForMultipleEntitiesWithoutRowMapper(sql, preparedStatementSetter, TestEntity.class);
+        return jdbcTemplate.queryMultiple(sql, preparedStatementSetter, TestEntity.class);
     }
 
     public TestEntity findByUserIdWithoutRowMapper(String userId) {
@@ -42,6 +42,6 @@ public class TestEntityDao {
         PreparedStatementSetter preparedStatementSetter = pstmt -> {
             pstmt.setString(1, userId);
         };
-        return jdbcTemplate.queryForSingleEntityWithoutRowMapper(sql, preparedStatementSetter, TestEntity.class);
+        return jdbcTemplate.querySingle(sql, preparedStatementSetter, TestEntity.class);
     }
 }

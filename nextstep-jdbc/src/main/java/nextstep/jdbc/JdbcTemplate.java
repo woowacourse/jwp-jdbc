@@ -2,7 +2,7 @@ package nextstep.jdbc;
 
 import nextstep.jdbc.exception.ConnectionFailedException;
 import nextstep.jdbc.exception.ExecuteUpdateFailedException;
-import nextstep.jdbc.resultsetextractionstrategy.*;
+import nextstep.jdbc.rowmapper.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,35 +30,48 @@ public class JdbcTemplate {
     }
 
     public void executeUpdate(String sql, PreparedStatementSetter preparedStatementSetter) {
-        execute(sql, preparedStatementSetter, null);
+        executeSingle(sql, preparedStatementSetter, null);
     }
 
-    public <T> T queryForSingleEntity(String sql, PreparedStatementSetter preparedStatementSetter, RowMapper<T> rowMapper) {
-        return execute(sql, preparedStatementSetter, new SingleEntityResultSetExtractionStrategy<>(rowMapper));
+    public <T> T querySingle(String sql, PreparedStatementSetter preparedStatementSetter, RowMapper<T> rowMapper) {
+        return executeSingle(sql, preparedStatementSetter, rowMapper);
     }
 
-    public <T> T queryForSingleEntityWithoutRowMapper(String sql, PreparedStatementSetter preparedStatementSetter, Class<T> clazz) {
-        return execute(sql, preparedStatementSetter, new SingleEntityResultSetExtractionStrategyWithoutRowMapper<>(clazz));
+    public <T> T querySingle(String sql, PreparedStatementSetter preparedStatementSetter, Class<T> clazz) {
+        return executeSingle(sql, preparedStatementSetter, new ReflectionRowMapper<>(clazz));
     }
 
-    public <T> List<T> queryForMultipleEntities(String sql, PreparedStatementSetter preparedStatementSetter, RowMapper<T> rowMapper) {
-        return execute(sql, preparedStatementSetter, new MultipleEntitiesResultSetExtractionStrategy<>(rowMapper));
+    public <T> List<T> queryMultiple(String sql, PreparedStatementSetter preparedStatementSetter, RowMapper<T> rowMapper) {
+        return executeMultiple(sql, preparedStatementSetter, rowMapper);
     }
 
-    public <T> List<T> queryForMultipleEntitiesWithoutRowMapper(String sql, PreparedStatementSetter preparedStatementSetter, Class<T> clazz) {
-        return execute(sql, preparedStatementSetter, new MultipleEntitiesResultSetExtractionStrategyWithoutRowMapper<>(clazz));
+    public <T> List<T> queryMultiple(String sql, PreparedStatementSetter preparedStatementSetter, Class<T> clazz) {
+        return executeMultiple(sql, preparedStatementSetter, new ReflectionRowMapper<>(clazz));
     }
 
-    private <U> U execute(String sql, PreparedStatementSetter preparedStatementSetter, ResultSetExtractionStrategy<U> resultSetExtractionStrategy) {
+
+    private <T> T executeSingle(String sql, PreparedStatementSetter preparedStatementSetter, RowMapper<T> rowMapper) {
         try (Connection con = getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
 
             preparedStatementSetter.setPreparedStatement(pstmt);
-            if (pstmt.execute() && resultSetExtractionStrategy != null) {
-                return resultSetExtractionStrategy.extract(pstmt.getResultSet());
+            if (pstmt.execute()) {
+                return ResultSetExtractor.getInstance().extractSingle(pstmt.getResultSet(), rowMapper);
             }
             return null;
-        } catch (SQLException | NoSuchMethodException e) {
+        } catch (SQLException e) {
+            log.error(e.getMessage());
+            throw new ExecuteUpdateFailedException(e);
+        }
+    }
+
+    private <T> List<T> executeMultiple(String sql, PreparedStatementSetter preparedStatementSetter, RowMapper<T> rowMapper) {
+        try (Connection con = getConnection();
+             PreparedStatement pstmt = con.prepareStatement(sql)) {
+
+            preparedStatementSetter.setPreparedStatement(pstmt);
+            return ResultSetExtractor.getInstance().extractMultiple(pstmt.executeQuery(), rowMapper);
+        } catch (SQLException e) {
             log.error(e.getMessage());
             throw new ExecuteUpdateFailedException(e);
         }

@@ -1,4 +1,4 @@
-package nextstep.jdbc.resultsetextractionstrategy.support;
+package nextstep.jdbc.rowmapper.support;
 
 
 import nextstep.jdbc.exception.NotSupportedTypeParserException;
