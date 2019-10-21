@@ -1,21 +1,19 @@
 package slipp.dao;
 
 import nextstep.jdbc.JdbcTemplate;
-import nextstep.jdbc.ResultSetMapper;
+import nextstep.jdbc.resultsetmapper.SimpleResultSetMapper;
 import slipp.domain.User;
 import slipp.support.db.ConnectionManager;
 
 import java.util.List;
-import java.util.Optional;
 
 public class UserDao {
-
     private JdbcTemplate jdbcTemplate;
-    private ResultSetMapper<User> resultSetMapper;
+    private SimpleResultSetMapper<User> simpleResultSetMapper;
 
     private UserDao() {
         this.jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
-        this.resultSetMapper = new ResultSetMapper<>(User.class);
+        this.simpleResultSetMapper = new SimpleResultSetMapper<>(User.class);
     }
 
     private static class UserDaoLazyHolder {
@@ -27,23 +25,21 @@ public class UserDao {
     }
 
     public void insert(User user) {
-        jdbcTemplate.execute("INSERT INTO USERS VALUES (?, ?, ?, ?)",
+        jdbcTemplate.executeUpdate("INSERT INTO USERS VALUES (?, ?, ?, ?)",
                 user.getUserId(), user.getPassword(), user.getName(), user.getEmail());
     }
 
     public void update(User user) {
-        jdbcTemplate.execute("UPDATE USERS SET password=?, name=?, email=? WHERE userId=?",
+        jdbcTemplate.executeUpdate("UPDATE USERS SET password=?, name=?, email=? WHERE userId=?",
                 user.getPassword(), user.getName(), user.getEmail(), user.getUserId());
     }
 
     public List<User> findAll() {
-        return jdbcTemplate.executeQuery("SELECT userId, password, name, email FROM USERS",
-                resultSetMapper::mapList);
+        return jdbcTemplate.executeQueryForList("SELECT userId, password, name, email FROM USERS", simpleResultSetMapper);
     }
 
-    public Optional<User> findByUserId(String userId) {
-        User user = jdbcTemplate.executeQuery("SELECT userId, password, name, email FROM USERS WHERE userId=?",
-                resultSetMapper::mapObject, userId);
-        return Optional.ofNullable(user);
+    public User findByUserId(String userId) {
+        return jdbcTemplate.executeQuery("SELECT userId, password, name, email FROM USERS WHERE userId=?",
+                simpleResultSetMapper, userId);
     }
 }

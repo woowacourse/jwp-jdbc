@@ -1,10 +1,9 @@
 package slipp.controller;
 
+import nextstep.mvc.asis.Controller;
 import slipp.controller.exception.UserNotFoundException;
 import slipp.dao.UserDao;
 import slipp.domain.User;
-import slipp.support.db.DataBase;
-import nextstep.mvc.asis.Controller;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -19,8 +18,7 @@ public class LoginController implements Controller {
         String password = req.getParameter("password");
         User user;
         try {
-            user = userDao.findByUserId(userId)
-                    .orElseThrow(UserNotFoundException::new);
+            user = userDao.findByUserId(userId);
         } catch (UserNotFoundException e) {
             req.setAttribute("loginFailed", true);
             return "/user/login.jsp";

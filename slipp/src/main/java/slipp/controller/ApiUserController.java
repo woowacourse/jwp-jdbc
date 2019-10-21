@@ -9,7 +9,6 @@ import nextstep.web.annotation.RequestMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
-import slipp.controller.exception.UserNotFoundException;
 import slipp.dao.UserDao;
 import slipp.domain.User;
 import slipp.dto.UserCreatedDto;
@@ -48,8 +47,7 @@ public class ApiUserController {
         logger.debug("userId : {}", userId);
 
         ModelAndView mav = new ModelAndView(new JsonView());
-        User user = userDao.findByUserId(userId)
-                .orElseThrow(UserNotFoundException::new);
+        User user = userDao.findByUserId(userId);
         mav.addObject("user", user);
         return mav;
     }
@@ -61,8 +59,7 @@ public class ApiUserController {
         UserUpdatedDto updateDto = objectMapper.readValue(request.getInputStream(), UserUpdatedDto.class);
         logger.debug("Updated User : {}", updateDto);
 
-        User user = userDao.findByUserId(userId)
-                .orElseThrow(UserNotFoundException::new);
+        User user = userDao.findByUserId(userId);
         user.update(updateDto);
         userDao.update(user);
 
