@@ -31,5 +31,7 @@ docker-compose up -d
 
 > https://dev.mysql.com/doc/workbench/en/wb-admin-export-import-table.html
 
+## 참조
 
+1. [나만의 JDBC 라이브러리 구현](./nextstep-jdbc)
 
