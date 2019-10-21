@@ -1,10 +1,9 @@
 package slipp.dao;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import nextstep.jdbc.JdbcTemplate;
 import slipp.domain.User;
+
+import java.util.List;
 
 public class UserDao {
     private final JdbcTemplate JdbcTemplate;
@@ -25,27 +24,14 @@ public class UserDao {
 
     public List<User> findAll() {
         String sql = "SELECT userId, password, name, email FROM USERS";
-        return JdbcTemplate.selectTemplate(sql, (rs) -> {
-            List<User> users = new ArrayList<>();
-            while (rs.next()) {
-                User user = new User(rs.getString("userId"), rs.getString("password"),
-                        rs.getString("name"), rs.getString("email"));
-                users.add(user);
-            }
-            return users;
-        });
+        return JdbcTemplate.selectTemplate(sql, (rs) -> new User(rs.getString("userId"),
+                rs.getString("password"), rs.getString("name"), rs.getString("email")));
     }
 
     public User findByUserId(String userId) {
         String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
-        return JdbcTemplate.selectTemplate(sql, (rs) -> {
-            List<User> users = new ArrayList<>();
-            if (rs.next()) {
-                User user = new User(rs.getString("userId"), rs.getString("password"),
-                        rs.getString("name"), rs.getString("email"));
-                users.add(user);
-            }
-            return users;
-        }, userId).get(0);
+        return JdbcTemplate.selectTemplate(sql, (rs) -> new User(rs.getString("userId"),
+                rs.getString("password"), rs.getString("name"),
+                rs.getString("email")), userId).get(0);
     }
 }

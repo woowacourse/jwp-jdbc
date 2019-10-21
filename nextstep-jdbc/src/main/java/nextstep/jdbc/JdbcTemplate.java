@@ -4,24 +4,33 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class JdbcTemplate {
-    public <T> List<T> selectTemplate(String sql, PreparedStatementSetter pstmtSetter, RowMapper rowMapper) {
+    public <T> List<T> selectTemplate(String sql, RowMapper2<T> rowMapper, Object... params) {
         try (Connection con = ConnectionManager.getConnection();
-             PreparedStatement pstmt = setValues(con.prepareStatement(sql), pstmtSetter);
+             PreparedStatement pstmt = setValues(con.prepareStatement(sql), params);
              ResultSet rs = pstmt.executeQuery()) {
-            return rowMapper.mapRows(rs);
+            List<T> result = new ArrayList<>();
+            while (rs.next()) {
+              result.add(rowMapper.mapRow(rs));
+            }
+            return result;
         } catch (Exception e) {
             throw new SelectQueryFailException();
         }
     }
 
-    public <T> List<T> selectTemplate(String sql, RowMapper<T> rowMapper, Object... params) {
+    public <T> List<T> selectTemplate(String sql, PreparedStatementSetter pstmtSetter, RowMapper2<T> rowMapper) {
         try (Connection con = ConnectionManager.getConnection();
-             PreparedStatement pstmt = setValues(con.prepareStatement(sql), params);
+             PreparedStatement pstmt = setValues(con.prepareStatement(sql), pstmtSetter);
              ResultSet rs = pstmt.executeQuery()) {
-            return rowMapper.mapRows(rs);
+            List<T> result = new ArrayList<>();
+            while (rs.next()) {
+                result.add(rowMapper.mapRow(rs));
+            }
+            return result;
         } catch (Exception e) {
             throw new SelectQueryFailException();
         }
