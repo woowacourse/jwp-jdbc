@@ -1,30 +1,37 @@
-package slipp.db;
+package slipp.dao;
 
+import nextstep.jdbc.JdbcTemplate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import slipp.domain.User;
 import slipp.dto.UserUpdatedDto;
-import slipp.support.db.ConnectionManager;
+import slipp.support.db.SlippConnectionManager;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class UserDaoTest {
+    private static final Logger log = LoggerFactory.getLogger(UserDaoTest.class);
+    private UserDao userDao;
+
     @BeforeEach
     public void setup() {
         ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
         populator.addScript(new ClassPathResource("jwp.sql"));
-        DatabasePopulatorUtils.execute(populator, ConnectionManager.getDataSource());
+        DatabasePopulatorUtils.execute(populator, SlippConnectionManager.getDataSource());
+
+        userDao = new UserDao(new JdbcTemplate(new SlippConnectionManager()));
     }
 
     @Test
-    public void crud() throws Exception {
+    public void crud() {
         User expected = new User("userId", "password", "name", "javajigi@email.com");
-        UserDao userDao = new UserDao();
         userDao.insert(expected);
         User actual = userDao.findByUserId(expected.getUserId());
         assertThat(actual).isEqualTo(expected);
@@ -36,9 +43,9 @@ public class UserDaoTest {
     }
 
     @Test
-    public void findAll() throws Exception {
-        UserDao userDao = new UserDao();
+    public void findAll() {
         List<User> users = userDao.findAll();
+        log.debug(users.toString());
         assertThat(users).hasSize(1);
     }
 }
