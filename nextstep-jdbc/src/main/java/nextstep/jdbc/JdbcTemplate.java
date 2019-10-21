@@ -29,7 +29,7 @@ public class JdbcTemplate {
     public <T> Optional<T> executeQueryForSingleObject(String query, Map<String, Object> params, ResultSetMapper<T> mapper) {
         List<T> results = executeQuery(query, params, mapper);
 
-        return (results.size() == 0) ? Optional.empty() : Optional.of(results.get(FIRST_INDEX));
+        return results.isEmpty() ? Optional.empty() : Optional.of(results.get(FIRST_INDEX));
     }
 
     public <T> List<T> executeQuery(String query, Map<String, Object> params, ResultSetMapper<T> mapper) {
