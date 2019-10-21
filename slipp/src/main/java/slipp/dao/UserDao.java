@@ -1,7 +1,7 @@
 package slipp.dao;
 
 import nextstep.jdbc.JdbcTemplate;
-import nextstep.jdbc.ResultSetMapper;
+import nextstep.jdbc.SimpleRowMapper;
 import slipp.domain.User;
 import slipp.support.db.ConnectionManager;
 
@@ -11,11 +11,11 @@ import java.util.Optional;
 public class UserDao {
 
     private JdbcTemplate jdbcTemplate;
-    private ResultSetMapper<User> resultSetMapper;
+    private SimpleRowMapper<User> simpleRowMapper;
 
     private UserDao() {
         this.jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
-        this.resultSetMapper = new ResultSetMapper<>(User.class);
+        this.simpleRowMapper = new SimpleRowMapper<>(User.class);
     }
 
     private static class UserDaoLazyHolder {
@@ -27,23 +27,22 @@ public class UserDao {
     }
 
     public void insert(User user) {
-        jdbcTemplate.execute("INSERT INTO USERS VALUES (?, ?, ?, ?)",
+        jdbcTemplate.update("INSERT INTO USERS VALUES (?, ?, ?, ?)",
                 user.getUserId(), user.getPassword(), user.getName(), user.getEmail());
     }
 
     public void update(User user) {
-        jdbcTemplate.execute("UPDATE USERS SET password=?, name=?, email=? WHERE userId=?",
+        jdbcTemplate.update("UPDATE USERS SET password=?, name=?, email=? WHERE userId=?",
                 user.getPassword(), user.getName(), user.getEmail(), user.getUserId());
     }
 
     public List<User> findAll() {
-        return jdbcTemplate.executeQuery("SELECT userId, password, name, email FROM USERS",
-                resultSetMapper::mapList);
+        return jdbcTemplate.queryForList("SELECT userId, password, name, email FROM USERS", simpleRowMapper);
     }
 
     public Optional<User> findByUserId(String userId) {
-        User user = jdbcTemplate.executeQuery("SELECT userId, password, name, email FROM USERS WHERE userId=?",
-                resultSetMapper::mapObject, userId);
+        User user = jdbcTemplate.queryForObject("SELECT userId, password, name, email FROM USERS WHERE userId=?",
+                simpleRowMapper, userId);
         return Optional.ofNullable(user);
     }
 }

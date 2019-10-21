@@ -10,34 +10,20 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
-public class ResultSetMapper<T> {
-    private static final Logger log = LoggerFactory.getLogger(ResultSetMapper.class);
+public class SimpleRowMapper<T> implements RowMapper<T> {
+    private static final Logger log = LoggerFactory.getLogger(SimpleRowMapper.class);
 
     private static final String INSTANTIATION_FAILED_EXCEPTION_MESSAGE = "인스턴스 생성 실패";
     private final Class<T> clazz;
 
-    public ResultSetMapper(Class<T> type) {
+    public SimpleRowMapper(Class<T> type) {
         this.clazz = type;
     }
 
-    public T mapObject(ResultSet resultSet) throws SQLException {
-        T object = null;
-        if (resultSet.next()) {
-            object = clazz.cast(map(resultSet, clazz));
-        }
-        return object;
-    }
-
-    public List<T> mapList(ResultSet resultSet) throws SQLException {
-        List<T> elements = new ArrayList<>();
-        while (resultSet.next()) {
-            T object = clazz.cast(map(resultSet, clazz));
-            elements.add(object);
-        }
-        return elements;
+    public T mapRow(ResultSet resultSet) throws SQLException {
+        Object object = map(resultSet, clazz);
+        return clazz.cast(object);
     }
 
     private Object map(ResultSet resultSet, Class type) throws SQLException {

@@ -1,8 +1,5 @@
 package nextstep.jdbc;
 
-import java.util.Arrays;
-import java.util.List;
-
 public enum FieldType {
     BOOLEAN(Boolean.class),
     BYTE(Byte.class),
@@ -19,8 +16,6 @@ public enum FieldType {
     FieldType(Class<?> type) {
         this.type = type;
     }
-
-    private static List<FieldType> fieldTypes = Arrays.asList(values());
 
     public static boolean isPrimitiveOrWrapper(Class<?> type) {
         return type.isPrimitive() || isWrapper(type);
