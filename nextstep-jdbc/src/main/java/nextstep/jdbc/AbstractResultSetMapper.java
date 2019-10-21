@@ -22,13 +22,22 @@ public abstract class AbstractResultSetMapper<T> implements ResultSetMapper<T> {
         return clazz.cast(object);
     }
 
-    private Object map(ResultSet resultSet, Class<?> clazz) throws SQLException {
+    protected Object map(ResultSet resultSet, Class<?> clazz) throws SQLException {
         Object object = instantiate(clazz);
         setFields(resultSet, object);
         return object;
     }
 
-    protected abstract void setFields(ResultSet resultSet, Object object) throws SQLException;
+    protected void setFields(ResultSet resultSet, Object object) throws SQLException {
+        Field[] fields = clazz.getDeclaredFields();
+        try {
+            for (Field field : fields) {
+                setField(resultSet, object, field);
+            }
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+    }
 
     protected abstract void setField(ResultSet resultSet, Object object, Field field) throws IllegalAccessException, SQLException;
 

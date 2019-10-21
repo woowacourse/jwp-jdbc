@@ -19,22 +19,14 @@ public class SimpleResultSetMapper<T> extends AbstractResultSetMapper<T> {
         return clazz.cast(object);
     }
 
-    private Object map(ResultSet resultSet, Class<?> clazz) throws SQLException {
-        Object object = instantiate(clazz);
-        setFields(resultSet, object);
-        return object;
+    @Override
+    protected Object map(ResultSet resultSet, Class<?> clazz) throws SQLException {
+        return super.map(resultSet, clazz);
     }
 
     @Override
     protected void setFields(ResultSet resultSet, Object object) throws SQLException {
-        Field[] fields = clazz.getDeclaredFields();
-        try {
-            for (Field field : fields) {
-                setField(resultSet, object, field);
-            }
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        }
+        super.setFields(resultSet, object);
     }
 
     @Override
@@ -53,5 +45,10 @@ public class SimpleResultSetMapper<T> extends AbstractResultSetMapper<T> {
             return resultSet.getObject(field.getName());
         }
         return map(resultSet, fieldType);
+    }
+
+    @Override
+    protected Object instantiate(Class<?> clazz) {
+        return super.instantiate(clazz);
     }
 }
