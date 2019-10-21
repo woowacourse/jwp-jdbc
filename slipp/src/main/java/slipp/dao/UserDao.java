@@ -35,7 +35,8 @@ public class UserDao {
     }
 
     public List<User> findAll() {
-        return jdbcTemplate.executeQueryForList("SELECT userId, password, name, email FROM USERS", simpleResultSetMapper);
+        return jdbcTemplate.executeQueryForList("SELECT userId, password, name, email FROM USERS",
+                simpleResultSetMapper);
     }
 
     public User findByUserId(String userId) {
