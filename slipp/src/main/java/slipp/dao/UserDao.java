@@ -13,18 +13,18 @@ public class UserDao {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public void insert(User user) {
+    public boolean insert(User user) {
         String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
 
-        jdbcTemplate.executeUpdate(sql, user.getUserId(), user.getPassword(), user.getName(), user.getEmail());
+        return jdbcTemplate.executeUpdate(sql, user.getUserId(), user.getPassword(), user.getName(), user.getEmail());
     }
 
-    public void update(User user) {
+    public boolean update(User user) {
         String sql = "UPDATE USERS " +
                 "SET password = ?, name = ?, email = ? " +
                 "WHERE userId = ?";
 
-        jdbcTemplate.executeUpdate(sql, user.getPassword(), user.getName(), user.getEmail(), user.getUserId());
+        return jdbcTemplate.executeUpdate(sql, user.getPassword(), user.getName(), user.getEmail(), user.getUserId());
     }
 
     public List<User> findAll() {

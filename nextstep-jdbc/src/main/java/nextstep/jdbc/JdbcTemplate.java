@@ -12,12 +12,13 @@ public class JdbcTemplate {
         this.connectionManager = connectionManager;
     }
 
-    public void executeUpdate(String sql, Object... queryParams) {
+    public boolean executeUpdate(String sql, Object... queryParams) {
         try (Connection con = connectionManager.getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
 
             setQueryParams(pstmt, queryParams);
             pstmt.executeUpdate();
+            return true;
         } catch (SQLException e) {
             throw new DataAccessException(e.getMessage());
         }
