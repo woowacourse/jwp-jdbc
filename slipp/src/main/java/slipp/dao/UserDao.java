@@ -1,78 +1,80 @@
 package slipp.dao;
 
+import com.google.common.collect.Maps;
+import nextstep.jdbc.JdbcTemplate;
 import slipp.domain.User;
 import slipp.support.db.ConnectionManager;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
-public class UserDao {
-    public void insert(User user) throws SQLException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        try {
-            con = ConnectionManager.getConnection();
-            String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
-            pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, user.getUserId());
-            pstmt.setString(2, user.getPassword());
-            pstmt.setString(3, user.getName());
-            pstmt.setString(4, user.getEmail());
+public class UserDao implements Dao<User> {
+    private JdbcTemplate jdbcTemplate;
 
-            pstmt.executeUpdate();
-        } finally {
-            if (pstmt != null) {
-                pstmt.close();
-            }
-
-            if (con != null) {
-                con.close();
-            }
-        }
+    private UserDao() {
+        this.jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
     }
 
-    public void update(User user) throws SQLException {
-        // TODO 구현 필요함.
+    public static UserDao getInstance() {
+        return LazyHolder.userDao;
     }
 
-    public List<User> findAll() throws SQLException {
-        // TODO 구현 필요함.
-        return new ArrayList<User>();
+    @Override
+    public void insert(User user) {
+        Map<String, Object> params = createUserParams(user);
+        jdbcTemplate.executeUpdate("INSERT INTO USERS VALUES (:userId, :password, :name, :email)", params);
     }
 
-    public User findByUserId(String userId) throws SQLException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        try {
-            con = ConnectionManager.getConnection();
-            String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
-            pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, userId);
+    @Override
+    public int update(User user) {
+        Map<String, Object> params = createUserParams(user);
+        return jdbcTemplate.executeUpdate("UPDATE USERS SET PASSWORD=:password, NAME=:name, EMAIL=:email WHERE USERID=:userId", params);
+    }
 
-            rs = pstmt.executeQuery();
+    private Map<String, Object> createUserParams(User user) {
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("userId", user.getUserId());
+        params.put("password", user.getPassword());
+        params.put("name", user.getName());
+        params.put("email", user.getEmail());
+        return params;
+    }
 
-            User user = null;
-            if (rs.next()) {
-                user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
-                        rs.getString("email"));
-            }
+    @Override
+    public int delete(User user) {
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("userId", user.getUserId());
+        return jdbcTemplate.executeUpdate("DELETE FROM users WHERE userid = :userId", params);
+    }
 
-            return user;
-        } finally {
-            if (rs != null) {
-                rs.close();
-            }
-            if (pstmt != null) {
-                pstmt.close();
-            }
-            if (con != null) {
-                con.close();
-            }
-        }
+    @Override
+    public List<User> findAll() {
+        List<User> users = jdbcTemplate.executeQuery("SELECT * FROM USERS", Collections.emptyMap(), this::extractUser);
+
+        return users;
+    }
+
+    @Override
+    public Optional<User> findBy(String userId) {
+        return jdbcTemplate.executeQueryForSingleObject("SELECT userId, password, name, email FROM USERS WHERE userid=:userId",
+                Collections.singletonMap("userId", userId),
+                this::extractUser);
+    }
+
+    private User extractUser(ResultSet rs) throws SQLException {
+        return new User(
+                rs.getString("userId"),
+                rs.getString("password"),
+                rs.getString("name"),
+                rs.getString("email")
+        );
+    }
+
+    private static class LazyHolder {
+        private static final UserDao userDao = new UserDao();
     }
 }
