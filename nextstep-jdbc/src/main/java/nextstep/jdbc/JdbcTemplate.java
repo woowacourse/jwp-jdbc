@@ -19,7 +19,7 @@ public class JdbcTemplate {
         this.dataSource = dataSource;
     }
 
-    public <T> T execute(String sql, PreparedStatementSetter preparedStatementSetter, StatementCallback<T> statementCallback) {
+    public <T> T execute(String sql, StatementCallback<T> statementCallback, PreparedStatementSetter preparedStatementSetter) {
         try (Connection connection = dataSource.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)
         ) {
@@ -57,6 +57,6 @@ public class JdbcTemplate {
     }
 
     public <T> T query(String sql, StatementCallback<T> statementCallback, Object[] values) {
-        return execute(sql, new ArgumentPreparedStatementSetter(values) , statementCallback);
+        return execute(sql, statementCallback, new ArgumentPreparedStatementSetter(values));
     }
 }
