@@ -14,7 +14,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class UserDaoTest {
+public class UserDaoImplTest {
     private DBConnection dbConnection;
     private UserDao userDao;
 
@@ -24,20 +24,20 @@ public class UserDaoTest {
         populator.addScript(new ClassPathResource("jwp.sql"));
         DatabasePopulatorUtils.execute(populator, ConnectionManager.getDataSource());
         dbConnection = new DBConnection("org.h2.Driver", "jdbc:h2:mem:jwp-framework", "sa", "");
-        userDao = new UserDao();
+        userDao = new UserDaoImpl();
     }
 
     @Test
     public void crud() {
         User expected = new User("userId", "password", "name", "javajigi@email.com");
-        UserDao userDao = new UserDao();
-        userDao.insert(expected);
-        User actual = userDao.findByUserId(expected.getUserId());
+        UserDaoImpl userDaoImpl = new UserDaoImpl();
+        userDaoImpl.insert(expected);
+        User actual = userDaoImpl.findByUserId(expected.getUserId());
         assertThat(actual).isEqualTo(expected);
 
         expected.update(new UserUpdatedDto("password2", "name2", "sanjigi@email.com"));
-        userDao.update(expected);
-        actual = userDao.findByUserId(expected.getUserId());
+        userDaoImpl.update(expected);
+        actual = userDaoImpl.findByUserId(expected.getUserId());
         assertThat(actual).isEqualTo(expected);
     }
 

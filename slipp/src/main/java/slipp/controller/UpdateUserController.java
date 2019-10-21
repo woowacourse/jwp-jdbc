@@ -1,9 +1,9 @@
 package slipp.controller;
 
 import slipp.dao.UserDao;
+import slipp.dao.UserDaoImpl;
 import slipp.domain.User;
 import slipp.dto.UserUpdatedDto;
-import slipp.support.db.DataBase;
 import nextstep.mvc.asis.Controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

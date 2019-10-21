@@ -2,7 +2,6 @@ package slipp.controller;
 
 import slipp.dao.UserDao;
 import slipp.domain.User;
-import slipp.support.db.DataBase;
 import nextstep.mvc.asis.Controller;
 
 import javax.servlet.http.HttpServletRequest;
