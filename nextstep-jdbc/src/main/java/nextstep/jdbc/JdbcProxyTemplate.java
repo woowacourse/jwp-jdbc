@@ -3,6 +3,7 @@ package nextstep.jdbc;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.rmi.NoSuchObjectException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
@@ -43,7 +44,7 @@ public class JdbcProxyTemplate {
 
     public <T> T queryForObject(String sql, RowMapper<T> rm, Object... objects) {
         try (Connection con = connectionManager.getConnection()) {
-            return template.queryForObject(con, sql, rm, objects);
+            return template.queryForObject(con, sql, rm, objects).orElseThrow(NotFoundObjectException::new);
         } catch (SQLException e) {
             log.debug(e.getMessage(), e.getCause());
             throw new DataAccessException();
