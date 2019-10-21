@@ -6,10 +6,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class JdbcTemplate {
     private static final Logger log = LoggerFactory.getLogger(JdbcTemplate.class);
@@ -20,34 +19,44 @@ public class JdbcTemplate {
         this.dataSource = dataSource;
     }
 
-    public void execute(String sql, Object... values) {
+    public <T> T execute(String sql, PreparedStatementSetter preparedStatementSetter, StatementCallback<T> statementCallback) {
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            setValues(preparedStatement, values);
-            preparedStatement.executeUpdate();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)
+        ) {
+            preparedStatementSetter.setValues(preparedStatement);
+            return statementCallback.action(preparedStatement);
         } catch (SQLException | IllegalConnectionException e) {
             log.error("execution error : ", e);
             throw new IllegalExecutionException(e);
         }
     }
 
-    public <T> T executeQuery(String sql, ResultSetProcessor<T> resultSetProcessor, Object... values) {
-        try (Connection connection = dataSource.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            setValues(preparedStatement, values);
-
-            ResultSet resultSet = preparedStatement.executeQuery();
-
-            return resultSetProcessor.process(resultSet);
-        } catch (SQLException | IllegalConnectionException e) {
-            log.error("execution error : ", e);
-            throw new IllegalExecutionException(e);
-        }
+    public <T> T queryForObject(String sql, RowMapper<T> rowMapper, Object... values) {
+        return query(sql, preparedStatement -> {
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                resultSet.next();
+                return rowMapper.mapRow(resultSet);
+            }
+        }, values);
     }
 
-    private void setValues(PreparedStatement preparedStatement, Object[] values) throws SQLException {
-        for (int i = 0; i < values.length; i++) {
-            preparedStatement.setObject(i + 1, values[i]);
-        }
+    public <T> List<T> queryForList(String sql, RowMapper<T> rowMapper, Object... values) {
+        return query(sql, preparedStatement -> {
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                List<T> objects = new ArrayList<>();
+                while (resultSet.next()) {
+                    objects.add(rowMapper.mapRow(resultSet));
+                }
+                return objects;
+            }
+        }, values);
+    }
+
+    public int update(String sql, Object... values) {
+        return query(sql, PreparedStatement::executeUpdate, values);
+    }
+
+    public <T> T query(String sql, StatementCallback<T> statementCallback, Object[] values) {
+        return execute(sql, new ArgumentPreparedStatementSetter(values) , statementCallback);
     }
 }
