@@ -10,8 +10,8 @@ import java.util.List;
 public class UserDao {
     private JdbcProxyTemplate proxyTemplate;
 
-    public UserDao(DBConnection dbConnection) {
-        proxyTemplate = new JdbcProxyTemplate(dbConnection);
+    public UserDao() {
+        proxyTemplate = new JdbcProxyTemplate();
     }
 
     public void insert(User user) {

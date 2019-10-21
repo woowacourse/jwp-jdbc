@@ -14,7 +14,7 @@ public class DBConnection {
     }
 
     public static DBConnection getInstance() {
-        return new DBConnection("", "", "", "");
+        return new DBConnection("org.h2.Driver", "jdbc:h2:mem:jwp-framework", "sa", "");
     }
 
     public String getDriver() {

@@ -15,8 +15,8 @@ public class JdbcProxyTemplate {
     private ConnectionManager connectionManager;
     private JdbcTemplate template;
 
-    public JdbcProxyTemplate(DBConnection connection) {
-        connectionManager = new ConnectionManager(connection);
+    public JdbcProxyTemplate() {
+        connectionManager = new ConnectionManager(DBConnection.getInstance());
         template = new JdbcTemplate();
     }
 

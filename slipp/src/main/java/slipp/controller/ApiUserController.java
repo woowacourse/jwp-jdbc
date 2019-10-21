@@ -27,8 +27,7 @@ public class ApiUserController {
 
     public ApiUserController() {
         this.objectMapper = new ObjectMapper();
-        DBConnection dbConnection = new DBConnection("org.h2.Driver", "jdbc:h2:mem:jwp-framework", "sa", "");
-        this.userDao = new UserDao(dbConnection);
+        this.userDao = new UserDao();
     }
 
     @RequestMapping(value = "/api/users", method = RequestMethod.POST)
