@@ -1,31 +1,20 @@
 package nextstep.jdbc;
 
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+public class JdbcTemplate implements AutoCloseable {
+    private final Connection connection;
 
-public class JdbcTemplate {
-    private final DataSource dataSource;
-
-    public JdbcTemplate(DataSource dataSource) {
-        this.dataSource = dataSource;
-    }
-
-    private Connection getConnection() {
-        try {
-            return dataSource.getConnection();
-        } catch (SQLException e) {
-            throw new IllegalStateException(e);
-        }
+    public JdbcTemplate(Connection connection) {
+        this.connection = connection;
     }
 
     public void executeQuery(String sql, List<Object> parameters) {
-        try (Connection con = getConnection();
-             PreparedStatement pstmt = con.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
             executePreparedStatement(pstmt, parameters);
         } catch (SQLException e) {
             throw new DatabaseException();
@@ -33,8 +22,7 @@ public class JdbcTemplate {
     }
 
     public <T> T executeQueryThatHasResultSet(String sql, List<Object> parameters, ResultMapper<T> resultMapper) {
-        try (Connection con = getConnection();
-             PreparedStatement pstmt = con.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
             return resultMapper.map(getResultSet(pstmt, parameters));
         } catch (SQLException e) {
             throw new DatabaseException();
@@ -59,5 +47,10 @@ public class JdbcTemplate {
         }
 
         pstmt.executeUpdate();
+    }
+
+    @Override
+    public void close() throws Exception {
+        connection.close();
     }
 }
