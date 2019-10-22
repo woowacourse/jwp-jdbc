@@ -13,14 +13,14 @@ import java.util.Map;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
 
-public class AnotherRowMapper<T> implements RowMapper<T> {
+public class ReflectionRowMapper<T> implements RowMapper<T> {
     private static final Logger logger = LoggerFactory.getLogger(RowMapper.class);
     private static final int START_SET_VALUE_INDEX = 1;
 
     private final Class<T> clazz;
     private final Map<String, Field> fields;
 
-    public AnotherRowMapper(Class<T> clazz) {
+    public ReflectionRowMapper(Class<T> clazz) {
         this.clazz = clazz;
         this.fields = Arrays.stream(clazz.getDeclaredFields())
                 .peek(field -> field.setAccessible(true))

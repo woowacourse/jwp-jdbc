@@ -1,6 +1,6 @@
 package slipp.dao;
 
-import nextstep.jdbc.template.AnotherRowMapper;
+import nextstep.jdbc.template.ReflectionRowMapper;
 import nextstep.jdbc.template.JdbcTemplate;
 import nextstep.jdbc.template.RowMapper;
 import slipp.domain.User;
@@ -15,7 +15,7 @@ public class UserDao {
     private static final String FIND_USER_BY_ID_QUERY = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
 
     private final JdbcTemplate jdbcTemplate = new JdbcTemplate();
-    private final RowMapper<User> rowMapper = new AnotherRowMapper<>(User.class);
+    private final RowMapper<User> rowMapper = new ReflectionRowMapper<>(User.class);
 
     private UserDao() {
     }
