@@ -37,11 +37,9 @@ public class JdbcTemplate {
     public <T> Optional<T> singleObjectQuery(String sql, RowMapper<T> rowMapper, Object... args) {
         PrepareStatementSetter prepareStatementSetter = getPrepareStatementSetter(args);
         List<T> objects = listQuery(sql, rowMapper, prepareStatementSetter);
-        if (objects.isEmpty()) {
-            return Optional.empty();
-        }
 
-        return Optional.of(objects.get(0));
+        return objects.stream()
+            .findFirst();
     }
 
     public <T> List<T> listQuery(String sql, RowMapper<T> rowMapper, Object... args) {
