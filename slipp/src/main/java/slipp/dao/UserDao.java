@@ -1,16 +1,15 @@
 package slipp.dao;
 
+import nextstep.jdbc.ConnectionManager;
 import nextstep.jdbc.JdbcTemplate;
 import slipp.domain.User;
-import slipp.support.db.ConnectionManager;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class UserDao {
-    private final JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+    private final JdbcTemplate jdbcTemplate = new JdbcTemplate(new ConnectionManager("testdb.properties").getDataSource());
 
     public void insert(User user) throws SQLException {
         String insertSql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
@@ -36,7 +35,8 @@ public class UserDao {
         String sql = "SELECT * FROM USERS";
 
         return jdbcTemplate.query(sql,
-                pstmt -> {},
+                pstmt -> {
+                },
                 this::getUser);
     }
 
