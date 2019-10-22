@@ -30,8 +30,8 @@ public class UserDao {
 
     public User findByUserId(String userId) {
         String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
-        return JdbcTemplate.selectTemplate(sql, (rs) -> new User(rs.getString("userId"),
+        return JdbcTemplate.selectObjectTemplate(sql, (rs) -> new User(rs.getString("userId"),
                 rs.getString("password"), rs.getString("name"),
-                rs.getString("email")), userId).get(0);
+                rs.getString("email")), userId);
     }
 }

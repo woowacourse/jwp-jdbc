@@ -36,6 +36,32 @@ public class JdbcTemplate {
         }
     }
 
+    public <T> T selectObjectTemplate(String sql, PreparedStatementSetter pstmtSetter, RowMapper2<T> rowMapper) {
+        try (Connection con = ConnectionManager.getConnection();
+             PreparedStatement pstmt = setValues(con.prepareStatement(sql), pstmtSetter);
+             ResultSet rs = pstmt.executeQuery()) {
+            if (rs.next()) {
+                return rowMapper.mapRow(rs);
+            }
+            throw new SelectObjectNotFoundException();
+        } catch (Exception e) {
+            throw new SelectQueryFailException();
+        }
+    }
+
+    public <T> T selectObjectTemplate(String sql, RowMapper2<T> rowMapper, Object... params) {
+        try (Connection con = ConnectionManager.getConnection();
+             PreparedStatement pstmt = setValues(con.prepareStatement(sql), params);
+             ResultSet rs = pstmt.executeQuery()) {
+            if (rs.next()) {
+                return rowMapper.mapRow(rs);
+            }
+            throw new SelectObjectNotFoundException();
+        } catch (Exception e) {
+            throw new SelectQueryFailException();
+        }
+    }
+
     public void updateTemplate(String sql, PreparedStatementSetter pstmtSetter) {
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
