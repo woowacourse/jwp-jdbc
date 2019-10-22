@@ -11,7 +11,7 @@ import java.util.List;
 public class UserDao {
     private final JdbcTemplate jdbcTemplate = new JdbcTemplate(new ConnectionManager("testdb.properties").getDataSource());
 
-    public void insert(User user) throws SQLException {
+    public void insert(User user) {
         String insertSql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
         jdbcTemplate.update(insertSql, pstmt -> {
             pstmt.setString(1, user.getUserId());
@@ -21,7 +21,7 @@ public class UserDao {
         });
     }
 
-    public void update(User user) throws SQLException {
+    public void update(User user) {
         String sql = "UPDATE USERS SET password = ?, name = ?, email = ? WHERE userid = ?";
         jdbcTemplate.update(sql, pstmt -> {
             pstmt.setString(1, user.getPassword());
@@ -31,7 +31,7 @@ public class UserDao {
         });
     }
 
-    public List<User> findAll() throws SQLException {
+    public List<User> findAll() {
         String sql = "SELECT * FROM USERS";
 
         return jdbcTemplate.query(sql,
@@ -40,7 +40,7 @@ public class UserDao {
                 this::getUser);
     }
 
-    public User findByUserId(String userId) throws SQLException {
+    public User findByUserId(String userId) {
         String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
 
         return jdbcTemplate.queryForObject(sql,

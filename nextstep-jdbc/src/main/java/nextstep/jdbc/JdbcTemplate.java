@@ -15,15 +15,17 @@ public class JdbcTemplate {
         this.dataSource = dataSource;
     }
 
-    public int update(String sql, PreparedStatementSetter setter) throws SQLException {
+    public int update(String sql, PreparedStatementSetter setter) {
         try (Connection con = dataSource.getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
             setter.values(pstmt);
             return pstmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e.getMessage());
         }
     }
 
-    public <T> T queryForObject(String sql, PreparedStatementSetter setter, RowMapper<T> mapper) throws SQLException {
+    public <T> T queryForObject(String sql, PreparedStatementSetter setter, RowMapper<T> mapper) {
         try (Connection con = dataSource.getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
             setter.values(pstmt);
@@ -31,16 +33,20 @@ public class JdbcTemplate {
             ResultSet rs = pstmt.executeQuery();
             rs.next();
             return mapper.mapRow(rs);
+        } catch (SQLException e) {
+            throw new RuntimeException(e.getMessage());
         }
     }
 
-    public <T> List<T> query(String sql, PreparedStatementSetter setter, RowMapper<T> mapper) throws SQLException {
+    public <T> List<T> query(String sql, PreparedStatementSetter setter, RowMapper<T> mapper) {
         try (Connection con = dataSource.getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
             setter.values(pstmt);
 
             ResultSet rs = pstmt.executeQuery();
             return getRows(rs, mapper);
+        } catch (SQLException e) {
+            throw new RuntimeException(e.getMessage());
         }
     }
 
