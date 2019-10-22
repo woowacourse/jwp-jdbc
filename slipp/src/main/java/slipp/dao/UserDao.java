@@ -18,11 +18,21 @@ public class UserDao {
     };
 
     public void insert(User user) {
-        JDBC_TEMPLATE.update("INSERT INTO USERS VALUES (?, ?, ?, ?)", user.getUserId(), user.getPassword(), user.getName(), user.getEmail());
+        JDBC_TEMPLATE.update("INSERT INTO USERS VALUES (?, ?, ?, ?)", preparedStatement -> {
+            preparedStatement.setString(1, user.getUserId());
+            preparedStatement.setString(2, user.getPassword());
+            preparedStatement.setString(3, user.getName());
+            preparedStatement.setString(4, user.getEmail());
+        });
     }
 
     public void update(User user) {
-        JDBC_TEMPLATE.update("UPDATE USERS SET password = ?, name = ?, email = ? WHERE userid = ?", user.getPassword(), user.getName(), user.getEmail(), user.getUserId());
+        JDBC_TEMPLATE.update("UPDATE USERS SET password = ?, name = ?, email = ? WHERE userid = ?", preparedStatement -> {
+            preparedStatement.setString(1, user.getPassword());
+            preparedStatement.setString(2, user.getName());
+            preparedStatement.setString(3, user.getEmail());
+            preparedStatement.setString(4, user.getUserId());
+        });
     }
 
     public List<User> findAll() {
@@ -30,6 +40,7 @@ public class UserDao {
     }
 
     public User findByUserId(String id) {
-        return JDBC_TEMPLATE.readForObject(ROW_MAPPER, "SELECT userId, password, name, email FROM USERS WHERE userId = ?", id);
+        return JDBC_TEMPLATE.readForObject(ROW_MAPPER, "SELECT userId, password, name, email FROM USERS WHERE userId = ?", preparedStatement ->
+                preparedStatement.setString(1, id));
     }
 }

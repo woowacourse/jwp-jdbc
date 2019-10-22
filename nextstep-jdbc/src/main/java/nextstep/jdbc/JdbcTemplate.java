@@ -19,20 +19,21 @@ public class JdbcTemplate<T> {
         this.dataSource = dataSource;
     }
 
-    public void update(String sql, Object... values) {
+    public void update(String sql, PreparedStatementSetter preparedStatementSetter) {
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement preparedStatement = createPreparedStatement(connection, sql, values)) {
-
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatementSetter.setValues(preparedStatement);
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             log.error("ErrorCode: {}", e.getErrorCode());
         }
     }
 
-    public T readForObject(RowMapper<T> rowMapper, String sql, Object... values) {
+    public T readForObject(RowMapper<T> rowMapper, String sql, PreparedStatementSetter preparedStatementSetter) {
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement preparedStatement = createPreparedStatement(connection, sql, values);
-             ResultSet resultSet = preparedStatement.executeQuery()) {
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatementSetter.setValues(preparedStatement);
+            ResultSet resultSet = preparedStatement.executeQuery();
 
             if (resultSet.next()) {
                 return rowMapper.mapRow(resultSet);
@@ -43,10 +44,10 @@ public class JdbcTemplate<T> {
         return null;
     }
 
-    public List<T> readForList(RowMapper<T> rowMapper, String sql, Object... values) {
+    public List<T> readForList(RowMapper<T> rowMapper, String sql) {
         List<T> objects = new ArrayList<>();
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement preparedStatement = createPreparedStatement(connection, sql, values);
+             PreparedStatement preparedStatement = connection.prepareStatement(sql);
              ResultSet resultSet = preparedStatement.executeQuery()) {
 
             while (resultSet.next()) {
@@ -56,16 +57,5 @@ public class JdbcTemplate<T> {
             log.error("ErrorCode: {}", e.getErrorCode());
         }
         return objects;
-    }
-
-
-    private PreparedStatement createPreparedStatement(Connection connection, String sql, Object... values) throws SQLException {
-        PreparedStatement preparedStatement = connection.prepareStatement(sql);
-
-        int length = values.length;
-        for (int i = 0; i < length; i++) {
-            preparedStatement.setString(i + 1, values[i].toString());
-        }
-        return preparedStatement;
     }
 }
