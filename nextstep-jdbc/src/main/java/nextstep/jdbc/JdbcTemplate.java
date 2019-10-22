@@ -10,6 +10,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class JdbcTemplate {
     private static final Logger log = LoggerFactory.getLogger(JdbcTemplate.class);
@@ -29,14 +30,14 @@ public class JdbcTemplate {
         }
     }
 
-    public <T> T readForObject(RowMapper<T> rowMapper, String sql, PreparedStatementSetter preparedStatementSetter) {
+    public <T> Optional<T> readForObject(RowMapper<T> rowMapper, String sql, PreparedStatementSetter preparedStatementSetter) {
         try (Connection connection = dataSource.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatementSetter.setValues(preparedStatement);
             ResultSet resultSet = preparedStatement.executeQuery();
 
             if (resultSet.next()) {
-                return rowMapper.mapRow(resultSet);
+                return Optional.of(rowMapper.mapRow(resultSet));
             }
         } catch (SQLException e) {
             log.error("ErrorCode: {}", e.getErrorCode());
@@ -44,7 +45,7 @@ public class JdbcTemplate {
         return null;
     }
 
-    public <T> List<T> readForList(RowMapper<T> rowMapper, String sql) {
+    public <T> Optional<List<T>> readForList(RowMapper<T> rowMapper, String sql) {
         List<T> objects = new ArrayList<>();
         try (Connection connection = dataSource.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(sql);
@@ -56,6 +57,6 @@ public class JdbcTemplate {
         } catch (SQLException e) {
             log.error("ErrorCode: {}", e.getErrorCode());
         }
-        return objects;
+        return Optional.of(objects);
     }
 }
