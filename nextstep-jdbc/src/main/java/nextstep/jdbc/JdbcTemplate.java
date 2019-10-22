@@ -18,33 +18,56 @@ public class JdbcTemplate<T> {
     }
 
     public T queryForObject(String sql, PreparedStatementSetter pstmtSetter, RowMapper<T> rowMapper) throws SQLException {
-        List<T> result = query(sql, pstmtSetter, rowMapper);
+        List<T> result = query(sql, rowMapper, pstmtSetter);
         if (result.isEmpty()) {
-            throw new SQLException();
+            return null;
         }
-        return query(sql, pstmtSetter, rowMapper).get(0);
+        return query(sql, rowMapper, pstmtSetter).get(0);
     }
 
-    public List<T> query(String sql, PreparedStatementSetter pstmtSetter, RowMapper<T> rowMapper) throws SQLException {
-        ResultSet rs = null;
-        List<T> result = new ArrayList<>();
-
+    public List<T> query(String sql, RowMapper<T> rowMapper, PreparedStatementSetter pstmtSetter) throws SQLException {
         try (Connection con = dataSource.getConnection();
-             PreparedStatement pstmt = con.prepareStatement(sql)) {
-            pstmtSetter.setValues(pstmt);
-            rs = pstmt.executeQuery();
+             PreparedStatement pstmt = createPreparedStatement(con, sql, pstmtSetter);
+             ResultSet rs = pstmt.executeQuery()) {
+            List<T> result = new ArrayList<>();
 
             while (rs.next()) {
                 result.add(rowMapper.mapRow(rs));
             }
 
             return result;
-        } finally {
-            if (rs != null) {
-                rs.close();
-            }
         }
     }
+
+    public List<T> query(String sql, RowMapper<T> rowMapper, Object... objects) throws SQLException {
+        try (Connection con = dataSource.getConnection();
+             PreparedStatement pstmt = createPreparedStatement(con, sql, objects);
+             ResultSet rs = pstmt.executeQuery()) {
+            List<T> result = new ArrayList<>();
+
+            while (rs.next()) {
+                result.add(rowMapper.mapRow(rs));
+            }
+
+            return result;
+        }
+    }
+
+    private PreparedStatement createPreparedStatement(Connection con, String sql, PreparedStatementSetter pstmtSetter) throws SQLException {
+        PreparedStatement pstmt = con.prepareStatement(sql);
+        pstmtSetter.setValues(pstmt);
+        return pstmt;
+    }
+
+    private PreparedStatement createPreparedStatement(Connection con, String sql, Object... objects) throws SQLException {
+        PreparedStatement pstmt = con.prepareStatement(sql);
+
+        for (int i = 0; i < objects.length; i++) {
+            pstmt.setObject(i + 1, objects[i]);
+        }
+        return pstmt;
+    }
+
 
     public List<T> query(String sql, RowMapper<T> rowMapper) throws SQLException {
         List<T> result = new ArrayList<>();
