@@ -20,17 +20,15 @@ public class JdbcTemplate {
         this.dataSource = dataSource;
     }
 
-    public void update(String sql, PreparedStatementSetter preparedStatementSetter) {
+    public void update(String sql, PreparedStatementSetter preparedStatementSetter) throws SQLException {
         try (Connection connection = dataSource.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatementSetter.setValues(preparedStatement);
             preparedStatement.executeUpdate();
-        } catch (SQLException e) {
-            log.error("ErrorCode: {}", e.getErrorCode());
         }
     }
 
-    public <T> Optional<T> readForObject(RowMapper<T> rowMapper, String sql, PreparedStatementSetter preparedStatementSetter) {
+    public <T> Optional<T> readForObject(RowMapper<T> rowMapper, String sql, PreparedStatementSetter preparedStatementSetter) throws SQLException {
         try (Connection connection = dataSource.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatementSetter.setValues(preparedStatement);
@@ -39,13 +37,11 @@ public class JdbcTemplate {
             if (resultSet.next()) {
                 return Optional.of(rowMapper.mapRow(resultSet));
             }
-        } catch (SQLException e) {
-            log.error("ErrorCode: {}", e.getErrorCode());
         }
         return null;
     }
 
-    public <T> Optional<List<T>> readForList(RowMapper<T> rowMapper, String sql) {
+    public <T> Optional<List<T>> readForList(RowMapper<T> rowMapper, String sql) throws SQLException {
         List<T> objects = new ArrayList<>();
         try (Connection connection = dataSource.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(sql);
@@ -54,8 +50,6 @@ public class JdbcTemplate {
             while (resultSet.next()) {
                 objects.add(rowMapper.mapRow(resultSet));
             }
-        } catch (SQLException e) {
-            log.error("ErrorCode: {}", e.getErrorCode());
         }
         return Optional.of(objects);
     }
