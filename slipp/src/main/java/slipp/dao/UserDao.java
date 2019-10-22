@@ -8,7 +8,7 @@ import slipp.support.db.ConnectionManager;
 import java.util.List;
 
 public class UserDao {
-    private static final JdbcTemplate<User> JDBC_TEMPLATE = new JdbcTemplate<>(ConnectionManager.getDataSource());
+    private static final JdbcTemplate JDBC_TEMPLATE = new JdbcTemplate(ConnectionManager.getDataSource());
     private static final RowMapper<User> ROW_MAPPER = resultSet -> {
         String userId = resultSet.getString("userId");
         String password = resultSet.getString("password");

@@ -11,7 +11,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class JdbcTemplate<T> {
+public class JdbcTemplate {
     private static final Logger log = LoggerFactory.getLogger(JdbcTemplate.class);
     private DataSource dataSource;
 
@@ -29,7 +29,7 @@ public class JdbcTemplate<T> {
         }
     }
 
-    public T readForObject(RowMapper<T> rowMapper, String sql, PreparedStatementSetter preparedStatementSetter) {
+    public <T> T readForObject(RowMapper<T> rowMapper, String sql, PreparedStatementSetter preparedStatementSetter) {
         try (Connection connection = dataSource.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatementSetter.setValues(preparedStatement);
@@ -44,7 +44,7 @@ public class JdbcTemplate<T> {
         return null;
     }
 
-    public List<T> readForList(RowMapper<T> rowMapper, String sql) {
+    public <T> List<T> readForList(RowMapper<T> rowMapper, String sql) {
         List<T> objects = new ArrayList<>();
         try (Connection connection = dataSource.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(sql);
