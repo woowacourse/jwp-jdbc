@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserDao {
+    private JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
 
     public void insert(User user) {
         String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
@@ -18,7 +19,6 @@ public class UserDao {
         parameters.add(user.getName());
         parameters.add(user.getEmail());
 
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getConnection());
         jdbcTemplate.executeQuery(sql, parameters);
 
     }
@@ -33,8 +33,6 @@ public class UserDao {
         parameters.add(user.getName());
         parameters.add(user.getEmail());
         parameters.add(user.getUserId());
-
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getConnection());
         jdbcTemplate.executeQuery(sql, parameters);
 
     }
@@ -42,7 +40,6 @@ public class UserDao {
     public List<User> findAll() {
         String sql = "SELECT userId, password, name, email FROM USERS";
 
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getConnection());
         return jdbcTemplate.executeQueryThatHasResultSet(sql, new ArrayList<>(),
                 (resultSet) -> {
                     List<User> users = new ArrayList<User>();
@@ -63,7 +60,6 @@ public class UserDao {
         List<Object> parameters = new ArrayList<>();
         parameters.add(userId);
 
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getConnection());
         return jdbcTemplate.executeQueryThatHasResultSet(sql, parameters,
                 resultSet -> {
                     User user = null;
