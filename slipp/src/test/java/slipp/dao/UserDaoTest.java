@@ -41,4 +41,10 @@ public class UserDaoTest {
         List<User> users = userDao.findAll();
         assertThat(users).hasSize(1);
     }
+
+    @Test
+    public void find_invalid_user() throws Exception {
+        UserDao userDao = new UserDao();
+        assertThat(userDao.findByUserId("invalidUserId")).isNull();
+    }
 }
