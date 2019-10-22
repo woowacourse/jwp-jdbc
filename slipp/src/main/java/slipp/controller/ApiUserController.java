@@ -20,14 +20,13 @@ import javax.servlet.http.HttpServletResponse;
 @Controller
 public class ApiUserController {
     private static final Logger logger = LoggerFactory.getLogger(ApiUserController.class);
-
+    private UserDao userDao = new UserDao();
     private ObjectMapper objectMapper = new ObjectMapper();
 
     @RequestMapping(value = "/api/users", method = RequestMethod.POST)
     public ModelAndView create(HttpServletRequest request, HttpServletResponse response) throws Exception {
         UserCreatedDto createdDto = objectMapper.readValue(request.getInputStream(), UserCreatedDto.class);
         logger.debug("Created User : {}", createdDto);
-        UserDao userDao = new UserDao();
         User user = new User(
             createdDto.getUserId(),
             createdDto.getPassword(),
@@ -49,7 +48,6 @@ public class ApiUserController {
         logger.debug("userId : {}", userId);
 
         ModelAndView mav = new ModelAndView(new JsonView());
-        UserDao userDao = new UserDao();
         //User user = DataBase.findUserById(userId);
         mav.addObject("user", userDao.findByUserId(userId));
         return mav;
@@ -61,7 +59,6 @@ public class ApiUserController {
         logger.debug("userId : {}", userId);
         UserUpdatedDto updateDto = objectMapper.readValue(request.getInputStream(), UserUpdatedDto.class);
         logger.debug("Updated User : {}", updateDto);
-        UserDao userDao = new UserDao();
         User user = userDao.findByUserId(userId);
         user.update(updateDto);
         userDao.update(user);

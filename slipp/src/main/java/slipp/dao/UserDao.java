@@ -14,16 +14,19 @@ public class UserDao {
     public static final String DB_URL = "jdbc:h2:mem:jwp-framework";
     public static final String DB_USERNAME = "sa";
     public static final String DB_PW = "";
+    private JdbcTemplate jdbcTemplate;
+
+    public UserDao() {
+        jdbcTemplate = new JdbcTemplate(ConnectionGenerator.getDataSource(DB_DRIVER, DB_URL, DB_USERNAME, DB_PW));
+    }
 
     public void insert(User user) {
         String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
-        JdbcTemplate jdbcTemplate = createJdbcTemplate();
         jdbcTemplate.update(sql, user.getUserId(), user.getPassword(), user.getName(), user.getEmail());
     }
 
     public void update(User user) {
         String sql = "UPDATE USERS SET password=?,name=?,email=? WHERE userId=?";
-        JdbcTemplate jdbcTemplate = createJdbcTemplate();
         jdbcTemplate.update(sql, user.getPassword(), user.getName(), user.getEmail(), user.getUserId());
     }
 
@@ -32,7 +35,6 @@ public class UserDao {
         RowMapper<User> rowMapper = rs -> new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
             rs.getString("email"));
 
-        JdbcTemplate jdbcTemplate = createJdbcTemplate();
         return jdbcTemplate.listQuery(sql, rowMapper);
     }
 
@@ -42,11 +44,6 @@ public class UserDao {
         RowMapper<User> rowMapper = rs -> new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
             rs.getString("email"));
 
-        JdbcTemplate jdbcTemplate = createJdbcTemplate();
         return jdbcTemplate.singleObjectQuery(sql, rowMapper, userId).orElseThrow(UserNotFoundException::new);
-    }
-
-    private JdbcTemplate createJdbcTemplate() {
-        return new JdbcTemplate(ConnectionGenerator.getDataSource(DB_DRIVER, DB_URL, DB_USERNAME, DB_PW));
     }
 }
