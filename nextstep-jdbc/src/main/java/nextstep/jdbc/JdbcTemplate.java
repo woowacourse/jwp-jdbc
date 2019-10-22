@@ -24,33 +24,23 @@ public class JdbcTemplate {
     }
 
     public <T> T queryForObject(String sql, PreparedStatementSetter setter, RowMapper<T> mapper) throws SQLException {
-        ResultSet rs = null;
         try (Connection con = dataSource.getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
             setter.values(pstmt);
 
-            rs = pstmt.executeQuery();
+            ResultSet rs = pstmt.executeQuery();
             rs.next();
             return mapper.mapRow(rs);
-        } finally {
-            if (rs != null) {
-                rs.close();
-            }
         }
     }
 
     public <T> List<T> query(String sql, PreparedStatementSetter setter, RowMapper<T> mapper) throws SQLException {
-        ResultSet rs = null;
         try (Connection con = dataSource.getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
             setter.values(pstmt);
 
-            rs = pstmt.executeQuery();
+            ResultSet rs = pstmt.executeQuery();
             return getRows(rs, mapper);
-        } finally {
-            if (rs != null) {
-                rs.close();
-            }
         }
     }
 
