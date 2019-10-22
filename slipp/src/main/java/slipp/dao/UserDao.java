@@ -11,9 +11,10 @@ import java.util.List;
 
 public class UserDao {
 
+    private JdbcTemplate<User> jdbcTemplate = new JdbcTemplate<>(ConnectionManager.getDataSource());
+
     public void insert(User user) throws SQLException {
         String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
-        JdbcTemplate<User> jdbcTemplate = new JdbcTemplate<>(ConnectionManager.getDataSource());
 
         PreparedStatementSetter preparedStatementSetter = pstmt -> {
             pstmt.setString(1, user.getUserId());
@@ -27,7 +28,6 @@ public class UserDao {
 
     public void update(User user) throws SQLException {
         String sql = "UPDATE USERS SET password=?, email=?, name=? WHERE userId=?";
-        JdbcTemplate<User> jdbcTemplate = new JdbcTemplate<>(ConnectionManager.getDataSource());
 
         PreparedStatementSetter preparedStatementSetter = pstmt -> {
             pstmt.setString(1, user.getPassword());
@@ -41,7 +41,6 @@ public class UserDao {
 
     public List<User> findAll() throws SQLException {
         String sql = "SELECT * FROM USERS";
-        JdbcTemplate<User> jdbcTemplate = new JdbcTemplate<>(ConnectionManager.getDataSource());
 
         RowMapper<User> userRowMapper = rs ->
             new User(rs.getString("userId"),
@@ -54,7 +53,6 @@ public class UserDao {
 
     public User findByUserId(String userId) throws SQLException {
         String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
-        JdbcTemplate<User> jdbcTemplate = new JdbcTemplate<>(ConnectionManager.getDataSource());
 
         PreparedStatementSetter preparedStatementSetter = pstmt -> pstmt.setString(1, userId);
         RowMapper<User> userRowMapper = rs ->
