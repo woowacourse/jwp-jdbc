@@ -25,11 +25,32 @@ public class JdbcTemplate {
         }
     }
 
+    public int update(String sql, Object... objects) {
+        try (Connection con = dataSource.getConnection();
+             PreparedStatement pstmt = con.prepareStatement(sql)) {
+            setValues(pstmt, objects);
+            return pstmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
     public <T> T queryForObject(String sql, PreparedStatementSetter setter, RowMapper<T> mapper) {
         try (Connection con = dataSource.getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
             setter.values(pstmt);
+            ResultSet rs = pstmt.executeQuery();
+            rs.next();
+            return mapper.mapRow(rs);
+        } catch (SQLException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
 
+    public <T> T queryForObject(String sql, RowMapper<T> mapper, Object... objects) {
+        try (Connection con = dataSource.getConnection();
+             PreparedStatement pstmt = con.prepareStatement(sql)) {
+            setValues(pstmt, objects);
             ResultSet rs = pstmt.executeQuery();
             rs.next();
             return mapper.mapRow(rs);
@@ -42,11 +63,27 @@ public class JdbcTemplate {
         try (Connection con = dataSource.getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
             setter.values(pstmt);
-
             ResultSet rs = pstmt.executeQuery();
             return getRows(rs, mapper);
         } catch (SQLException e) {
             throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    public <T> List<T> query(String sql, RowMapper<T> mapper, Object... objects) {
+        try (Connection con = dataSource.getConnection();
+             PreparedStatement pstmt = con.prepareStatement(sql)) {
+            setValues(pstmt, objects);
+            ResultSet rs = pstmt.executeQuery();
+            return getRows(rs, mapper);
+        } catch (SQLException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    private void setValues(PreparedStatement pstmt, Object... objects) throws SQLException {
+        for (int i = 0; i < objects.length; i++) {
+            pstmt.setObject(i + 1, objects[i]);
         }
     }
 
