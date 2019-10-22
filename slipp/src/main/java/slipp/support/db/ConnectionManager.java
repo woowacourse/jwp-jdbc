@@ -7,10 +7,10 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 public class ConnectionManager {
-    private static final String DB_DRIVER = "org.h2.Driver";
-    private static final String DB_URL = "jdbc:h2:mem:jwp-framework";
-    private static final String DB_USERNAME = "sa";
-    private static final String DB_PW = "";
+    private static final String DB_DRIVER = "com.mysql.cj.jdbc.Driver";
+    private static final String DB_URL = "jdbc:mysql://localhost:3306/fakebook?useUnicode=true&characterEncoding=utf8&serverTimezone=UTC";
+    private static final String DB_USERNAME = "jwp_blog";
+    private static final String DB_PW = "1234";
 
     public static DataSource getDataSource() {
         BasicDataSource ds = new BasicDataSource();
