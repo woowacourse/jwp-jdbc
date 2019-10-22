@@ -6,7 +6,7 @@ import org.apache.commons.dbcp2.BasicDataSource;
 import java.util.Properties;
 
 public class ApplicationContextInitializer {
-    private static final String DB_PROPERTIES_PATH = "./src/main/resources/db.properties";
+    private static final String DB_PROPERTIES_PATH = "./slipp/src/main/resources/db.properties";
     private static final String DRIVER_CLASS_KEY = "jdbc.driverClass";
     private static final String URL_KEY = "jdbc.url";
     private static final String USERNAME_KEY = "jdbc.username";
