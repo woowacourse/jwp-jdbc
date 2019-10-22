@@ -20,7 +20,15 @@ public class ConnectionManager {
     private static final String JDBC_URL = "jdbc.url";
     private static final String JDBC_USERNAME = "jdbc.username";
     private static final String JDBC_PASSWORD = "jdbc.password";
-    
+
+    public static Connection getConnection() {
+        try {
+            return getDataSource().getConnection();
+        } catch (SQLException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
     public static DataSource getDataSource() {
         Properties properties = getProperties();
         BasicDataSource ds = new BasicDataSource();
@@ -41,13 +49,5 @@ public class ConnectionManager {
             logger.error(e.getMessage());
         }
         return properties;
-    }
-
-    public static Connection getConnection() {
-        try {
-            return getDataSource().getConnection();
-        } catch (SQLException e) {
-            throw new IllegalStateException(e);
-        }
     }
 }
