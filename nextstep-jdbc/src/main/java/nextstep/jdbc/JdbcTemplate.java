@@ -15,11 +15,11 @@ public class JdbcTemplate {
         this.dataSource = dataSource;
     }
 
-    public void update(String sql, PreparedStatementSetter setter) throws SQLException {
+    public int update(String sql, PreparedStatementSetter setter) throws SQLException {
         try (Connection con = dataSource.getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
             setter.values(pstmt);
-            pstmt.executeUpdate();
+            return pstmt.executeUpdate();
         }
     }
 
