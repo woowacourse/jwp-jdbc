@@ -24,7 +24,7 @@ public class UserDao {
     }
 
     public void update(User user) {
-        String sql = "UPDATE USERS SET (password, name, email) = (?,?,?) WHERE userId = ?";
+        String sql = "UPDATE USERS SET password=?,name=?,email=? WHERE userId = ?";
         jdbcTemplate.update(sql,
                 user.getPassword(),
                 user.getName(),
