@@ -35,6 +35,7 @@ subprojects {
 		testImplementation("org.springframework:spring-test:$springVersion")
 		testImplementation("org.springframework:spring-webflux:$springVersion")
 		testImplementation("io.projectreactor.netty:reactor-netty:0.8.10.RELEASE")
+		testImplementation("org.mockito:mockito-core:2.+")
 	}
 
 	tasks.withType<KotlinCompile>().configureEach {

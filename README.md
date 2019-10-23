@@ -31,5 +31,10 @@ docker-compose up -d
 
 > https://dev.mysql.com/doc/workbench/en/wb-admin-export-import-table.html
 
+## 요구사항
+
+1. UserDao.class update(), findAll() 구현 (O)
+2. UserDao.class 리팩토링 (X)
+
 
 
