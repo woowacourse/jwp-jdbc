@@ -1,6 +1,5 @@
 package nextstep.jdbc;
 
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -8,22 +7,14 @@ import java.sql.SQLException;
 import java.util.List;
 
 public class JdbcTemplate {
-    private final DataSource dataSource;
+    private final ConnectionManager connectionManager;
 
-    public JdbcTemplate(DataSource dataSource) {
-        this.dataSource = dataSource;
-    }
-
-    private Connection getConnection() {
-        try {
-            return dataSource.getConnection();
-        } catch (SQLException e) {
-            throw new IllegalStateException(e);
-        }
+    public JdbcTemplate(ConnectionManager connectionManager) {
+        this.connectionManager = connectionManager;
     }
 
     public void executeQuery(String sql, List<Object> parameters) {
-        try (Connection con = getConnection();
+        try (Connection con = connectionManager.getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
             executePreparedStatement(pstmt, parameters);
         } catch (SQLException e) {
@@ -32,7 +23,7 @@ public class JdbcTemplate {
     }
 
     public <T> T executeQueryThatHasResultSet(String sql, List<Object> parameters, ResultMapper<T> resultMapper) {
-        try (Connection con = getConnection();
+        try (Connection con = connectionManager.getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
             return resultMapper.map(getResultSet(pstmt, parameters));
         } catch (SQLException e) {
