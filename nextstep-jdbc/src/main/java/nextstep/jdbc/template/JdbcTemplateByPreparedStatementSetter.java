@@ -11,7 +11,6 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
-@Deprecated
 public class JdbcTemplateByPreparedStatementSetter {
     private static final Logger logger = LoggerFactory.getLogger(JdbcTemplateByPreparedStatementSetter.class);
 
