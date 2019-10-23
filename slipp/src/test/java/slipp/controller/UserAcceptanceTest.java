@@ -5,9 +5,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import slipp.domain.User;
 import slipp.dto.UserCreatedDto;
 import slipp.dto.UserUpdatedDto;
-import slipp.domain.User;
 import support.test.NsWebTestClient;
 
 import java.net.URI;
@@ -22,6 +22,9 @@ public class UserAcceptanceTest {
     @BeforeEach
     void setUp() {
         client = NsWebTestClient.of(8080);
+//        ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
+//        populator.addScript(new ClassPathResource("jwp.sql"));
+//        DatabasePopulatorUtils.execute(populator, ConnectionManager.getDataSource());
     }
 
     @Test
