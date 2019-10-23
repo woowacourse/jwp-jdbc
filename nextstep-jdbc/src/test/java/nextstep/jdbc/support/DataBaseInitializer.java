@@ -28,8 +28,9 @@ public class DataBaseInitializer {
                 ps.executeUpdate();
                 logger.debug(query);
             }
-        } catch (Exception ex) {
-            logger.error(ex.getMessage());
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            throw new DataBaseInitializerException(e.getMessage(), e);
         }
     }
 
