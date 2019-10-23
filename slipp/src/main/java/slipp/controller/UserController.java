@@ -8,6 +8,7 @@ import nextstep.web.annotation.RequestMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import slipp.dao.UserDao;
+import slipp.dao.UserDaoImpl;
 import slipp.domain.User;
 
 import javax.servlet.http.HttpServletRequest;
@@ -17,7 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 public class UserController {
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
-    private final UserDao userDao = UserDao.getInstance();
+    private final UserDao userDao = UserDaoImpl.getInstance();
 
     @RequestMapping(value = "/users/create", method = RequestMethod.POST)
     public ModelAndView create(HttpServletRequest req, HttpServletResponse resp) throws Exception {

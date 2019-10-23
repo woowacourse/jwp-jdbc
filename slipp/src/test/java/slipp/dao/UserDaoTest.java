@@ -14,7 +14,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class UserDaoTest {
-    private UserDao userDao = UserDao.getInstance();
+    private UserDao userDao = UserDaoImpl.getInstance();
 
     @BeforeEach
     void setup() {
