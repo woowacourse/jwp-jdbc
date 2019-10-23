@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public enum TypeParser {
+public enum PrimitiveTypeParser {
     SHORT(List.of(Short.class, short.class), ResultSet::getShort),
     INTEGER(List.of(Integer.class, int.class), ResultSet::getInt),
     LONG(List.of(Long.class, long.class), ResultSet::getLong),
@@ -19,14 +19,14 @@ public enum TypeParser {
     DOUBLE(List.of(Double.class, double.class), ResultSet::getDouble),
     STRING(List.of(String.class), ResultSet::getString);
 
-    private static final Logger logger = LoggerFactory.getLogger(TypeParser.class);
+    private static final Logger logger = LoggerFactory.getLogger(PrimitiveTypeParser.class);
 
     public static Map<Class<?>, Parser> map = new HashMap<>();
 
     static {
-        for (final TypeParser typeParser : TypeParser.values()) {
-            for (final Class<?> clazz : typeParser.type) {
-                map.put(clazz, typeParser.parser);
+        for (final PrimitiveTypeParser primitiveTypeParser : PrimitiveTypeParser.values()) {
+            for (final Class<?> clazz : primitiveTypeParser.type) {
+                map.put(clazz, primitiveTypeParser.parser);
             }
         }
     }
@@ -34,7 +34,7 @@ public enum TypeParser {
     private final List<Class<?>> type;
     private final Parser parser;
 
-    TypeParser(final List<Class<?>> type, final Parser parser) {
+    PrimitiveTypeParser(final List<Class<?>> type, final Parser parser) {
         this.type = type;
         this.parser = parser;
     }

@@ -11,7 +11,7 @@ public class ValueObjectMapper implements Mapper {
         try {
             final T instance = type.getConstructor().newInstance();
             final Field field = type.getDeclaredField(name);
-            final Object value = TypeParser.map(rs, name, field.getType());
+            final Object value = PrimitiveTypeParser.map(rs, name, field.getType());
             field.setAccessible(true);
             field.set(instance, value);
 
