@@ -2,6 +2,7 @@ package nextstep.jdbc;
 
 import nextstep.jdbc.support.DataBaseInitializer;
 import nextstep.jdbc.support.SampleDataSource;
+import nextstep.jdbc.support.User;
 import org.junit.jupiter.api.Test;
 
 import javax.sql.DataSource;

@@ -1,4 +1,4 @@
-package nextstep.jdbc.utils;
+package nextstep.jdbc.mapper;
 
 import nextstep.jdbc.exception.DataAccessException;
 import org.slf4j.Logger;
@@ -39,12 +39,16 @@ public enum TypeParser {
         this.parser = parser;
     }
 
-    public static Object parse(final ResultSet resultSet, final String name, final Class<?> type) {
+    public static Object map(final ResultSet resultSet, final String name, final Class<?> type) {
         return map.get(type).template(resultSet, name);
     }
 
+    public static boolean isMapping(final Class<?> type) {
+        return map.containsKey(type);
+    }
+
     @FunctionalInterface
-    interface Parser {
+    public interface Parser {
         default Object template(final ResultSet rs, final String name) {
             try {
                 return parse(rs, name);

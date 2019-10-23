@@ -1,5 +1,6 @@
 package nextstep.jdbc;
 
+import nextstep.jdbc.support.User;
 import org.junit.jupiter.api.Test;
 
 import java.sql.ResultSet;

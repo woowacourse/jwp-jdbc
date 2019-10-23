@@ -1,7 +1,7 @@
 package nextstep.jdbc;
 
 import nextstep.jdbc.exception.PropertyRowMapperException;
-import nextstep.jdbc.utils.TypeParser;
+import nextstep.jdbc.mapper.ResultSetMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +34,7 @@ public class PropertyRowMapper<T> implements RowMapper<T> {
     public T mapRow(final ResultSet rs) throws SQLException {
         try {
             for (final Field field : fields) {
-                final Object value = TypeParser.parse(rs, field.getName(), field.getType());
+                final Object value = ResultSetMapper.getInstance().map(rs, field.getName(), field.getType());
                 field.setAccessible(true);
                 field.set(instance, value);
             }
