@@ -13,12 +13,17 @@ import java.util.Properties;
 public class ConnectionManager {
 
     private static final Logger log = LoggerFactory.getLogger(ConnectionManager.class);
+    private static final String DEFAULT_FILE_PATH = "src/main/resources/db.properties";
 
     private ConnectionManager() {
     }
 
     public static DataSource getDataSource() {
-        Properties properties = getDBProperties();
+        return getDataSource(DEFAULT_FILE_PATH);
+    }
+
+    public static DataSource getDataSource(String filePath) {
+        Properties properties = readDBProperties(filePath);
 
         String driverClassName = properties.getProperty("jdbc.driverClass");
         String url = properties.getProperty("jdbc.url");
@@ -33,10 +38,10 @@ public class ConnectionManager {
         return ds;
     }
 
-    private static Properties getDBProperties() {
+    private static Properties readDBProperties(String filePath) {
         try {
             Properties properties = new Properties();
-            FileReader fileReader = new FileReader("src/main/resources/db.properties");
+            FileReader fileReader = new FileReader(filePath);
             properties.load(fileReader);
             return properties;
         } catch (IOException e) {
