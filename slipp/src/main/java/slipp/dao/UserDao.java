@@ -5,6 +5,7 @@ import nextstep.jdbc.NamedParameterJdbcTemplate;
 import nextstep.jdbc.PropertyRowMapper;
 import nextstep.jdbc.RowMapper;
 import slipp.domain.User;
+import slipp.exception.UserNotFoundException;
 import slipp.support.db.DataSource;
 
 import java.util.HashMap;
@@ -51,7 +52,8 @@ public class UserDao {
     public User findByUserId(final String userId) {
         final String sql = "SELECT userId, password, name, email FROM USERS WHERE userId=:userId";
         final Map<String, Object> params = Map.of("userId", userId);
-        return namedParameterJdbcTemplate.executeForObject(sql, params, rowMapper);
+        return namedParameterJdbcTemplate.executeForObject(sql, params, rowMapper)
+                .orElseThrow(UserNotFoundException::new);
     }
 
     public void deleteByUserId(final String userId) {

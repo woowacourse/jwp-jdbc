@@ -12,6 +12,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 public class JdbcTemplate {
     private static final Logger logger = LoggerFactory.getLogger(JdbcTemplate.class);
@@ -37,19 +38,19 @@ public class JdbcTemplate {
         this.update(sql, List.of(params));
     }
 
-    public <T> T executeForObject(final String sql, final RowMapper<T> rowMapper) {
+    public <T> Optional<T> executeForObject(final String sql, final RowMapper<T> rowMapper) {
         return executeForObject(sql, Collections.emptyList(), rowMapper);
     }
 
-    public <T> T executeForObject(final String sql, final List<Object> params, final RowMapper<T> rowMapper) {
+    public <T> Optional<T> executeForObject(final String sql, final List<Object> params, final RowMapper<T> rowMapper) {
         try (final Connection con = dataSource.getConnection();
              final PreparedStatement pstmt = createPreparedStatement(con, sql, params);
              final ResultSet rs = pstmt.executeQuery()) {
 
             if (rs.next()) {
-                return rowMapper.mapRow(rs);
+                return Optional.of(rowMapper.mapRow(rs));
             }
-            return null;
+            return Optional.empty();
         } catch (final SQLException exception) {
             logger.error(exception.toString());
             throw new DataAccessException(exception);

@@ -34,7 +34,7 @@ class NamedParameterJdbcTemplateTest {
 
         // when
         jdbcTemplate.update(updateQuery, params);
-        final User actual = jdbcTemplate.executeForObject(selectQuery, Map.of("userId", userId), rowMapper);
+        final User actual = jdbcTemplate.executeForObject(selectQuery, Map.of("userId", userId), rowMapper).get();
 
         // then
         assertThat(actual.getName()).isEqualTo(name);
@@ -49,7 +49,7 @@ class NamedParameterJdbcTemplateTest {
         params.put("userId", "admin");
 
         // when
-        final User actual = jdbcTemplate.executeForObject(sql, params, rowMapper);
+        final User actual = jdbcTemplate.executeForObject(sql, params, rowMapper).get();
 
         // then
         assertThat(actual.getUserId()).isEqualTo("admin");

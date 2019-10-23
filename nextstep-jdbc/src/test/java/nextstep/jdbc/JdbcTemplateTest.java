@@ -29,7 +29,7 @@ class JdbcTemplateTest {
                 new User(rs.getString("userId"),
                         rs.getString("password"),
                         rs.getString("name"),
-                        rs.getInt("age")));
+                        rs.getInt("age"))).get();
 
         assertThat(actual.getPassword()).isEqualTo("password2");
 
