@@ -2,7 +2,6 @@ package nextstep.jdbc.template;
 
 import nextstep.jdbc.exception.JdbcTemplateSqlException;
 import nextstep.jdbc.mapper.RowMapper;
-import nextstep.jdbc.mapper.TableMapper;
 
 import javax.annotation.Nullable;
 import java.sql.Connection;
@@ -40,26 +39,35 @@ public class JdbcTemplate {
         try (PreparedStatement pstmt = con.prepareStatement(sql)) {
             setParameters(pstmt, Arrays.asList(parameters));
             ResultSet resultSet = pstmt.executeQuery();
-            if (resultSet.next()) {
-                return mapper.create(resultSet);
-            }
+            return createObject(resultSet, mapper);
         } catch (SQLException e) {
             throw new JdbcTemplateSqlException(e);
+        }
+    }
+
+    @Nullable
+    private <T> T createObject(ResultSet resultSet, RowMapper<T> mapper) throws SQLException {
+        if (resultSet.next()) {
+            return mapper.create(resultSet);
         }
         return null;
     }
 
     public <T> List<T> executeForList(String sql, RowMapper<T> mapper, Object... parameters) {
-        List<T> results = new ArrayList<>();
         try (PreparedStatement pstmt = con.prepareStatement(sql)) {
             setParameters(pstmt, Arrays.asList(parameters));
             ResultSet resultSet = pstmt.executeQuery();
-            while (resultSet.next()) {
-                results.add(mapper.create(resultSet));
-            }
-            return results;
+            return createList(mapper, resultSet);
         } catch (SQLException e) {
             throw new JdbcTemplateSqlException(e);
         }
+    }
+
+    private <T> List<T> createList(RowMapper<T> mapper, ResultSet resultSet) throws SQLException {
+        List<T> results = new ArrayList<>();
+        while (resultSet.next()) {
+            results.add(mapper.create(resultSet));
+        }
+        return results;
     }
 }
