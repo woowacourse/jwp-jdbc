@@ -4,7 +4,7 @@ import java.sql.ResultSet;
 
 public class PrimitiveMapper implements Mapper {
     @Override
-    public Object map(final ResultSet rs, final String name, final Class<?> type) {
+    public <T> T map(final ResultSet rs, final String name, final Class<T> type) {
         return TypeParser.map(rs, name, type);
     }
 

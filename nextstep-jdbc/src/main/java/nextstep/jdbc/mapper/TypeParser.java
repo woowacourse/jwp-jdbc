@@ -39,8 +39,9 @@ public enum TypeParser {
         this.parser = parser;
     }
 
-    public static Object map(final ResultSet resultSet, final String name, final Class<?> type) {
-        return map.get(type).template(resultSet, name);
+    public static <T> T map(final ResultSet resultSet, final String name, final Class<T> type) {
+        //todo 여기엔 직접 캐스팅 하는 방법 말고는 방법이 없는건가?
+        return (T) map.get(type).template(resultSet, name);
     }
 
     public static boolean isMapping(final Class<?> type) {

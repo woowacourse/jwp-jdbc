@@ -4,7 +4,7 @@ import java.sql.ResultSet;
 
 public interface Mapper {
 
-    Object map(final ResultSet rs, final String name, final Class<?> type);
+    <T> T map(final ResultSet rs, final String name, final Class<T> type);
 
     boolean isMapping(final Class<?> type);
 }

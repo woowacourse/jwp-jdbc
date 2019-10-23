@@ -7,9 +7,9 @@ import java.sql.ResultSet;
 public class ValueObjectMapper implements Mapper {
 
     @Override
-    public Object map(final ResultSet rs, final String name, final Class<?> type) {
+    public <T> T map(final ResultSet rs, final String name, final Class<T> type) {
         try {
-            final Object instance = type.getConstructor().newInstance();
+            final T instance = type.getConstructor().newInstance();
             final Field field = type.getDeclaredField(name);
             final Object value = TypeParser.map(rs, name, field.getType());
             field.setAccessible(true);

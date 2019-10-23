@@ -16,7 +16,7 @@ public class ResultSetMapper {
         return INSTANCE;
     }
 
-    public Object map(final ResultSet rs, final String name, final Class<?> type) {
+    public <T> T map(final ResultSet rs, final String name, final Class<T> type) {
         return mappers.stream()
                 .filter(mapper -> mapper.isMapping(type))
                 .findFirst()
