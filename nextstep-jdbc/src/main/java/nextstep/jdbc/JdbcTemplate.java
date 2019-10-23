@@ -33,7 +33,6 @@ public class JdbcTemplate {
         }
     }
 
-
     public void update(final String sql, final Object... params) {
         this.update(sql, new ArgumentPreparedStatementSetter(params));
     }
@@ -68,12 +67,12 @@ public class JdbcTemplate {
         });
     }
 
-    private <T> T execute(final String sql, final PreparedStatementSetter pss, final Lambda<T> lambda) {
+    private <T> T execute(final String sql, final PreparedStatementSetter pss, final ResultSetExtractor<T> resultSetExtractor) {
         try (final Connection con = dataSource.getConnection();
              final PreparedStatement pstmt = createPreparedStatement(con, sql, pss);
              final ResultSet rs = pstmt.executeQuery()) {
 
-            return lambda.map(rs);
+            return resultSetExtractor.extractData(rs);
         } catch (final SQLException exception) {
             logger.error(exception.toString());
             throw new DataAccessException(exception);
@@ -84,10 +83,5 @@ public class JdbcTemplate {
         final PreparedStatement pstmt = con.prepareStatement(sql);
         pss.setValues(pstmt);
         return pstmt;
-    }
-
-    // todo 이름 변경
-    interface Lambda<T> {
-        T map(final ResultSet rs) throws SQLException;
     }
 }
