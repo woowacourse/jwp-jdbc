@@ -3,19 +3,15 @@ package nextstep.jdbc;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-import java.util.Map;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 class NamedParsedSqlTest {
     private String sql = "UPDATE users SET password = :password, name = :name WHERE userId = :userId";
     private String expected = "UPDATE users SET password = ?, name = ? WHERE userId = ?";
-    private Map<String, Object> params = Map.of("userId", "id", "password", "qwe", "name", "name");
-    private NamedParsedSql namedParsedSql = new NamedParsedSql(sql, params);
+    private NamedParsedSql namedParsedSql = new NamedParsedSql(sql);
 
     @Test
-    void originSql_추출확() {
+    void originSql_추출확인() {
         final String actual = namedParsedSql.getOriginSql();
 
         assertThat(actual).isEqualTo(expected);
@@ -23,8 +19,15 @@ class NamedParsedSqlTest {
 
     @Test
     void 파라미터_순서_확인() {
-        final List<Object> expected = List.of("qwe", "name", "id");
-        final List<Object> actual = List.of(namedParsedSql.getParams());
+        assertThat(namedParsedSql.getIndexOfParam("password")).isEqualTo(1);
+        assertThat(namedParsedSql.getIndexOfParam("name")).isEqualTo(2);
+        assertThat(namedParsedSql.getIndexOfParam("userId")).isEqualTo(3);
+    }
+
+    @Test
+    void 파라미터_없는_일반쿼리_매핑_확인() {
+        final String actual = "SELECT * FROM USERS WHERE userId = 'user'";
+        final String expected = "SELECT * FROM USERS WHERE userId = 'user'";
 
         assertThat(actual).isEqualTo(expected);
     }
@@ -35,15 +38,19 @@ class NamedParsedSqlTest {
         // given
         final String inputSql = "INSERT INTO users (password, name) VALUES (:password, :password)";
         final String expectedSql = "INSERT INTO users (password, name) VALUES (?, ?)";
-        final Map<String, Object> params = Map.of("password", "pwd");
 
         // when
-        final NamedParsedSql namedParsedSql = new NamedParsedSql(inputSql, params);
+        final NamedParsedSql namedParsedSql = new NamedParsedSql(inputSql);
         final String actualSql = namedParsedSql.getOriginSql();
-        final List<Object> actualParams = List.of(namedParsedSql.getParams());
 
         // then
         assertThat(actualSql).isEqualTo(expectedSql);
-        assertThat(actualParams).hasSize(2);
+    }
+
+    @Test
+    void 동치성_테스트() {
+        final NamedParsedSql namedParsedSql = new NamedParsedSql(sql);
+
+        assertThat(namedParsedSql).isEqualTo(this.namedParsedSql);
     }
 }
