@@ -4,6 +4,7 @@ import nextstep.jdbc.exception.JdbcTemplateSqlException;
 import nextstep.jdbc.mapper.RowMapper;
 
 import javax.annotation.Nullable;
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -15,8 +16,12 @@ import java.util.List;
 public class JdbcTemplate {
     private final Connection con;
 
-    public JdbcTemplate(Connection con) {
-        this.con = con;
+    public JdbcTemplate(DataSource dataSource) {
+        try {
+            con = dataSource.getConnection();
+        } catch (SQLException e) {
+            throw new JdbcTemplateSqlException(e);
+        }
     }
 
     public void update(String sql, Object... parameters) {

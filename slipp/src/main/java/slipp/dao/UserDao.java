@@ -55,7 +55,7 @@ public class UserDao {
     }
 
     private JdbcTemplate getJdbcTemplate() {
-        return new JdbcTemplate(ConnectionManager.getConnection());
+        return new JdbcTemplate(ConnectionManager.getDataSource());
     }
 
     private static class UserDaoHolder {
