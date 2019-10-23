@@ -10,7 +10,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,9 +22,9 @@ public class JdbcTemplate {
         this.dataSource = dataSource;
     }
 
-    public void update(final String sql, final List<Object> params) {
+    public void update(final String sql, final PreparedStatementSetter pss) {
         try (final Connection con = dataSource.getConnection();
-             final PreparedStatement pstmt = createPreparedStatement(con, sql, params)) {
+             final PreparedStatement pstmt = createPreparedStatement(con, sql, pss)) {
 
             pstmt.execute();
         } catch (final SQLException exception) {
@@ -34,54 +33,61 @@ public class JdbcTemplate {
         }
     }
 
+
     public void update(final String sql, final Object... params) {
-        this.update(sql, List.of(params));
+        this.update(sql, new ArgumentPreparedStatementSetter(params));
     }
 
     public <T> Optional<T> executeForObject(final String sql, final RowMapper<T> rowMapper) {
-        return executeForObject(sql, Collections.emptyList(), rowMapper);
+//        return executeForObject(sql, Collections.emptyList(), rowMapper);
+        return null;
     }
 
-    public <T> Optional<T> executeForObject(final String sql, final List<Object> params, final RowMapper<T> rowMapper) {
-        try (final Connection con = dataSource.getConnection();
-             final PreparedStatement pstmt = createPreparedStatement(con, sql, params);
-             final ResultSet rs = pstmt.executeQuery()) {
-
+    public <T> Optional<T> executeForObject(final String sql, final PreparedStatementSetter pss, final RowMapper<T> rowMapper) {
+        return execute(sql, pss, (rs) -> {
             if (rs.next()) {
                 return Optional.of(rowMapper.mapRow(rs));
             }
             return Optional.empty();
-        } catch (final SQLException exception) {
-            logger.error(exception.toString());
-            throw new DataAccessException(exception);
-        }
+        });
     }
 
-    public <T> List<T> executeForList(final String sql, final RowMapper<T> rowMapper){
-        return executeForList(sql, Collections.emptyList(), rowMapper);
+    // todo 콜백 패턴으로 수정하기
+    public <T> List<T> executeForList(final String sql, final RowMapper<T> rowMapper) {
+//        return executeForList(sql, Collections.emptyList(), rowMapper);
+        return null;
     }
 
-    public <T> List<T> executeForList(final String sql, final List<Object> params, final RowMapper<T> rowMapper) {
-        try (final Connection con = dataSource.getConnection();
-             final PreparedStatement pstmt = createPreparedStatement(con, sql, params);
-             final ResultSet rs = pstmt.executeQuery()) {
-
+    public <T> List<T> executeForList(final String sql, final PreparedStatementSetter pss, final RowMapper<T> rowMapper) {
+        return execute(sql, pss, (rs) -> {
             final List<T> results = new ArrayList<>();
             while (rs.next()) {
                 results.add(rowMapper.mapRow(rs));
             }
             return results;
+        });
+    }
+
+    private <T> T execute(final String sql, final PreparedStatementSetter pss, final Lambda<T> lambda) {
+        try (final Connection con = dataSource.getConnection();
+             final PreparedStatement pstmt = createPreparedStatement(con, sql, pss);
+             final ResultSet rs = pstmt.executeQuery()) {
+
+            return lambda.map(rs);
         } catch (final SQLException exception) {
             logger.error(exception.toString());
             throw new DataAccessException(exception);
         }
     }
 
-    private PreparedStatement createPreparedStatement(final Connection con, final String sql, final List<Object> params) throws SQLException {
+    private PreparedStatement createPreparedStatement(final Connection con, final String sql, final PreparedStatementSetter pss) throws SQLException {
         final PreparedStatement pstmt = con.prepareStatement(sql);
-        for (int i = 0; i < params.size(); i++) {
-            pstmt.setObject(i + 1, params.get(i));
-        }
+        pss.setValues(pstmt);
         return pstmt;
+    }
+
+    // todo 이름 변경
+    interface Lambda<T> {
+        T map(final ResultSet rs) throws SQLException;
     }
 }

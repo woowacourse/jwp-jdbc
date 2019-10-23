@@ -1,7 +1,5 @@
 package nextstep.jdbc;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -27,7 +25,7 @@ public class NamedParsedSql {
         return originSql;
     }
 
-    List<Object> getParams() {
-        return new ArrayList<>(params.values());
+    Object[] getParams() {
+        return params.values().toArray();
     }
 }

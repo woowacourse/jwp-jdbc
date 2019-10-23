@@ -1,9 +1,6 @@
 package slipp.dao;
 
-import nextstep.jdbc.JdbcTemplate;
-import nextstep.jdbc.NamedParameterJdbcTemplate;
-import nextstep.jdbc.PropertyRowMapper;
-import nextstep.jdbc.RowMapper;
+import nextstep.jdbc.*;
 import slipp.domain.User;
 import slipp.exception.UserNotFoundException;
 import slipp.support.db.DataSource;
@@ -30,8 +27,12 @@ public class UserDao {
 
     public void insert(final User user) {
         final String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
-        final List<Object> params = List.of(user.getUserId(), user.getPassword(), user.getName(), user.getEmail());
-        jdbcTemplate.update(sql, params);
+        final PreparedStatementSetter pss = new ArgumentPreparedStatementSetter(
+                                                                        user.getUserId(),
+                                                                        user.getPassword(),
+                                                                        user.getName(),
+                                                                        user.getEmail());
+        jdbcTemplate.update(sql, pss);
     }
 
     public void update(User user) {
