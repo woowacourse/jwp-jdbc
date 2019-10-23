@@ -8,6 +8,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import javax.sql.DataSource;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -17,6 +18,20 @@ class JdbcTemplateTest {
 
     JdbcTemplateTest() {
         DataBaseInitializer.init(dataSource);
+    }
+
+
+    @Test
+    @DisplayName("파라미터 없이 sql으로만 조회하는 경우")
+    void executeForObject() {
+        // given
+        final String sql = "SELECT * FROM users WHERE userId = 'admin'";
+
+        // when
+        final Optional<User> user = jdbcTemplate.executeForObject(sql, PropertyRowMapper.from(User.class));
+
+        // then
+        assertThat(user.isPresent()).isTrue();
     }
 
     @Test

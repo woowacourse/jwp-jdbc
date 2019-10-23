@@ -22,15 +22,11 @@ public class JdbcTemplate {
         this.dataSource = dataSource;
     }
 
-    public void update(final String sql, final PreparedStatementSetter pss) {
-        try (final Connection con = dataSource.getConnection();
-             final PreparedStatement pstmt = createPreparedStatement(con, sql, pss)) {
-
-            pstmt.execute();
-        } catch (final SQLException exception) {
-            logger.error(exception.toString());
-            throw new DataAccessException(exception);
-        }
+    public int update(final String sql, final PreparedStatementSetter pss) {
+        return execute(sql, pstmt -> {
+            pss.setValues(pstmt);
+            return pstmt.executeUpdate();
+        });
     }
 
     public void update(final String sql, final Object... params) {
@@ -38,12 +34,16 @@ public class JdbcTemplate {
     }
 
     public <T> Optional<T> executeForObject(final String sql, final RowMapper<T> rowMapper) {
-//        return executeForObject(sql, Collections.emptyList(), rowMapper);
-        return null;
+        return executeForObject(sql, null, rowMapper);
     }
 
     public <T> Optional<T> executeForObject(final String sql, final PreparedStatementSetter pss, final RowMapper<T> rowMapper) {
-        return execute(sql, pss, (rs) -> {
+        // ResultSet은 Connection or Statement가 close될 때 자동으로 close 된다.
+        return execute(sql, (pstmt) -> {
+            if (pss != null) {
+                pss.setValues(pstmt);
+            }
+            final ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
                 return Optional.of(rowMapper.mapRow(rs));
             }
@@ -51,14 +51,16 @@ public class JdbcTemplate {
         });
     }
 
-    // todo 콜백 패턴으로 수정하기
     public <T> List<T> executeForList(final String sql, final RowMapper<T> rowMapper) {
-//        return executeForList(sql, Collections.emptyList(), rowMapper);
-        return null;
+        return executeForList(sql, null, rowMapper);
     }
 
     public <T> List<T> executeForList(final String sql, final PreparedStatementSetter pss, final RowMapper<T> rowMapper) {
-        return execute(sql, pss, (rs) -> {
+        return execute(sql, pstmt -> {
+            if (pss != null) {
+                pss.setValues(pstmt);
+            }
+            final ResultSet rs = pstmt.executeQuery();
             final List<T> results = new ArrayList<>();
             while (rs.next()) {
                 results.add(rowMapper.mapRow(rs));
@@ -67,21 +69,13 @@ public class JdbcTemplate {
         });
     }
 
-    private <T> T execute(final String sql, final PreparedStatementSetter pss, final ResultSetExtractor<T> resultSetExtractor) {
+    private <T> T execute(final String sql, final PreparedStatementCallback<T> action) {
         try (final Connection con = dataSource.getConnection();
-             final PreparedStatement pstmt = createPreparedStatement(con, sql, pss);
-             final ResultSet rs = pstmt.executeQuery()) {
-
-            return resultSetExtractor.extractData(rs);
+             final PreparedStatement pstmt = con.prepareStatement(sql)) {
+            return action.doInPreparedStatement(pstmt);
         } catch (final SQLException exception) {
             logger.error(exception.toString());
             throw new DataAccessException(exception);
         }
-    }
-
-    private PreparedStatement createPreparedStatement(final Connection con, final String sql, final PreparedStatementSetter pss) throws SQLException {
-        final PreparedStatement pstmt = con.prepareStatement(sql);
-        pss.setValues(pstmt);
-        return pstmt;
     }
 }
