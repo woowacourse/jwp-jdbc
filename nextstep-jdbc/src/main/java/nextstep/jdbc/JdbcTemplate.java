@@ -1,5 +1,8 @@
 package nextstep.jdbc;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -8,11 +11,17 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class JdbcTemplate {
-    private final DataSource dataSource;
+public class JdbcTemplate implements AutoCloseable {
+    private static final Logger log = LoggerFactory.getLogger(JdbcTemplate.class);
+
+    private Connection connection;
 
     public JdbcTemplate(DataSource dataSource) {
-        this.dataSource = dataSource;
+        try {
+            this.connection = dataSource.getConnection();
+        } catch (SQLException e) {
+            log.error("커넥션 실패! : {}", e.getMessage());
+        }
     }
 
     public void insert(String query, Object... params) {
@@ -43,8 +52,7 @@ public class JdbcTemplate {
     }
 
     private ResultSet getResultSet(String query, Object... params) throws SQLException {
-        final Connection con = this.dataSource.getConnection();
-        final PreparedStatement pstmt = prepareStatement(con, query, params);
+        final PreparedStatement pstmt = prepareStatement(query, params);
         return pstmt.executeQuery();
     }
 
@@ -61,8 +69,7 @@ public class JdbcTemplate {
     }
 
     private void cxud(String query, Object... params) {
-        try (final Connection con = dataSource.getConnection();
-             final PreparedStatement pstmt = prepareStatement(con, query, params)) {
+        try (final PreparedStatement pstmt = prepareStatement(query, params)) {
             pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new QueryFailedException(e);
@@ -70,12 +77,21 @@ public class JdbcTemplate {
     }
 
     private PreparedStatement prepareStatement(
-            Connection con, String query, Object... params
+            String query, Object... params
     ) throws SQLException {
-        final PreparedStatement pstmt = con.prepareStatement(query);
+        final PreparedStatement pstmt = connection.prepareStatement(query);
         for (int i = 0; i < params.length; i++) {
             pstmt.setObject(i + 1, params[i]);
         }
         return pstmt;
+    }
+
+    @Override
+    public void close() {
+        try {
+            connection.close();
+        } catch (SQLException e) {
+            log.error("클로즈 실패! : {}", e.getMessage());
+        }
     }
 }
