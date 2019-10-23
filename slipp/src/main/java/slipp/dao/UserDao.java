@@ -9,7 +9,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 public class UserDao {
-    private final JdbcTemplate jdbcTemplate = new JdbcTemplate(new ConnectionManager("testdb.properties").getDataSource());
+    private final JdbcTemplate jdbcTemplate = new JdbcTemplate(new ConnectionManager("testdb.properties"));
 
     public void insert(User user) {
         String insertSql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";

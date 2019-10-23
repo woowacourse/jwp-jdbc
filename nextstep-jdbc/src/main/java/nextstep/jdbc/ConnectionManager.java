@@ -9,10 +9,12 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 public class ConnectionManager {
-    private final Properties properties;
+    private Properties properties;
+    private final DataSource ds;
 
     public ConnectionManager(String resource) {
         this.properties = loadProperties(resource);
+        this.ds = getDataSource();
     }
 
     private Properties loadProperties(String resource) {
@@ -36,7 +38,7 @@ public class ConnectionManager {
 
     public Connection getConnection() {
         try {
-            return getDataSource().getConnection();
+            return ds.getConnection();
         } catch (SQLException e) {
             throw new IllegalStateException(e);
         }
