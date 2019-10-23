@@ -42,12 +42,7 @@ public class UserDao {
     public List<User> findAll() {
         JdbcTemplate jdbcTemplate = getJdbcTemplate();
 
-        return jdbcTemplate.executeForList(SELECT_USERS_SQL,
-                resultSet -> new User(
-                        resultSet.getString("userId"),
-                        resultSet.getString("password"),
-                        resultSet.getString("name"),
-                        resultSet.getString("email")));
+        return jdbcTemplate.executeForList(SELECT_USERS_SQL, mapperRegistry.getMapper(User.class));
 
     }
 
@@ -55,11 +50,7 @@ public class UserDao {
         JdbcTemplate jdbcTemplate = getJdbcTemplate();
 
         return jdbcTemplate.executeForObject(SELECT_USER_SQL,
-                resultSet -> new User(
-                        resultSet.getString("userId"),
-                        resultSet.getString("password"),
-                        resultSet.getString("name"),
-                        resultSet.getString("email")),
+                mapperRegistry.getMapper(User.class),
                 userId);
     }
 

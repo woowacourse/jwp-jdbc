@@ -1,27 +1,19 @@
 package slipp.mapper;
 
-import nextstep.jdbc.mapper.ListMapper;
-import nextstep.jdbc.mapper.ObjectMapper;
+import nextstep.jdbc.mapper.RowMapper;
 import slipp.domain.User;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class MapperRegistry {
-    private static Map<Class<?>, ObjectMapper> objectMappers = new HashMap<>();
-    private static Map<Class<?>, ListMapper> listMappers = new HashMap<>();
+    private static Map<Class<?>, RowMapper> mappers = new HashMap<>();
 
     static {
-        final UserMapper userMapper = new UserMapper();
-        objectMappers.put(User.class, new ObjectMapper(userMapper));
-        listMappers.put(User.class, new ListMapper(userMapper));
+        mappers.put(User.class, new UserMapper());
     }
 
-    public <T> ListMapper<T> getListMapper(Class<T> type) {
-        return listMappers.get(type);
-    }
-
-    public <T> ObjectMapper<T> getObjectMapper(Class<T> type) {
-        return objectMappers.get(type);
+    public <T> RowMapper<T> getMapper(Class<T> type) {
+        return mappers.get(type);
     }
 }
