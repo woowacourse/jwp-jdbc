@@ -1,8 +1,8 @@
 package slipp.dao;
 
-import slipp.mapper.MapperRegistry;
 import nextstep.jdbc.template.JdbcTemplate;
 import slipp.domain.User;
+import slipp.mapper.MapperRegistry;
 import slipp.support.db.ConnectionManager;
 
 import java.util.List;
@@ -42,15 +42,24 @@ public class UserDao {
     public List<User> findAll() {
         JdbcTemplate jdbcTemplate = getJdbcTemplate();
 
-        return jdbcTemplate.execute(SELECT_USERS_SQL,
-                mapperRegistry.getListMapper(User.class));
+        return jdbcTemplate.executeForList(SELECT_USERS_SQL,
+                resultSet -> new User(
+                        resultSet.getString("userId"),
+                        resultSet.getString("password"),
+                        resultSet.getString("name"),
+                        resultSet.getString("email")));
+
     }
 
     public User findByUserId(String userId) {
         JdbcTemplate jdbcTemplate = getJdbcTemplate();
 
-        return jdbcTemplate.execute(SELECT_USER_SQL,
-                mapperRegistry.getObjectMapper(User.class),
+        return jdbcTemplate.executeForObject(SELECT_USER_SQL,
+                resultSet -> new User(
+                        resultSet.getString("userId"),
+                        resultSet.getString("password"),
+                        resultSet.getString("name"),
+                        resultSet.getString("email")),
                 userId);
     }
 
