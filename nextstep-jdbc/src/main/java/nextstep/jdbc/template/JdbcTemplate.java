@@ -1,31 +1,33 @@
 package nextstep.jdbc.template;
 
+import nextstep.jdbc.db.ConnectionManager;
 import nextstep.jdbc.exception.DatabaseAccessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
-public class JdbcTemplate<T> {
+public class JdbcTemplate {
     private static final int START_SET_VALUE_INDEX = 1;
     private final Logger logger = LoggerFactory.getLogger(JdbcTemplate.class);
 
-    private final JdbcExecutor jdbcExecutor;
-
-    public JdbcTemplate() {
-        this.jdbcExecutor = new JdbcExecutor();
-    }
-
     public int save(String sql, Object... objects) {
-        return jdbcExecutor.execute(sql, pstmt -> executeUpdate(pstmt, objects));
+        return execute(sql, PreparedStatement::executeUpdate, objects);
     }
 
-    private int executeUpdate(PreparedStatement pstmt, Object[] objects) throws SQLException {
-        setValues(pstmt, objects);
-        return pstmt.executeUpdate();
+    private <T> T execute(String sql, PreparedStatementHandler<T> handler, Object... objects) {
+        try (Connection con = ConnectionManager.getConnection();
+             PreparedStatement pstmt = con.prepareStatement(sql)) {
+            setValues(pstmt, objects);
+            return handler.handle(pstmt);
+        } catch (SQLException e) {
+            logger.error(e.getMessage(), e);
+            throw new DatabaseAccessException(e);
+        }
     }
 
     private void setValues(PreparedStatement pstmt, Object[] objects) {
@@ -43,21 +45,11 @@ public class JdbcTemplate<T> {
         }
     }
 
-    public List<T> query(String sql, RowMapper<T> rowMapper, Object... objects) {
-        return jdbcExecutor.execute(sql, pstmt -> executeQuery(rowMapper, pstmt, objects));
+    public <T> List<T> query(String sql, RowMapper<T> rowMapper, Object... objects) {
+        return execute(sql, pstmt -> ResultSetHelper.getData(rowMapper, pstmt), objects);
     }
 
-    private List<T> executeQuery(RowMapper<T> rowMapper, PreparedStatement pstmt, Object[] objects) {
-        setValues(pstmt, objects);
-        return ResultSetHelper.getData(rowMapper, pstmt);
-    }
-
-    public Optional<T> queryForObject(String sql, RowMapper<T> rowMapper, Object... objects) {
-        return jdbcExecutor.execute(sql, pstmt -> executeQueryForObject(rowMapper, pstmt, objects));
-    }
-
-    private Optional<T> executeQueryForObject(RowMapper<T> rowMapper, PreparedStatement pstmt, Object[] objects) {
-        setValues(pstmt, objects);
-        return Optional.ofNullable(ResultSetHelper.getData(rowMapper, pstmt).get(0));
+    public <T> Optional<T> queryForObject(String sql, RowMapper<T> rowMapper, Object... objects) {
+        return Optional.ofNullable(query(sql, rowMapper, objects).get(0));
     }
 }
