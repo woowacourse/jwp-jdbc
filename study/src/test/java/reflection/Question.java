@@ -65,7 +65,7 @@ public class Question {
     @Override
     public String toString() {
         return "Question [questionId=" + questionId + ", writer=" + writer + ", title=" + title + ", contents="
-                + contents + ", createdDate=" + createdDate + ", countOfComment=" + countOfComment + "]";
+            + contents + ", createdDate=" + createdDate + ", countOfComment=" + countOfComment + "]";
     }
 
     @Override

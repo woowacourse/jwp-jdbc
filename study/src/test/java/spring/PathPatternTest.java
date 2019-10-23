@@ -20,11 +20,11 @@ public class PathPatternTest {
     @Test
     void matchAndExtract() {
         Map<String, String> variables = parse("/users/{id}")
-                .matchAndExtract(toPathContainer("/users/1")).getUriVariables();
+            .matchAndExtract(toPathContainer("/users/1")).getUriVariables();
         assertThat(variables.get("id")).isEqualTo("1");
 
         variables = parse("/{var1}/{var2}")
-                .matchAndExtract(toPathContainer("/foo/bar")).getUriVariables();
+            .matchAndExtract(toPathContainer("/foo/bar")).getUriVariables();
         assertThat(variables.get("var1")).isEqualTo("foo");
         assertThat(variables.get("var2")).isEqualTo("bar");
     }
