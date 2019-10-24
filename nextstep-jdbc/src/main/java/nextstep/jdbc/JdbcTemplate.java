@@ -18,7 +18,7 @@ public class JdbcTemplate {
             }
             return result;
         } catch (Exception e) {
-            throw new SelectQueryFailException();
+            throw new SelectQueryFailException(e);
         }
     }
 
@@ -32,7 +32,7 @@ public class JdbcTemplate {
             }
             return result;
         } catch (Exception e) {
-            throw new SelectQueryFailException();
+            throw new SelectQueryFailException(e);
         }
     }
 
@@ -45,7 +45,7 @@ public class JdbcTemplate {
             }
             throw new SelectObjectNotFoundException();
         } catch (Exception e) {
-            throw new SelectQueryFailException();
+            throw new SelectQueryFailException(e);
         }
     }
 
@@ -58,7 +58,7 @@ public class JdbcTemplate {
             }
             throw new SelectObjectNotFoundException();
         } catch (Exception e) {
-            throw new SelectQueryFailException();
+            throw new SelectQueryFailException(e);
         }
     }
 
@@ -68,7 +68,7 @@ public class JdbcTemplate {
             pstmtSetter.setValues(pstmt);
             pstmt.executeUpdate();
         } catch (Exception e) {
-            throw new UpdateQueryFailException();
+            throw new UpdateQueryFailException(e);
         }
     }
 
@@ -77,7 +77,7 @@ public class JdbcTemplate {
              PreparedStatement pstmt = setValues(con.prepareStatement(sql), params)) {
             pstmt.executeUpdate();
         } catch (Exception e) {
-            throw new UpdateQueryFailException();
+            throw new UpdateQueryFailException(e);
         }
     }
 
