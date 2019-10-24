@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class JdbcTemplate {
-    public <T> List<T> selectTemplate(String sql, RowMapper2<T> rowMapper, Object... params) {
+    public <T> List<T> selectTemplate(String sql, RowMapper<T> rowMapper, Object... params) {
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = setValues(con.prepareStatement(sql), params);
              ResultSet rs = pstmt.executeQuery()) {
@@ -22,7 +22,7 @@ public class JdbcTemplate {
         }
     }
 
-    public <T> List<T> selectTemplate(String sql, PreparedStatementSetter pstmtSetter, RowMapper2<T> rowMapper) {
+    public <T> List<T> selectTemplate(String sql, PreparedStatementSetter pstmtSetter, RowMapper<T> rowMapper) {
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = setValues(con.prepareStatement(sql), pstmtSetter);
              ResultSet rs = pstmt.executeQuery()) {
@@ -36,7 +36,7 @@ public class JdbcTemplate {
         }
     }
 
-    public <T> T selectObjectTemplate(String sql, PreparedStatementSetter pstmtSetter, RowMapper2<T> rowMapper) {
+    public <T> T selectObjectTemplate(String sql, PreparedStatementSetter pstmtSetter, RowMapper<T> rowMapper) {
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = setValues(con.prepareStatement(sql), pstmtSetter);
              ResultSet rs = pstmt.executeQuery()) {
@@ -49,7 +49,7 @@ public class JdbcTemplate {
         }
     }
 
-    public <T> T selectObjectTemplate(String sql, RowMapper2<T> rowMapper, Object... params) {
+    public <T> T selectObjectTemplate(String sql, RowMapper<T> rowMapper, Object... params) {
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = setValues(con.prepareStatement(sql), params);
              ResultSet rs = pstmt.executeQuery()) {
