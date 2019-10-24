@@ -2,11 +2,11 @@ package slipp.dao;
 
 import java.util.List;
 
+import nextstep.jdbc.ConnectionManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import slipp.domain.User;
 import slipp.dto.UserUpdatedDto;
-import nextstep.jdbc.ConnectionManager;
 
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
@@ -14,7 +14,7 @@ import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class UserDaoTest {
+public class UserDaoTest2 {
     @BeforeEach
     public void setup() {
         ConnectionManager.initialize("org.h2.Driver", "jdbc:h2:mem:jwp-framework",
@@ -27,7 +27,7 @@ public class UserDaoTest {
     @Test
     public void crud() {
         User expected = new User("userId", "password", "name", "javajigi@email.com");
-        UserDao userDao = new UserDao();
+        UserDao2 userDao = new UserDao2();
         userDao.insert(expected);
         User actual = userDao.findByUserId(expected.getUserId());
         assertThat(actual).isEqualTo(expected);
@@ -40,7 +40,7 @@ public class UserDaoTest {
 
     @Test
     public void findAll() {
-        UserDao userDao = new UserDao();
+        UserDao2 userDao = new UserDao2();
         List<User> users = userDao.findAll();
         assertThat(users).hasSize(1);
     }
