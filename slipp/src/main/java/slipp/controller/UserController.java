@@ -20,10 +20,10 @@ public class UserController {
     @RequestMapping(value = "/users/create", method = RequestMethod.POST)
     public ModelAndView create(HttpServletRequest req, HttpServletResponse resp) throws Exception {
         User user = new User(
-                req.getParameter("userId"),
-                req.getParameter("password"),
-                req.getParameter("name"),
-                req.getParameter("email"));
+            req.getParameter("userId"),
+            req.getParameter("password"),
+            req.getParameter("name"),
+            req.getParameter("email"));
         logger.debug("User : {}", user);
         DataBase.addUser(user);
         return redirect("/");
@@ -31,7 +31,7 @@ public class UserController {
 
     private ModelAndView redirect(String path) {
         return new ModelAndView(new JspView(
-                JspView.DEFAULT_REDIRECT_PREFIX + path));
+            JspView.DEFAULT_REDIRECT_PREFIX + path));
     }
 
     @RequestMapping(value = "/users", method = RequestMethod.GET)
