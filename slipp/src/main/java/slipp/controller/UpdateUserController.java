@@ -1,5 +1,7 @@
 package slipp.controller;
 
+import slipp.dao.JdbcUserDao;
+import slipp.dao.UserDao;
 import slipp.domain.User;
 import slipp.dto.UserUpdatedDto;
 import slipp.support.db.DataBase;
@@ -12,10 +14,11 @@ import javax.servlet.http.HttpServletResponse;
 
 public class UpdateUserController implements Controller {
     private static final Logger log = LoggerFactory.getLogger(UpdateUserController.class);
+    private static final UserDao USER_DAO = new JdbcUserDao();
 
     @Override
     public String execute(HttpServletRequest req, HttpServletResponse resp) throws Exception {
-        User user = DataBase.findUserById(req.getParameter("userId"));
+        User user = USER_DAO.findByUserId(req.getParameter("userId")).get();
         if (!UserSessionUtils.isSameUser(req.getSession(), user)) {
             throw new IllegalStateException("다른 사용자의 정보를 수정할 수 없습니다.");
         }
@@ -26,6 +29,8 @@ public class UpdateUserController implements Controller {
                 req.getParameter("email"));
         log.debug("Update User : {}", updateUser);
         user.update(updateUser);
+
+        USER_DAO.update(user);
         return "redirect:/";
     }
 }
