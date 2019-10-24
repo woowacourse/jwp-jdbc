@@ -9,13 +9,7 @@ import java.util.List;
 
 public class JdbcTemplate {
     public <T> List<T> selectTemplate(String sql, RowMapper<T> rowMapper, Object... params) {
-        try (Connection con = ConnectionManager.getConnection();
-             PreparedStatement pstmt = setValues(con.prepareStatement(sql), params);
-             ResultSet rs = pstmt.executeQuery()) {
-            return getRows(rowMapper, rs);
-        } catch (Exception e) {
-            throw new SelectQueryFailException(e);
-        }
+        return selectTemplate(sql, (pstmt) -> setValues(pstmt, params), rowMapper);
     }
 
     public <T> List<T> selectTemplate(String sql, PreparedStatementSetter pstmtSetter, RowMapper<T> rowMapper) {
@@ -28,6 +22,10 @@ public class JdbcTemplate {
         }
     }
 
+    public <T> T selectObjectTemplate(String sql, RowMapper<T> rowMapper, Object... params) {
+        return selectObjectTemplate(sql, (pstmt) -> setValues(pstmt, params), rowMapper);
+    }
+
     public <T> T selectObjectTemplate(String sql, PreparedStatementSetter pstmtSetter, RowMapper<T> rowMapper) {
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = setValues(con.prepareStatement(sql), pstmtSetter);
@@ -38,29 +36,14 @@ public class JdbcTemplate {
         }
     }
 
-    public <T> T selectObjectTemplate(String sql, RowMapper<T> rowMapper, Object... params) {
-        try (Connection con = ConnectionManager.getConnection();
-             PreparedStatement pstmt = setValues(con.prepareStatement(sql), params);
-             ResultSet rs = pstmt.executeQuery()) {
-            return getObject(rowMapper, rs);
-        } catch (Exception e) {
-            throw new SelectQueryFailException(e);
-        }
+    public void updateTemplate(String sql, Object... params) {
+        updateTemplate(sql, (pstmt) -> setValues(pstmt, params));
     }
 
     public void updateTemplate(String sql, PreparedStatementSetter pstmtSetter) {
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
             pstmtSetter.setValues(pstmt);
-            pstmt.executeUpdate();
-        } catch (Exception e) {
-            throw new UpdateQueryFailException(e);
-        }
-    }
-
-    public void updateTemplate(String sql, Object... params) {
-        try (Connection con = ConnectionManager.getConnection();
-             PreparedStatement pstmt = setValues(con.prepareStatement(sql), params)) {
             pstmt.executeUpdate();
         } catch (Exception e) {
             throw new UpdateQueryFailException(e);
