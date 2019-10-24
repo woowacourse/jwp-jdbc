@@ -27,22 +27,22 @@ public class DBConnection {
         Properties properties = new Properties();
         try {
             properties.load(in);
+
+            driver = properties.getProperty("jdbc.driverClass");
+            url = properties.getProperty("jdbc.url");
+            userName = properties.getProperty("jdbc.username");
+            password = properties.getProperty("jdbc.password");
         } catch (IOException e) {
             log.debug(e.getMessage());
             throw new PropertiesLoadException(e);
         }
-
-        driver = properties.getProperty("jdbc.driverClass");
-        url = properties.getProperty("jdbc.url");
-        userName = properties.getProperty("jdbc.username");
-        password = properties.getProperty("jdbc.password");
     }
 
-    public static DBConnection getConnection(String driver, String url, String userName, String password) {
+    public static DBConnection getH2Connection(String driver, String url, String userName, String password) {
         return new DBConnection(driver, url, userName, password);
     }
 
-    public static DBConnection getConnection2() {
+    public static DBConnection getMysqlConnection() {
         return new DBConnection();
     }
 

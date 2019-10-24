@@ -25,10 +25,11 @@ class DBConnectionTest {
         assertThat(properties.getProperty("jdbc.url")).isEqualTo("jdbc:mysql://localhost:13306/jwp_jdbc?useUnicode=true&characterEncoding=utf8");
         assertThat(properties.getProperty("jdbc.driverClass")).isEqualTo("com.mysql.cj.jdbc.Driver");
         assertThat(properties.getProperty("jdbc.username")).isEqualTo("yh");
+        assertThat(properties.getProperty("jdbc.username")).isEqualTo(DBConnection.getMysqlConnection().getUserName());
     }
 
     @Test
     void db_connection_test() {
-        assertThat(DBConnection.getConnection2()).isNotNull();
+        assertThat(DBConnection.getMysqlConnection()).isNotNull();
     }
 }
