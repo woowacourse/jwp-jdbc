@@ -14,30 +14,46 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class UserDaoTest {
+    private static final String EXSISTED_USER_ID = "admin";
+    private final UserDao userDao = UserDao.getInstance();
+
     @BeforeEach
-    public void setup() {
+    void setup() {
         ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
         populator.addScript(new ClassPathResource("jwp.sql"));
         DatabasePopulatorUtils.execute(populator, ConnectionManager.getDataSource());
     }
 
     @Test
-    public void crud() throws Exception {
-        User expected = new User("userId", "password", "name", "javajigi@email.com");
-        UserDao userDao = new UserDao();
-        userDao.insert(expected);
-        User actual = userDao.findByUserId(expected.getUserId());
-        assertThat(actual).isEqualTo(expected);
-
-        expected.update(new UserUpdatedDto("password2", "name2", "sanjigi@email.com"));
-        userDao.update(expected);
-        actual = userDao.findByUserId(expected.getUserId());
-        assertThat(actual).isEqualTo(expected);
+    void find() {
+        assertThat(userDao.findByUserId(EXSISTED_USER_ID)).isNotNull();
     }
 
     @Test
-    public void findAll() throws Exception {
-        UserDao userDao = new UserDao();
+    void find_fail() {
+        assertThat(userDao.findByUserId("admin2")).isNull();
+    }
+
+    @Test
+    void create() {
+        User expected = new User("userId", "password", "name", "javajigi@email.com");
+        userDao.insert(expected);
+
+        assertThat(userDao.findByUserId(expected.getUserId())).isEqualTo(expected);
+    }
+
+    @Test
+    void update() {
+        User expected = new User("userId", "password", "name", "javajigi@email.com");
+        userDao.insert(expected);
+
+        expected.update(new UserUpdatedDto("password2", "name2", "sanjigi@email.com"));
+        userDao.update(expected);
+        assertThat(userDao.findByUserId(expected.getUserId())).isEqualTo(expected);
+    }
+
+    @Test
+    void findAll() throws Exception {
         List<User> users = userDao.findAll();
         assertThat(users).hasSize(1);
     }
