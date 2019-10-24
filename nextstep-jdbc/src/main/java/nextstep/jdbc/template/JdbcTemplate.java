@@ -36,7 +36,7 @@ public class JdbcTemplate {
 
     private void setString(PreparedStatement pstmt, Object object, int index) {
         try {
-            pstmt.setObject(index, String.valueOf(object));
+            pstmt.setObject(index, object);
         } catch (SQLException e) {
             logger.error(e.getMessage(), e);
             throw new DatabaseAccessException(e);
@@ -62,9 +62,6 @@ public class JdbcTemplate {
     }
 
     private <T> Optional<T> maybeObject(List<T> list) {
-        if (list.size() == 0) {
-            return Optional.empty();
-        }
-        return Optional.of(list.get(0));
+        return list.stream().findFirst();
     }
 }
