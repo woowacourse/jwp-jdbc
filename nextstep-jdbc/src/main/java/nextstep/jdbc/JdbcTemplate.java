@@ -12,11 +12,7 @@ public class JdbcTemplate {
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = setValues(con.prepareStatement(sql), params);
              ResultSet rs = pstmt.executeQuery()) {
-            List<T> result = new ArrayList<>();
-            while (rs.next()) {
-              result.add(rowMapper.mapRow(rs));
-            }
-            return result;
+            return getRows(rowMapper, rs);
         } catch (Exception e) {
             throw new SelectQueryFailException(e);
         }
@@ -26,11 +22,7 @@ public class JdbcTemplate {
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = setValues(con.prepareStatement(sql), pstmtSetter);
              ResultSet rs = pstmt.executeQuery()) {
-            List<T> result = new ArrayList<>();
-            while (rs.next()) {
-                result.add(rowMapper.mapRow(rs));
-            }
-            return result;
+            return getRows(rowMapper, rs);
         } catch (Exception e) {
             throw new SelectQueryFailException(e);
         }
@@ -40,10 +32,7 @@ public class JdbcTemplate {
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = setValues(con.prepareStatement(sql), pstmtSetter);
              ResultSet rs = pstmt.executeQuery()) {
-            if (rs.next()) {
-                return rowMapper.mapRow(rs);
-            }
-            throw new SelectObjectNotFoundException();
+            return getObject(rowMapper, rs);
         } catch (Exception e) {
             throw new SelectQueryFailException(e);
         }
@@ -53,10 +42,7 @@ public class JdbcTemplate {
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = setValues(con.prepareStatement(sql), params);
              ResultSet rs = pstmt.executeQuery()) {
-            if (rs.next()) {
-                return rowMapper.mapRow(rs);
-            }
-            throw new SelectObjectNotFoundException();
+            return getObject(rowMapper, rs);
         } catch (Exception e) {
             throw new SelectQueryFailException(e);
         }
@@ -91,5 +77,20 @@ public class JdbcTemplate {
     private PreparedStatement setValues(PreparedStatement pstmt, PreparedStatementSetter pstmtSetter) throws SQLException {
         pstmtSetter.setValues(pstmt);
         return pstmt;
+    }
+
+    private <T> List<T> getRows(RowMapper<T> rowMapper, ResultSet rs) throws SQLException {
+        List<T> result = new ArrayList<>();
+        while (rs.next()) {
+            result.add(rowMapper.mapRow(rs));
+        }
+        return result;
+    }
+
+    private <T> T getObject(RowMapper<T> rowMapper, ResultSet rs) throws SQLException {
+        if (rs.next()) {
+            return rowMapper.mapRow(rs);
+        }
+        throw new SelectObjectNotFoundException();
     }
 }
