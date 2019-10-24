@@ -40,8 +40,9 @@ public enum PrimitiveTypeParser {
     }
 
     public static <T> T map(final ResultSet resultSet, final String name, final Class<T> type) {
-        //todo 여기엔 직접 캐스팅 하는 방법 말고는 방법이 없는건가?
-        return (T) map.get(type).template(resultSet, name);
+        @SuppressWarnings("unckecked") // type을 확인하고 사용하기 때문에 안전성이 보장된다.
+        final T template = (T) map.get(type).template(resultSet, name);
+        return template;
     }
 
     public static boolean isMapping(final Class<?> type) {
