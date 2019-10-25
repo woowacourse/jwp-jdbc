@@ -55,7 +55,7 @@ public class JdbcTemplate {
                 objects.add(rowMapper.mapRow(resultSet));
             }
         } catch (SQLException e) {
-            throw new SelectQueryException();
+            throw new SelectQueryException(e);
         }
         return objects;
     }
