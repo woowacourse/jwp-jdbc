@@ -134,3 +134,21 @@ CREATE TABLE `survey_results_public` (
 
 ALTER TABLE survey_results_public
 ADD INDEX `hobby` (`Student` ASC, `Hobby` ASC) VISIBLE;
+
+-- new table
+CREATE TABLE IF NOT EXISTS `jwp_jdbc`.`new_table` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `DevType` VARCHAR(45) NOT NULL,
+  `YearsCodingProf` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`id`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8;
+
+INSERT INTO new_table (DevType, YearsCodingProf)
+SELECT substring_index(substring_index(DevType, ';', sequence.seq_num), ';', -1),
+        substring_index(substring_index(YearsCodingProf, ' ', 1), '-', 1)
+FROM survey_results_public
+JOIN SEQUENCE_OF_JOB as sequence
+ON sequence.seq_num <= CHAR_LENGTH(DevType) - CHAR_LENGTH(REPLACE(DevType, ';', '')) + 1;
+
+DROP TABLE IF EXISTS `jwp_jdbc`.`new_table`;
