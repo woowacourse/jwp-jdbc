@@ -22,7 +22,9 @@ public class JdbcProxyTemplate {
     public void execute(String sql, Object... objects) {
         Connection con = connectionManager.getConnection();
         try {
+            con.setAutoCommit(false);
             template.execute(con, sql, objects);
+            con.commit();
         } catch (SQLException e) {
             rollback(con);
             log.debug("executeUpdate Exception! {}, {}", e.getMessage(), e.getCause());
