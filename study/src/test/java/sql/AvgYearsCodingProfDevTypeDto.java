@@ -1,4 +1,4 @@
-package db;
+package sql;
 
 public class AvgYearsCodingProfDevTypeDto implements Comparable<AvgYearsCodingProfDevTypeDto> {
     private final String devType;

@@ -1,4 +1,4 @@
-package db;
+package sql;
 
 public class RespondentHobbyDto {
     private final long respondentId;

@@ -1,4 +1,4 @@
-package db;
+package sql;
 
 import nextstep.jdbc.JdbcTemplate;
 import org.junit.jupiter.api.AfterEach;
@@ -13,7 +13,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTimeout;
