@@ -7,10 +7,19 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 public class ConnectionManager {
-    private static final String DB_DRIVER = "org.h2.Driver";
-    private static final String DB_URL = "jdbc:h2:mem:jwp-framework";
-    private static final String DB_USERNAME = "sa";
-    private static final String DB_PW = "";
+    private static String DB_DRIVER;
+    private static String DB_URL;
+    private static String DB_USERNAME;
+    private static String DB_PW;
+
+    static {
+        final DBConnection dbConnection = new DBConnection();
+
+        DB_DRIVER = dbConnection.getDbDriver();
+        DB_URL = dbConnection.getDbUrl();
+        DB_USERNAME = dbConnection.getDbUsername();
+        DB_PW = dbConnection.getDbPw();
+    }
 
     public static DataSource getDataSource() {
         BasicDataSource ds = new BasicDataSource();
