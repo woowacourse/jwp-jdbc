@@ -4,4 +4,6 @@ dependencies {
 
     api("com.fasterxml.jackson.core:jackson-databind:2.9.9.1")
     implementation("org.apache.ant:ant:1.10.6")
+    implementation("mysql:mysql-connector-java:8.0.16")
+
 }
