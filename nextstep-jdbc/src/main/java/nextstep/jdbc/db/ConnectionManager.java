@@ -1,5 +1,7 @@
 package nextstep.jdbc.db;
 
+import nextstep.jdbc.exception.DatabaseAccessException;
+
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -15,7 +17,7 @@ public class ConnectionManager {
         try {
             return dataSource.getConnection();
         } catch (SQLException e) {
-            throw new IllegalStateException(e);
+            throw new DatabaseAccessException(e);
         }
     }
 
