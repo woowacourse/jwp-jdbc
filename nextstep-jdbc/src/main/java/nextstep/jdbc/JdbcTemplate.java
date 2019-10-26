@@ -19,8 +19,8 @@ public class JdbcTemplate {
         this.dataSource = dataSource;
     }
 
-    public void update(String sql, Object... objects) {
-        update(sql, pstmt -> mappingPreparedStatement(pstmt, objects));
+    public void update(String sql, Object... sqlArgs) {
+        update(sql, pstmt -> mappingPreparedStatement(pstmt, sqlArgs));
     }
 
     private void update(String sql, PreparedStatementMapping consumer) {
@@ -37,8 +37,8 @@ public class JdbcTemplate {
         }, resultSetHandler);
     }
 
-    public <T> T query(String sql, ResultSetHandler<T> resultSetHandler, Object... objects) {
-        return query(sql, pstmt -> mappingPreparedStatement(pstmt, objects), resultSetHandler);
+    public <T> T query(String sql, ResultSetHandler<T> resultSetHandler, Object... sqlArgs) {
+        return query(sql, pstmt -> mappingPreparedStatement(pstmt, sqlArgs), resultSetHandler);
     }
 
     private <T> T query(String sql, PreparedStatementMapping mapping, ResultSetHandler<T> resultSetHandler) {
@@ -52,16 +52,16 @@ public class JdbcTemplate {
         }
     }
 
-    public <T> Optional<T> queryForObject(String sql, ResultSetHandler<T> resultSetHandler, Object... objects) {
-        return queryForObject(sql, pstmt -> mappingPreparedStatement(pstmt, objects), resultSetHandler);
+    public <T> Optional<T> queryForObject(String sql, ResultSetHandler<T> resultSetHandler, Object... sqlArgs) {
+        return queryForObject(sql, pstmt -> mappingPreparedStatement(pstmt, sqlArgs), resultSetHandler);
     }
 
-    private <T> Optional<T> queryForObject(String sql, PreparedStatementMapping mapping, ResultSetHandler<T> resultSetHandler) {
+    public <T> Optional<T> queryForObject(String sql, PreparedStatementMapping mapping, ResultSetHandler<T> resultSetHandler) {
         return queryForObjects(sql, mapping, resultSetHandler).stream().findFirst();
     }
 
-    public <T> List<T> queryForObjects(String sql, ResultSetHandler<T> resultSetHandler, Object... objects) {
-        return queryForObjects(sql, pstmt -> mappingPreparedStatement(pstmt, objects), resultSetHandler);
+    public <T> List<T> queryForObjects(String sql, ResultSetHandler<T> resultSetHandler, Object... sqlArgs) {
+        return queryForObjects(sql, pstmt -> mappingPreparedStatement(pstmt, sqlArgs), resultSetHandler);
     }
 
     private <T> List<T> queryForObjects(String sql, PreparedStatementMapping mapping, ResultSetHandler<T> resultSetHandler) {
@@ -78,13 +78,13 @@ public class JdbcTemplate {
         return dataSource.getConnection();
     }
 
-    private void mappingPreparedStatement(PreparedStatement pstmt, Object... objects) {
+    private void mappingPreparedStatement(PreparedStatement pstmt, Object... sqlArgs) {
         int PREPARED_STATEMENT_FIRST_INDEX = 1;
         int ARRAY_FIRST_INDEX = 0;
 
-        IntStream.range(ARRAY_FIRST_INDEX, objects.length).forEach(index -> {
+        IntStream.range(ARRAY_FIRST_INDEX, sqlArgs.length).forEach(index -> {
             try {
-                pstmt.setObject(PREPARED_STATEMENT_FIRST_INDEX + index, objects[index]);
+                pstmt.setObject(PREPARED_STATEMENT_FIRST_INDEX + index, sqlArgs[index]);
             } catch (SQLException | NullPointerException e) {
                 throw new DatabaseAccessException(e);
             }
