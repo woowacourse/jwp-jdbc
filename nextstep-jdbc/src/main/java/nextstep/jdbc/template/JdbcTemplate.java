@@ -12,17 +12,31 @@ import java.util.List;
 import java.util.Optional;
 
 public class JdbcTemplate {
-    private static final int START_SET_VALUE_INDEX = 1;
     private final Logger logger = LoggerFactory.getLogger(JdbcTemplate.class);
 
-    public int save(String sql, Object... objects) {
-        return execute(sql, PreparedStatement::executeUpdate, objects);
+    public int save(String sql, PreparedStatementSetter setter) {
+        return execute(sql, PreparedStatement::executeUpdate, setter);
     }
 
-    private <T> T execute(String sql, PreparedStatementHandler<T> handler, Object... objects) {
+    public <T> List<T> query(String sql, RowMapper<T> rowMapper) {
+        return execute(sql, pstmt -> ResultSetHelper.getData(rowMapper, pstmt));
+    }
+
+    public <T> List<T> query(String sql, RowMapper<T> rowMapper, PreparedStatementSetter pstmtSetter) {
+        return execute(sql, pstmt -> ResultSetHelper.getData(rowMapper, pstmt), pstmtSetter);
+    }
+
+    public <T> Optional<T> queryForObject(String sql, RowMapper<T> rowMapper) {
+        return Optional.ofNullable(query(sql, rowMapper).get(0));
+    }
+
+    public <T> Optional<T> queryForObject(String sql, RowMapper<T> rowMapper, PreparedStatementSetter pstmtSetter) {
+        return Optional.ofNullable(query(sql, rowMapper, pstmtSetter).get(0));
+    }
+
+    private <T> T execute(String sql, PreparedStatementHandler<T> handler) {
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
-            setValues(pstmt, objects);
             return handler.handle(pstmt);
         } catch (SQLException e) {
             logger.error(e.getMessage(), e);
@@ -30,26 +44,14 @@ public class JdbcTemplate {
         }
     }
 
-    private void setValues(PreparedStatement pstmt, Object[] objects) {
-        for (int index = START_SET_VALUE_INDEX; index <= objects.length; index++) {
-            setString(pstmt, objects[index - START_SET_VALUE_INDEX], index);
-        }
-    }
-
-    private void setString(PreparedStatement pstmt, Object object, int index) {
-        try {
-            pstmt.setString(index, String.valueOf(object));
+    private <T> T execute(String sql, PreparedStatementHandler<T> handler, PreparedStatementSetter pstmtSetter) {
+        try (Connection con = ConnectionManager.getConnection();
+             PreparedStatement pstmt = con.prepareStatement(sql)) {
+            pstmtSetter.setValues(pstmt);
+            return handler.handle(pstmt);
         } catch (SQLException e) {
             logger.error(e.getMessage(), e);
             throw new DatabaseAccessException(e);
         }
-    }
-
-    public <T> List<T> query(String sql, RowMapper<T> rowMapper, Object... objects) {
-        return execute(sql, pstmt -> ResultSetHelper.getData(rowMapper, pstmt), objects);
-    }
-
-    public <T> Optional<T> queryForObject(String sql, RowMapper<T> rowMapper, Object... objects) {
-        return Optional.ofNullable(query(sql, rowMapper, objects).get(0));
     }
 }

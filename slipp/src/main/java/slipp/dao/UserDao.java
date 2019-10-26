@@ -1,5 +1,6 @@
 package slipp.dao;
 
+import nextstep.jdbc.template.ArgumentPreparedStatementSetter;
 import nextstep.jdbc.template.JdbcTemplate;
 import nextstep.jdbc.template.RowMapper;
 import slipp.domain.User;
@@ -29,11 +30,11 @@ public class UserDao {
     }
 
     public void insert(User user) {
-        jdbcTemplate.save(USER_INSERT_QUERY, user.getUserId(), user.getPassword(), user.getName(), user.getEmail());
+        jdbcTemplate.save(USER_INSERT_QUERY, new ArgumentPreparedStatementSetter(user.getUserId(), user.getPassword(), user.getName(), user.getEmail()));
     }
 
     public void update(User user) {
-        jdbcTemplate.save(UPDATE_USER_QUERY, user.getPassword(), user.getName(), user.getEmail(), user.getUserId());
+        jdbcTemplate.save(UPDATE_USER_QUERY, new ArgumentPreparedStatementSetter(user.getPassword(), user.getName(), user.getEmail(), user.getUserId()));
     }
 
     public List<User> findAll() {
@@ -41,7 +42,7 @@ public class UserDao {
     }
 
     public User findUserById(String userId) {
-        return jdbcTemplate.queryForObject(FIND_USER_BY_ID_QUERY, rowMapper, userId)
+        return jdbcTemplate.queryForObject(FIND_USER_BY_ID_QUERY, rowMapper, new ArgumentPreparedStatementSetter(userId))
                 .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다."));
     }
 }
