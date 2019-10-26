@@ -15,18 +15,21 @@ public class LoginController implements Controller {
     public String execute(HttpServletRequest req, HttpServletResponse resp) throws Exception {
         String userId = req.getParameter("userId");
         String password = req.getParameter("password");
-        User user = userDao.findByUserId(userId);
-        if (user == null) {
-            req.setAttribute("loginFailed", true);
-            return "/user/login.jsp";
-        }
-        if (user.matchPassword(password)) {
-            HttpSession session = req.getSession();
-            session.setAttribute(UserSessionUtils.USER_SESSION_KEY, user);
-            return "redirect:/";
-        } else {
-            req.setAttribute("loginFailed", true);
-            return "/user/login.jsp";
-        }
+
+        return userDao.findByUserId(userId)
+                .filter(user -> user.matchPassword(password))
+                .map(user -> login(req, user))
+                .orElseGet(() -> failLogin(req));
+    }
+
+    private String login(HttpServletRequest req, User user) {
+        HttpSession session = req.getSession();
+        session.setAttribute(UserSessionUtils.USER_SESSION_KEY, user);
+        return "redirect:/";
+    }
+
+    private String failLogin(HttpServletRequest req) {
+        req.setAttribute("loginFailed", true);
+        return "/user/login.jsp";
     }
 }

@@ -1,12 +1,21 @@
 package slipp.dao;
 
 import nextstep.jdbc.JdbcTemplate;
+import nextstep.jdbc.ResultSetHandler;
 import slipp.domain.User;
 import slipp.support.db.ConnectionManager;
 
 import java.util.List;
+import java.util.Optional;
 
 public class UserDao {
+    private final ResultSetHandler<User> rsToUser = rs -> new User(
+            rs.getString("userId"),
+            rs.getString("password"),
+            rs.getString("name"),
+            rs.getString("email")
+    );
+
     private final JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
 
     public void insert(User user) {
@@ -21,16 +30,13 @@ public class UserDao {
 
     public List<User> findAll() {
         String sql = "SELECT userId, password, name, email FROM USERS";
-        return jdbcTemplate.queryForObjects(sql, rs -> new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
-            rs.getString("email")));
+
+        return jdbcTemplate.queryForObjects(sql, rsToUser);
     }
 
-    public User findByUserId(String userId) {
+    public Optional<User> findByUserId(String userId) {
         String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
-        return jdbcTemplate.queryForObject(sql,
-            rs -> new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
-                rs.getString("email")), userId)
-            .orElse(null);
+        return jdbcTemplate.queryForObject(sql, rsToUser, userId);
     }
 
     public void deleteByUserId(String userId) {

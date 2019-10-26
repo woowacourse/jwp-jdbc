@@ -1,6 +1,7 @@
 package slipp.controller;
 
 import nextstep.mvc.asis.Controller;
+import slipp.controller.exception.UserNotFoundException;
 import slipp.dao.UserDao;
 import slipp.domain.User;
 
@@ -13,7 +14,8 @@ public class UpdateFormUserController implements Controller {
     @Override
     public String execute(HttpServletRequest req, HttpServletResponse resp) throws Exception {
         String userId = req.getParameter("userId");
-        User user = userDao.findByUserId(userId);
+        User user = userDao.findByUserId(userId)
+                .orElseThrow(() -> UserNotFoundException.ofUserId(userId));
         if (!UserSessionUtils.isSameUser(req.getSession(), user)) {
             throw new IllegalStateException("다른 사용자의 정보를 수정할 수 없습니다.");
         }
