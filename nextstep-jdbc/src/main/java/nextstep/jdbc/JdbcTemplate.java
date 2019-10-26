@@ -41,7 +41,7 @@ public class JdbcTemplate {
         return query(sql, pstmt -> mappingPreparedStatement(pstmt, sqlArgs), resultSetHandler);
     }
 
-    private <T> T query(String sql, PreparedStatementMapping mapping, ResultSetHandler<T> resultSetHandler) {
+    public <T> T query(String sql, PreparedStatementMapping mapping, ResultSetHandler<T> resultSetHandler) {
         try (Connection con = getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
             mapping.adjustTo(pstmt);
             try (ResultSet rs = pstmt.executeQuery()) {
@@ -64,7 +64,7 @@ public class JdbcTemplate {
         return queryForObjects(sql, pstmt -> mappingPreparedStatement(pstmt, sqlArgs), resultSetHandler);
     }
 
-    private <T> List<T> queryForObjects(String sql, PreparedStatementMapping mapping, ResultSetHandler<T> resultSetHandler) {
+    public <T> List<T> queryForObjects(String sql, PreparedStatementMapping mapping, ResultSetHandler<T> resultSetHandler) {
         return query(sql, mapping, rs -> {
             List<T> objects = new ArrayList<>();
             while (rs.next()) {
