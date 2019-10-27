@@ -18,10 +18,8 @@ public class JdbcTemplate {
     private static final int ONE_OBJECT = 1;
 
     private static Connection connection;
-    private DataSource dataSource;
 
     public JdbcTemplate(DataSource dataSource) {
-        this.dataSource = dataSource;
         connection = ConnectionManager.initConnection(dataSource);
     }
 
