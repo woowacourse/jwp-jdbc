@@ -6,10 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -20,18 +17,19 @@ public class JdbcTemplate {
     private static final int EMPTY = 0;
     private static final int ONE_OBJECT = 1;
 
+    private static Connection connection;
     private DataSource dataSource;
 
     public JdbcTemplate(DataSource dataSource) {
         this.dataSource = dataSource;
+        connection = ConnectionManager.initConnection(dataSource);
     }
 
     public <T> Optional<T> execute(final String sql,
                                    final ResultSetExtractor<T> resultSetExtractor,
                                    final SqlExecuteStrategy sqlExecuteStrategy) {
 
-        try (Connection connection = dataSource.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
             setValues(sqlExecuteStrategy, preparedStatement);
 
@@ -40,6 +38,8 @@ public class JdbcTemplate {
         } catch (SQLException e) {
             logger.error("{}.queryForList >> {}", TAG, e);
             throw new DataBaseException();
+        } finally {
+            ConnectionManager.closeConnection(connection);
         }
     }
 
@@ -70,6 +70,12 @@ public class JdbcTemplate {
                                  final SqlExecuteStrategy sqlExecuteStrategy) {
 
         List<T> results = execute(sql, new RowMapperResultSetExtractor<>(rowMapper), sqlExecuteStrategy).orElse(new ArrayList<>());
+
+        return getSingleObject(results);
+    }
+
+    public <T> Optional<T> queryForCount(final String sql, final RowMapper<T> rowMapper) {
+        List<T> results = execute(sql, new RowMapperResultSetExtractor<>(rowMapper), null).orElse(new ArrayList<>());
 
         return getSingleObject(results);
     }
