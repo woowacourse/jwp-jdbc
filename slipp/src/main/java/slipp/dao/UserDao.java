@@ -1,78 +1,48 @@
 package slipp.dao;
 
+import nextstep.jdbc.template.ArgumentPreparedStatementSetter;
+import nextstep.jdbc.template.JdbcTemplate;
+import nextstep.jdbc.template.RowMapper;
 import slipp.domain.User;
-import slipp.support.db.ConnectionManager;
+import slipp.mapper.UserRowMapper;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class UserDao {
-    public void insert(User user) throws SQLException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        try {
-            con = ConnectionManager.getConnection();
-            String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
-            pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, user.getUserId());
-            pstmt.setString(2, user.getPassword());
-            pstmt.setString(3, user.getName());
-            pstmt.setString(4, user.getEmail());
 
-            pstmt.executeUpdate();
-        } finally {
-            if (pstmt != null) {
-                pstmt.close();
-            }
+    private static final String USER_INSERT_QUERY = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
+    private static final String UPDATE_USER_QUERY = "UPDATE USERS SET PASSWORD = ?, NAME = ?, EMAIL = ? WHERE USERID = ?";
+    private static final String FIND_ALL_USER_QUERY = "SELECT * FROM USERS";
+    private static final String FIND_USER_BY_ID_QUERY = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
 
-            if (con != null) {
-                con.close();
-            }
-        }
+    private final JdbcTemplate jdbcTemplate = new JdbcTemplate();
+    private final RowMapper<User> rowMapper = new UserRowMapper();
+
+    private UserDao() {
     }
 
-    public void update(User user) throws SQLException {
-        // TODO 구현 필요함.
+    public static UserDao getInstance() {
+        return UserDaoHolder.INSTANCE;
     }
 
-    public List<User> findAll() throws SQLException {
-        // TODO 구현 필요함.
-        return new ArrayList<User>();
+    private static class UserDaoHolder {
+        private static final UserDao INSTANCE = new UserDao();
     }
 
-    public User findByUserId(String userId) throws SQLException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        try {
-            con = ConnectionManager.getConnection();
-            String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
-            pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, userId);
+    public void insert(User user) {
+        jdbcTemplate.save(USER_INSERT_QUERY, new ArgumentPreparedStatementSetter(user.getUserId(), user.getPassword(), user.getName(), user.getEmail()));
+    }
 
-            rs = pstmt.executeQuery();
+    public void update(User user) {
+        jdbcTemplate.save(UPDATE_USER_QUERY, new ArgumentPreparedStatementSetter(user.getPassword(), user.getName(), user.getEmail(), user.getUserId()));
+    }
 
-            User user = null;
-            if (rs.next()) {
-                user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
-                        rs.getString("email"));
-            }
+    public List<User> findAll() {
+        return jdbcTemplate.query(FIND_ALL_USER_QUERY, rowMapper);
+    }
 
-            return user;
-        } finally {
-            if (rs != null) {
-                rs.close();
-            }
-            if (pstmt != null) {
-                pstmt.close();
-            }
-            if (con != null) {
-                con.close();
-            }
-        }
+    public User findUserById(String userId) {
+        return jdbcTemplate.queryForObject(FIND_USER_BY_ID_QUERY, rowMapper, new ArgumentPreparedStatementSetter(userId))
+                .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다."));
     }
 }

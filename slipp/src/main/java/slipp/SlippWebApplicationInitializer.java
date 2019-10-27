@@ -1,5 +1,7 @@
 package slipp;
 
+import nextstep.jdbc.db.BasicDataSourceFactory;
+import nextstep.jdbc.db.ConnectionManager;
 import nextstep.mvc.DispatcherServlet;
 import nextstep.mvc.asis.ControllerHandlerAdapter;
 import nextstep.mvc.tobe.AnnotationHandlerMapping;
@@ -12,11 +14,18 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRegistration;
 
-public class SlippWebApplicationInitializer  implements WebApplicationInitializer {
+public class SlippWebApplicationInitializer implements WebApplicationInitializer {
     private static final Logger log = LoggerFactory.getLogger(SlippWebApplicationInitializer.class);
+
+    private static final String DB_DRIVER = "org.h2.Driver";
+    private static final String DB_URL = "jdbc:h2:mem:jwp-framework";
+    private static final String DB_USERNAME = "sa";
+    private static final String DB_PW = "";
 
     @Override
     public void onStartup(ServletContext servletContext) throws ServletException {
+        ConnectionManager.init(BasicDataSourceFactory.getDataSource(DB_DRIVER, DB_URL, DB_USERNAME, DB_PW));
+
         DispatcherServlet dispatcherServlet = new DispatcherServlet();
         dispatcherServlet.addHandlerMpping(new ManualHandlerMapping());
         dispatcherServlet.addHandlerMpping(new AnnotationHandlerMapping("slipp.controller"));
