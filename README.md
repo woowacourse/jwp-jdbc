@@ -33,3 +33,24 @@ docker-compose up -d
 
 
 
+## GIT CONVENTION
+https://gist.github.com/joshbuchea/6f47e86d2510bce28f8e7f42ae84c716
+
+
+## STEP1 요구사항
+- **컴파일 에러가 나지 않게 리팩토링하기**
+- [x] ```UserDao```의 ```findAll()``` 구현 (테스트 통과)
+- [x] ```ConnectionManager.getConnection()```
+- [x] ```UserDao```의 ```update()``` 구현 ( 테스트 통과)
+- [x] ```pstmt.executeUpdate();``` 사용하는 부분 ```Template```으로 빼기 (```insert()```)
+- [x] ```pstmt.executeQuery();``` 사용하는 부분 ```Template```으로 빼기 (```findById()```)
+- [x]  ```ResultSet``` 부분 ```Template```으로 빼기 (```findById()```)
+- [ ] ```JDBC Template``` ```static```으로 사용할 수 있게 변경
+- [x] ```try-with-resource```로 바꾸기
+- [ ] SQL 인자 매핑시, 사용자가 값만 넘겨줘도(배열) 매핑 되게끔 변경
+- [x] ```JdbcTemplate.executeQuery``` 개선
+    - [x] executeQueryForNs는 모든 로우 리턴, executeQueryForN 하면 무조건 최상위 로우 하나만 리턴되게 개선
+    - [x] 가져온 로우를 특정 데이터 타입으로 바꿔주는 기능 추가
+- [x] slipp에 있는 Controller의 ```DataBase``` 사용 부분을 ```UserDao```로 바꾸기
+- [ ] ```UserDao```... 싱글 인스턴스로 만들게...? ㅠㅠ
+

@@ -17,28 +17,43 @@ public class UserDaoTest {
     @BeforeEach
     public void setup() {
         ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
-        populator.addScript(new ClassPathResource("jwp.sql"));
+        populator.addScript(new ClassPathResource("jwp_test.sql"));
         DatabasePopulatorUtils.execute(populator, ConnectionManager.getDataSource());
     }
 
     @Test
-    public void crud() throws Exception {
+    public void crud() {
         User expected = new User("userId", "password", "name", "javajigi@email.com");
         UserDao userDao = new UserDao();
         userDao.insert(expected);
-        User actual = userDao.findByUserId(expected.getUserId());
+        User actual = userDao.findByUserId(expected.getUserId()).get();
         assertThat(actual).isEqualTo(expected);
 
         expected.update(new UserUpdatedDto("password2", "name2", "sanjigi@email.com"));
         userDao.update(expected);
-        actual = userDao.findByUserId(expected.getUserId());
+        actual = userDao.findByUserId(expected.getUserId()).get();
         assertThat(actual).isEqualTo(expected);
     }
 
     @Test
-    public void findAll() throws Exception {
+    public void findAll() {
         UserDao userDao = new UserDao();
         List<User> users = userDao.findAll();
         assertThat(users).hasSize(1);
+    }
+
+    @Test
+    void deleteAll() {
+        UserDao userDao = new UserDao();
+        List<User> users = userDao.findAll();
+        assertThat(users.size() > 0).isTrue();
+        userDao.deleteAll();
+
+        List<User> deletedUsers = userDao.findAll();
+        assertThat(deletedUsers.size()).isEqualTo(0);
+
+        for (User user : users) {
+            userDao.insert(user);
+        }
     }
 }
