@@ -1,0 +1,24 @@
+package nextstep.jdbc.template;
+
+import nextstep.jdbc.db.ConnectionManager;
+import nextstep.jdbc.exception.DatabaseAccessException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+
+public class JdbcExecutor {
+    private static final Logger logger = LoggerFactory.getLogger(JdbcExecutor.class);
+
+    public <T> T execute(String sql, PreparedStatementSettingStrategy<T> strategy) {
+        try (Connection con = ConnectionManager.getConnection();
+             PreparedStatement pstmt = con.prepareStatement(sql)) {
+            return strategy.handle(pstmt);
+        } catch (SQLException e) {
+            logger.error(e.getMessage(), e);
+            throw new DatabaseAccessException(e);
+        }
+    }
+}
