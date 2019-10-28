@@ -1,6 +1,5 @@
 package slipp.controller;
 
-import nextstep.jdbc.JdbcTemplate;
 import nextstep.mvc.asis.Controller;
 import slipp.dao.UserDao;
 import slipp.domain.User;
@@ -10,7 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 public class LoginController implements Controller {
-    private final UserDao userDao = new UserDao(new JdbcTemplate());
+    private final UserDao userDao = new UserDao();
 
     @Override
     public String execute(HttpServletRequest req, HttpServletResponse resp) throws Exception {

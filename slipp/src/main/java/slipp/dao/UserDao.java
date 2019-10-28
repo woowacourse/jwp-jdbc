@@ -3,6 +3,7 @@ package slipp.dao;
 import nextstep.jdbc.JdbcTemplate;
 import nextstep.jdbc.RowMapper;
 import slipp.domain.User;
+import slipp.support.db.ConnectionManager;
 
 import java.util.List;
 
@@ -18,8 +19,8 @@ public class UserDao {
 
     private JdbcTemplate jdbcTemplate;
 
-    public UserDao(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
+    public UserDao() {
+        this.jdbcTemplate = JdbcTemplate.getInstance(ConnectionManager.getDataSource());
     }
 
     public void insert(User user) {

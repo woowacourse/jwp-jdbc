@@ -1,6 +1,5 @@
 package slipp.controller;
 
-import nextstep.jdbc.JdbcTemplate;
 import nextstep.mvc.JspView;
 import nextstep.mvc.ModelAndView;
 import nextstep.web.annotation.Controller;
@@ -18,7 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 public class UserController {
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
-    private final UserDao userDao = new UserDao(new JdbcTemplate());
+    private final UserDao userDao = new UserDao();
 
     @RequestMapping(value = "/users/create", method = RequestMethod.POST)
     public ModelAndView create(HttpServletRequest req, HttpServletResponse resp) throws Exception {
