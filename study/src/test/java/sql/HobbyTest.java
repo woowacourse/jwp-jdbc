@@ -62,7 +62,7 @@ public class HobbyTest {
 
         try (JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource)) {
 
-            assertTimeout(Duration.ofMillis(50), () -> {
+            assertTimeout(Duration.ofMillis(100), () -> {
                 jdbcTemplate.selectAll(this::hobbyMapper, query);
             });
         }
