@@ -18,7 +18,7 @@ public class JdbcTemplate {
              PreparedStatement pstmt = con.prepareStatement(sql)) {
             executePreparedStatement(pstmt, parameters);
         } catch (SQLException e) {
-            throw new DatabaseException();
+            throw new DatabaseException(e.getMessage());
         }
     }
 
@@ -27,7 +27,7 @@ public class JdbcTemplate {
              PreparedStatement pstmt = con.prepareStatement(sql)) {
             return resultMapper.map(getResultSet(pstmt, parameters));
         } catch (SQLException e) {
-            throw new DatabaseException();
+            throw new DatabaseException(e.getMessage());
         }
     }
 
