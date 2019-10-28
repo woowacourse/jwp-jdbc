@@ -33,6 +33,7 @@ nbdist/
 .nb-gradle/
 
 ### Docker ###
-docker/
+/docker/db/mysql/data
 !docker/docker-compose.yml
 !docker/db/mysql/init/init.sql
+!docker/db/mysql/init/scheme.sql.gz
