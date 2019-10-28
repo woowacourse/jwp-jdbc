@@ -24,8 +24,8 @@ class JdbcTemplateTest {
     public void setup() {
         ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
         populator.addScript(new ClassPathResource("jwp.sql"));
-        DatabasePopulatorUtils.execute(populator, ConnectionManager.getDataSource());
-        jdbcTemplate = new JdbcTemplate(ConnectionManager.getConnection());
+        DatabasePopulatorUtils.execute(populator, TestConnectionManager.getDataSource());
+        jdbcTemplate = new JdbcTemplate(TestConnectionManager.getConnection());
     }
 
     @AfterEach

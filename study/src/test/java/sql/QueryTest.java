@@ -1,10 +1,14 @@
 package sql;
 
+import nextstep.jdbc.ConnectionManager;
 import nextstep.jdbc.JdbcTemplate;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import javax.sql.DataSource;
+import java.io.IOException;
 import java.sql.SQLException;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -20,10 +24,16 @@ import static org.junit.jupiter.api.Assertions.assertTimeout;
 public class QueryTest {
 
     private JdbcTemplate jdbcTemplate;
+    private static DataSource dataSource;
+
+    @BeforeAll
+    static void init() throws IOException {
+        dataSource = ConnectionManager.getDataSource();
+    }
 
     @BeforeEach
     void setUp() throws SQLException {
-        jdbcTemplate = new JdbcTemplate(DataSourceFactory.getInstance().createDataSource().getConnection());
+        jdbcTemplate = new JdbcTemplate(dataSource.getConnection());
     }
 
     @AfterEach
@@ -35,9 +45,8 @@ public class QueryTest {
     void coding_as_a_hobby() {
         List<PortionResultDto> portions = new ArrayList<>();
         assertTimeout(Duration.ofMillis(300), () -> jdbcTemplate.executeQuery(
-                "select hobby, round((count(*) / T.total) * 100, 1) AS portion\n" +
-                        "from survey_results_public,\n" +
-                        "(select count(*) as total from survey_results_public) as T\n" +
+                "select hobby, round((count(*) / (select count(*) as total from survey_results_public)) * 100, 1) AS portion\n" +
+                        "from survey_results_public\n" +
                         "group by hobby;", Collections.emptyMap(),
                 resultSet -> new PortionResultDto(resultSet.getString("hobby"), resultSet.getDouble("portion")))
                 .forEach(portions::add));
