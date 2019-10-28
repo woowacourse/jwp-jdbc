@@ -14,6 +14,8 @@ import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -68,6 +70,38 @@ public class HobbyTest {
         }
     }
 
+
+    @Test
+    void mission2() {
+        String query = "select\n" +
+                "a.devtype, tmp.average\n" +
+                "from\n" +
+                "(\n" +
+                "select a.DevType_id, avg(b.yearsCodingProf) as average\n" +
+                "from \n" +
+                "yearsCodingProf_devtype as a\n" +
+                "inner join\n" +
+                "(select * from yearsCodingProf where yearsCodingProf != 'NA') as b\n" +
+                "on a.Respondent = b.Respondent\n" +
+                "group by a.devtype_id\n" +
+                "order by average desc\n" +
+                ") as tmp\n" +
+                "Left Outer join\n" +
+                "DevType as a\n" +
+                "on tmp.devtype_id = a.id";
+
+        try (JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource)) {
+            List<Hobby> hobbys = jdbcTemplate.selectAll(this::objectMapper, query);
+            assertThat(hobbys.size()).isEqualTo(21);
+            assertThat(hobbys.get(0).getResult()).isEqualTo("Engineering manager");
+            assertTimeout(Duration.ofMillis(500), () -> {
+                jdbcTemplate.selectAll(this::objectMapper, query);
+            });
+        }
+
+    }
+
+
     private Result resultMapper(ResultSet rs) throws SQLException {
         return new Result(rs.getInt("Respondent"),
                 rs.getString("hobby"),
@@ -77,5 +111,10 @@ public class HobbyTest {
 
     private Hobby hobbyMapper(ResultSet rs) throws SQLException {
         return new Hobby(rs.getString("hobby"), rs.getDouble("percentage"));
+    }
+
+
+    private Hobby objectMapper(ResultSet rs) throws SQLException {
+        return new Hobby(rs.getString("devtype"), rs.getDouble("average"));
     }
 }
