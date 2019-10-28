@@ -2,15 +2,11 @@ package sql;
 
 import nextstep.jdbc.JdbcTemplate;
 import nextstep.jdbc.exception.DatabaseAccessException;
-import org.apache.commons.dbcp2.BasicDataSource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.time.Duration;
 import java.util.List;
 
@@ -19,15 +15,11 @@ import static org.junit.jupiter.api.Assertions.assertTimeout;
 
 public class HobbyTests {
     private final static Logger logger = LoggerFactory.getLogger(HobbyTests.class);
-    private static final String DB_DRIVER = "com.mysql.cj.jdbc.Driver";
-    private static final String DB_URL = "jdbc:mysql://13.125.95.65:13306/jwp_jdbc?useUnicode=true&characterEncoding=utf8";
-    private static final String DB_USERNAME = "techcourse";
-    private static final String DB_PW = "password";
     private JdbcTemplate jdbcTemplate;
 
     @BeforeEach
     void setUp() {
-        jdbcTemplate = new JdbcTemplate(getDataSource());
+        jdbcTemplate = new JdbcTemplate(DataSourceFactory.getDataSource());
         addHobbyIndex();
     }
 
@@ -77,23 +69,6 @@ public class HobbyTests {
             "cross join (select count(Hobby) as total from survey_results_public) x \n" +
             "group by Hobby;";
         return jdbcTemplate.queryForObjects(sql, rs -> new Hobby(rs.getString("hobby"), rs.getFloat("percentage")));
-    }
-
-    private static DataSource getDataSource() {
-        BasicDataSource ds = new BasicDataSource();
-        ds.setDriverClassName(DB_DRIVER);
-        ds.setUrl(DB_URL);
-        ds.setUsername(DB_USERNAME);
-        ds.setPassword(DB_PW);
-        return ds;
-    }
-
-    private static Connection getConnection() {
-        try {
-            return getDataSource().getConnection();
-        } catch (SQLException e) {
-            throw new IllegalStateException(e);
-        }
     }
 
     private class Hobby {
