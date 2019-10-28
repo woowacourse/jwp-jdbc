@@ -1,9 +1,9 @@
 package slipp.dao;
 
+import nextstep.jdbc.JdbcTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import slipp.domain.User;
-import nextstep.jdbc.JdbcTemplate;
 import slipp.support.db.ConnectionManager;
 
 import java.sql.ResultSet;
