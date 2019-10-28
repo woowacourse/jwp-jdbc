@@ -67,4 +67,27 @@ public class JdbcTemplate<T> {
             return Optional.empty();
         }
     }
+
+    public List<T> query(String sql, Connection con, RowMapper<T> rowMapper) throws SQLException {
+        ResultSet rs = null;
+        List<T> result = new ArrayList<>();
+
+        try (PreparedStatement pstmt = con.prepareStatement(sql)) {
+            rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                result.add(rowMapper.mapRow(rs));
+            }
+
+            return result;
+        } finally {
+            if (rs != null) {
+                rs.close();
+            }
+
+            if (con != null) {
+                con.close();
+            }
+        }
+    }
 }
