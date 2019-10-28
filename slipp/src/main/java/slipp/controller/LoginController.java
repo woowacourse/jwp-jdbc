@@ -4,14 +4,13 @@ import nextstep.jdbc.JdbcTemplate;
 import nextstep.mvc.asis.Controller;
 import slipp.dao.UserDao;
 import slipp.domain.User;
-import slipp.support.db.SlippConnectionManager;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 public class LoginController implements Controller {
-    private final UserDao userDao = new UserDao(new JdbcTemplate(new SlippConnectionManager()));
+    private final UserDao userDao = new UserDao(new JdbcTemplate());
 
     @Override
     public String execute(HttpServletRequest req, HttpServletResponse resp) throws Exception {

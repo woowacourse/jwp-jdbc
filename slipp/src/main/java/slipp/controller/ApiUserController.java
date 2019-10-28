@@ -14,16 +14,15 @@ import slipp.dao.UserDao;
 import slipp.domain.User;
 import slipp.dto.UserCreatedDto;
 import slipp.dto.UserUpdatedDto;
-import slipp.support.db.SlippConnectionManager;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 @Controller
 public class ApiUserController {
-    private static final Logger logger = LoggerFactory.getLogger( ApiUserController.class );
+    private static final Logger logger = LoggerFactory.getLogger(ApiUserController.class);
 
-    private final UserDao userDao = new UserDao(new JdbcTemplate(new SlippConnectionManager()));
+    private final UserDao userDao = new UserDao(new JdbcTemplate());
     private ObjectMapper objectMapper = new ObjectMapper();
 
     @RequestMapping(value = "/api/users", method = RequestMethod.POST)

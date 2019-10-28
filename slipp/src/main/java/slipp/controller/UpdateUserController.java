@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
 import slipp.dao.UserDao;
 import slipp.domain.User;
 import slipp.dto.UserUpdatedDto;
-import slipp.support.db.SlippConnectionManager;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -15,7 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 public class UpdateUserController implements Controller {
     private static final Logger log = LoggerFactory.getLogger(UpdateUserController.class);
 
-    private final UserDao userDao = new UserDao(new JdbcTemplate(new SlippConnectionManager()));
+    private final UserDao userDao = new UserDao(new JdbcTemplate());
 
     @Override
     public String execute(HttpServletRequest req, HttpServletResponse resp) throws Exception {

@@ -26,7 +26,7 @@ public class UserDaoTest {
         populator.addScript(new ClassPathResource("jwp.sql"));
         DatabasePopulatorUtils.execute(populator, SlippConnectionManager.getDataSource());
 
-        userDao = new UserDao(new JdbcTemplate(new SlippConnectionManager()));
+        userDao = new UserDao(new JdbcTemplate());
     }
 
     @Test

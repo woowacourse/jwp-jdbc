@@ -1,13 +1,12 @@
 package slipp.support.db;
 
-import nextstep.jdbc.ConnectionManager;
 import org.apache.commons.dbcp2.BasicDataSource;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-public class SlippConnectionManager implements ConnectionManager {
+public class SlippConnectionManager {
     private static final String DB_DRIVER = "org.h2.Driver";
     private static final String DB_URL = "jdbc:h2:mem:jwp-framework";
     private static final String DB_USERNAME = "sa";
@@ -22,7 +21,6 @@ public class SlippConnectionManager implements ConnectionManager {
         return ds;
     }
 
-    @Override
     public Connection getConnection() {
         try {
             return getDataSource().getConnection();

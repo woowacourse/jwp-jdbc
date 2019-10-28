@@ -1,12 +1,21 @@
 package slipp.dao;
 
 import nextstep.jdbc.JdbcTemplate;
+import nextstep.jdbc.RowMapper;
 import slipp.domain.User;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class UserDao {
+    private static final RowMapper ROW_MAPPER = (resultSet) -> {
+        String userId = resultSet.getString("userId");
+        String password = resultSet.getString("password");
+        String name = resultSet.getString("name");
+        String email = resultSet.getString("email");
+
+        return new User(userId, password, name, email);
+    };
+
     private JdbcTemplate jdbcTemplate;
 
     public UserDao(JdbcTemplate jdbcTemplate) {
@@ -30,33 +39,12 @@ public class UserDao {
     public List<User> findAll() {
         String sql = "SELECT userId, password, name, email FROM USERS";
 
-        return jdbcTemplate.executeQuery(sql, (resultSet) -> {
-            List<User> users = new ArrayList<>();
-            while (resultSet.next()) {
-                String userId = resultSet.getString("userId");
-                String password = resultSet.getString("password");
-                String name = resultSet.getString("name");
-                String email = resultSet.getString("email");
-
-                User user = new User(userId, password, name, email);
-                users.add(user);
-            }
-
-            return users;
-        });
+        return jdbcTemplate.selectAll(sql, ROW_MAPPER);
     }
 
     public User findByUserId(String userId) {
         String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
 
-        return jdbcTemplate.executeQuery(sql, (resultSet) -> {
-            User user = null;
-            if (resultSet.next()) {
-                user = new User(resultSet.getString("userId"), resultSet.getString("password"), resultSet.getString("name"),
-                        resultSet.getString("email"));
-            }
-
-            return user;
-        }, userId);
+        return jdbcTemplate.selectObject(sql, ROW_MAPPER, userId);
     }
 }
