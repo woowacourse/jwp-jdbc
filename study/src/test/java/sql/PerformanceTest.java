@@ -46,7 +46,7 @@ public class PerformanceTest {
     }
 
     @Test
-    public void test2() {
+    public void avgYearsCodingProfOfDevType() {
         final String sql = "SELECT DevType, ROUND(AVG(YearsCodingProf), 1) as avgYearsCodingProf\n" +
                 "FROM new_table\n" +
                 "WHERE YearsCodingProf != \"NA\" AND DevType = ?\n" +
@@ -56,7 +56,8 @@ public class PerformanceTest {
                 jdbcTemplate.executeForObject(
                         sql,
                         (RowMapper<Double>) resultSet -> resultSet.getDouble("avgYearsCodingProf"),
-                        "Engineering manager")).isEqualTo(10.2);
+                        "Engineering manager")
+        ).isEqualTo(10.2);
 
         assertTimeout(Duration.ofMillis(100L), () -> {
             jdbcTemplate.executeForObject(
