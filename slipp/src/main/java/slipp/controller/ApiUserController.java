@@ -9,11 +9,10 @@ import nextstep.web.annotation.RequestMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
-import slipp.dao.UserDao;
 import slipp.domain.User;
 import slipp.dto.UserCreatedDto;
 import slipp.dto.UserUpdatedDto;
-import slipp.exception.NoSuchUserException;
+import slipp.support.db.DataBase;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -21,11 +20,6 @@ import javax.servlet.http.HttpServletResponse;
 @Controller
 public class ApiUserController {
     private static final Logger logger = LoggerFactory.getLogger( ApiUserController.class );
-    private final UserDao userDao;
-
-    public ApiUserController() {
-        this.userDao = new UserDao();
-    }
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
@@ -34,7 +28,8 @@ public class ApiUserController {
         UserCreatedDto createdDto = objectMapper.readValue(request.getInputStream(), UserCreatedDto.class);
         logger.debug("Created User : {}", createdDto);
 
-        userDao.insert(new User(
+
+        DataBase.addUser(new User(
                 createdDto.getUserId(),
                 createdDto.getPassword(),
                 createdDto.getName(),
@@ -52,7 +47,7 @@ public class ApiUserController {
         logger.debug("userId : {}", userId);
 
         ModelAndView mav = new ModelAndView(new JsonView());
-        mav.addObject("user", userDao.findByUserId(userId).orElseThrow(NoSuchUserException::new));
+        mav.addObject("user", DataBase.findUserById(userId));
         return mav;
     }
 
@@ -63,9 +58,8 @@ public class ApiUserController {
         UserUpdatedDto updateDto = objectMapper.readValue(request.getInputStream(), UserUpdatedDto.class);
         logger.debug("Updated User : {}", updateDto);
 
-        User user = userDao.findByUserId(userId).orElseThrow(NoSuchUserException::new);
+        User user = DataBase.findUserById(userId);
         user.update(updateDto);
-        userDao.update(user);
 
         return new ModelAndView(new JsonView());
     }

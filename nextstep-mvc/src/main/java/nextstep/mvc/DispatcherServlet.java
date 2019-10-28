@@ -22,7 +22,7 @@ public class DispatcherServlet extends HttpServlet {
 
     private HandlerExecutor handlerExecutor;
 
-    public void addHandlerMapping(HandlerMapping handlerMapping) {
+    public void addHandlerMpping(HandlerMapping handlerMapping) {
         handlerMappingRegistry.addHandlerMpping(handlerMapping);
     }
 

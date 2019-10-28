@@ -1,6 +1,5 @@
 package slipp;
 
-import nextstep.jdbc.ConnectionManager;
 import org.apache.catalina.startup.Tomcat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,8 +10,6 @@ public class WebServerLauncher {
     private static final Logger logger = LoggerFactory.getLogger(WebServerLauncher.class);
 
     public static void main(String[] args) throws Exception {
-        initializeConnectionManager();
-
         String webappDirLocation = "./slipp/webapp/";
         Tomcat tomcat = new Tomcat();
         tomcat.setPort(8080);
@@ -22,14 +19,5 @@ public class WebServerLauncher {
 
         tomcat.start();
         tomcat.getServer().await();
-    }
-
-    private static void initializeConnectionManager() {
-        ConnectionManager.initialize(
-                "org.h2.Driver",
-                "jdbc:h2:mem:jwp-framework",
-                "sa",
-                ""
-        );
     }
 }
