@@ -12,8 +12,8 @@ public class DataSourcePropertiesBinder {
     private static final Properties PROPERTIES = new Properties();
 
     public static DataSource bind(String resource) {
-        try {
-            InputStream inputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(resource);
+        try (InputStream inputStream
+                     = Thread.currentThread().getContextClassLoader().getResourceAsStream(resource)) {
             PROPERTIES.load(inputStream);
 
             return createDataProperties();
