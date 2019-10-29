@@ -3,6 +3,7 @@ package sql;
 import nextstep.jdbc.DBConnection;
 import nextstep.jdbc.JdbcProxyTemplate;
 import nextstep.jdbc.RowMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,9 +17,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class SQLIndexStudyTest {
     private static final Logger log = LoggerFactory.getLogger(SQLIndexStudyTest.class);
 
+    private JdbcProxyTemplate jdbcTemplate;
+
+    @BeforeEach
+    void setUp() {
+        jdbcTemplate = new JdbcProxyTemplate(DBConnection.getMysqlConnection());
+    }
+
     @Test
     void coding_as_a_hobby() {
-        JdbcProxyTemplate jdbcTemplate = new JdbcProxyTemplate(DBConnection.getMysqlConnection());
         String indexSql = "ALTER TABLE `jwp_jdbc`.`survey_results_public` \n" +
                 "ADD INDEX `ix_hobby` USING BTREE (`Hobby` ASC);";
         String sql = "Select hobby,Round((Count(Hobby)* 100 / (Select Count(*) From survey_results_public)),1) as Score From survey_results_public Group By Hobby";
@@ -31,7 +38,6 @@ public class SQLIndexStudyTest {
 
     @Test
     void devType_per_Professional_Coding_Year() {
-        JdbcProxyTemplate jdbcTemplate = new JdbcProxyTemplate(DBConnection.getMysqlConnection());
         String createTableSql = "CREATE TABLE dev_per_year\n" +
                 "SELECT dev_type,SUBSTRING_INDEX(splited_coding_year,' ',1) AS prof_coding_year\n" +
                 "FROM(SELECT dev_type, SUBSTRING_INDEX(YearsCodingProf, '-', 1) AS splited_coding_year\n" +
@@ -79,8 +85,10 @@ public class SQLIndexStudyTest {
         jdbcTemplate.execute(typeSql);
         jdbcTemplate.execute(indexSql);
         jdbcTemplate.query(selectSql, rowMapper);
+
         List<CodingYearDto> codingYearDtos = jdbcTemplate.query(selectSql, rowMapper);
-        assertThat(codingYearDtos).isNotNull();
+        assertThat(codingYearDtos.get(0).toString()).isEqualTo("Back-end developer : 6.2");
+        assertThat(codingYearDtos.get(2).toString()).isEqualTo("Data or business analyst : 7.2");
         log.debug(codingYearDtos.toString());
     }
 
@@ -159,5 +167,4 @@ public class SQLIndexStudyTest {
             return devType + " : " + codingYear;
         }
     }
-
 }
