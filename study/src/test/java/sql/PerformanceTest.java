@@ -2,8 +2,12 @@ package sql;
 
 import nextstep.jdbc.mapper.RowMapper;
 import nextstep.jdbc.template.JdbcTemplate;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
+import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import slipp.support.db.ConnectionManager;
 
 import java.time.Duration;
@@ -16,6 +20,9 @@ public class PerformanceTest {
 
     @BeforeEach
     public void setUp() {
+        ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
+        populator.addScript(new ClassPathResource("initdb.sql"));
+        DatabasePopulatorUtils.execute(populator, ConnectionManager.getDataSource());
         jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
     }
 
@@ -39,8 +46,11 @@ public class PerformanceTest {
                 .executeForObject(sql2, (RowMapper<Object>) resultSet -> resultSet.getString(1)))
                 .isEqualTo("19.2");
 
-        assertTimeout(Duration.ofMillis(200L), () -> {
+        assertTimeout(Duration.ofMillis(150L), () -> {
             jdbcTemplate.executeForObject(sql1, resultSet -> null);
+        });
+
+        assertTimeout(Duration.ofMillis(150L), () -> {
             jdbcTemplate.executeForObject(sql2, resultSet -> null);
         });
     }
@@ -65,5 +75,12 @@ public class PerformanceTest {
                     resultSet -> resultSet.getDouble("avgYearsCodingProf"),
                     "Engineering manager");
         });
+    }
+
+    @AfterEach
+    public void tearDown() {
+        ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
+        populator.addScript(new ClassPathResource("afterdb.sql"));
+        DatabasePopulatorUtils.execute(populator, ConnectionManager.getDataSource());
     }
 }
