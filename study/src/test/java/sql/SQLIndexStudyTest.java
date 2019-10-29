@@ -28,13 +28,20 @@ public class SQLIndexStudyTest {
     void coding_as_a_hobby() {
         String indexSql = "ALTER TABLE `jwp_jdbc`.`survey_results_public` \n" +
                 "ADD INDEX `ix_hobby` USING BTREE (`Hobby` ASC);";
-        String sql = "Select hobby,Round((Count(Hobby)* 100 / (Select Count(*) From survey_results_public)),1) as Score From survey_results_public Group By Hobby";
 
-        List<HobbyDto> hobbyDtos = Arrays.asList(new HobbyDto("No", 19.2), new HobbyDto("Yes", 80.8));
-        RowMapper<HobbyDto> rowMapper = rs -> new HobbyDto(rs.getString(1), rs.getDouble(2));
-        jdbcTemplate.execute(indexSql);
+        String sql = "Select hobby, \n" +
+                "Round((Count(Hobby)* 100 / (Select Count(*) From survey_results_public)),1) as Score \n" +
+                "From survey_results_public Group By Hobby";
+
+        List<HobbyDto> hobbyDtos = Arrays.asList(
+                new HobbyDto("No", 19.2),
+                new HobbyDto("Yes", 80.8));
+
+        RowMapper<HobbyDto> rowMapper = executeQuery(indexSql);
+
         assertThat(jdbcTemplate.query(sql, rowMapper)).isEqualTo(hobbyDtos);
     }
+
 
     @Test
     void devType_per_Professional_Coding_Year() {
@@ -73,6 +80,7 @@ public class SQLIndexStudyTest {
 
         String indexSql = "ALTER TABLE `jwp_jdbc`.`dev_per_year` \n" +
                 "ADD INDEX `ix_dev_type` USING BTREE (`dev_type` ASC);\n";
+        
         String selectSql = "\n" +
                 " SELECT \n" +
                 "    dev_type, ROUND(AVG(prof_coding_year), 1) AS years\n" +
@@ -80,16 +88,28 @@ public class SQLIndexStudyTest {
                 "    dev_per_year\n" +
                 "GROUP BY dev_type;";
 
+        List<CodingYearDto> codingYearDtos = executeQuery(createTableSql, typeSql, indexSql, selectSql);
+
+        assertThat(codingYearDtos.get(0).toString()).isEqualTo("Back-end developer : 6.2");
+        assertThat(codingYearDtos.get(2).toString()).isEqualTo("Data or business analyst : 7.2");
+        log.debug(codingYearDtos.toString());
+    }
+
+    private List<CodingYearDto> executeQuery(String createTableSql, String typeSql, String indexSql, String selectSql) {
         RowMapper<CodingYearDto> rowMapper = rs -> new CodingYearDto(rs.getString(1), rs.getDouble(2));
+
         jdbcTemplate.execute(createTableSql);
         jdbcTemplate.execute(typeSql);
         jdbcTemplate.execute(indexSql);
         jdbcTemplate.query(selectSql, rowMapper);
 
-        List<CodingYearDto> codingYearDtos = jdbcTemplate.query(selectSql, rowMapper);
-        assertThat(codingYearDtos.get(0).toString()).isEqualTo("Back-end developer : 6.2");
-        assertThat(codingYearDtos.get(2).toString()).isEqualTo("Data or business analyst : 7.2");
-        log.debug(codingYearDtos.toString());
+        return jdbcTemplate.query(selectSql, rowMapper);
+    }
+
+    private RowMapper<HobbyDto> executeQuery(String indexSql) {
+        RowMapper<HobbyDto> rowMapper = rs -> new HobbyDto(rs.getString(1), rs.getDouble(2));
+        jdbcTemplate.execute(indexSql);
+        return rowMapper;
     }
 
     public class HobbyDto {
