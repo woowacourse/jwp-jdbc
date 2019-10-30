@@ -5,10 +5,8 @@ import nextstep.jdbc.template.JdbcTemplate;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
-import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import slipp.support.db.ConnectionManager;
+import util.TestSqlUtil;
 
 import java.time.Duration;
 
@@ -20,9 +18,7 @@ public class PerformanceTest {
 
     @BeforeEach
     public void setUp() {
-        ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
-        populator.addScript(new ClassPathResource("initdb.sql"));
-        DatabasePopulatorUtils.execute(populator, ConnectionManager.getDataSource());
+        TestSqlUtil.query("initdb.sql");
         jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
     }
 
@@ -79,8 +75,6 @@ public class PerformanceTest {
 
     @AfterEach
     public void tearDown() {
-        ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
-        populator.addScript(new ClassPathResource("afterdb.sql"));
-        DatabasePopulatorUtils.execute(populator, ConnectionManager.getDataSource());
+        TestSqlUtil.query("afterdb.sql");
     }
 }
