@@ -14,11 +14,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTimeout;
 
 public class PerformanceTest {
+    private static final String INIT_DB_SQL = "initdb.sql";
+    private static final String AFTER_DB_SQL = "afterdb.sql";
+
     private JdbcTemplate jdbcTemplate;
 
     @BeforeEach
     public void setUp() {
-        TestSqlUtil.query("initdb.sql");
+        TestSqlUtil.query(INIT_DB_SQL);
         jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
     }
 
@@ -75,6 +78,6 @@ public class PerformanceTest {
 
     @AfterEach
     public void tearDown() {
-        TestSqlUtil.query("afterdb.sql");
+        TestSqlUtil.query(AFTER_DB_SQL);
     }
 }
