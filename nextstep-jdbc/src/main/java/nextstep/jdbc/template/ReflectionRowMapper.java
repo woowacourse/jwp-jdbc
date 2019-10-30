@@ -4,6 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -38,12 +40,22 @@ public class ReflectionRowMapper<T> implements RowMapper<T> {
         }
     }
 
-    private void setFields(ResultSet resultSet, T instance) throws IllegalAccessException, SQLException {
+    private void setFields(ResultSet resultSet, T instance) throws IllegalAccessException, SQLException, NoSuchMethodException, InvocationTargetException {
         ResultSetMetaData metaData = resultSet.getMetaData();
         int columnCount = metaData.getColumnCount();
         for (int i = START_SET_VALUE_INDEX; i <= columnCount; i++) {
             Field field = fields.get(metaData.getColumnName(i).toLowerCase());
-            field.set(instance, resultSet.getString(field.getName()));
+            setField(resultSet, field);
         }
+    }
+
+    private void setField(ResultSet resultSet, Field field) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
+        Class<?> type = field.getType();
+        Method method = ResultSet.class.getMethod(parseMethodName(type.getSimpleName()), String.class);
+        method.invoke(resultSet, field.getName());
+    }
+
+    private String parseMethodName(String name) {
+        return "get" + name.substring(0, 1).toUpperCase() + name.substring(1);
     }
 }
