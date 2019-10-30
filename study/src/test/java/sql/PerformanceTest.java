@@ -45,11 +45,11 @@ public class PerformanceTest {
                 .executeForObject(sql2, (RowMapper<Object>) resultSet -> resultSet.getString(1)))
                 .isEqualTo("19.2");
 
-        assertTimeout(Duration.ofMillis(150L), () -> {
+        assertTimeout(Duration.ofMillis(250L), () -> {
             jdbcTemplate.executeForObject(sql1, resultSet -> null);
         });
 
-        assertTimeout(Duration.ofMillis(150L), () -> {
+        assertTimeout(Duration.ofMillis(250L), () -> {
             jdbcTemplate.executeForObject(sql2, resultSet -> null);
         });
     }
