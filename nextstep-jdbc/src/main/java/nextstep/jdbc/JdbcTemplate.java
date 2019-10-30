@@ -36,8 +36,6 @@ public class JdbcTemplate {
         } catch (SQLException e) {
             logger.error("{}.queryForList >> {}", TAG, e);
             throw new DataBaseException();
-        } finally {
-            ConnectionManager.closeConnection(connection);
         }
     }
 
