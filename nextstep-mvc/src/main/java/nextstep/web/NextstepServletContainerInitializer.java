@@ -1,15 +1,21 @@
 package nextstep.web;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.servlet.ServletContainerInitializer;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.HandlesTypes;
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
 @HandlesTypes(WebApplicationInitializer.class)
 public class NextstepServletContainerInitializer implements ServletContainerInitializer {
+    private static final Logger logger = LoggerFactory.getLogger(NextstepServletContainerInitializer.class);
+
     @Override
     public void onStartup(Set<Class<?>> webAppInitializerClasses, ServletContext servletContext)
             throws ServletException {
@@ -31,7 +37,12 @@ public class NextstepServletContainerInitializer implements ServletContainerInit
         }
 
         for (WebApplicationInitializer initializer : initializers) {
-            initializer.onStartup(servletContext);
+            try {
+                initializer.onStartup(servletContext);
+            } catch (IOException e) {
+                logger.error(e.getMessage(), e);
+                throw new IllegalArgumentException(e);
+            }
         }
     }
 }
