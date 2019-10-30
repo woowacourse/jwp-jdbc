@@ -1,78 +1,51 @@
 package slipp.dao;
 
+import nextstep.jdbc.JdbcTemplate;
+import nextstep.jdbc.RowMapper;
 import slipp.domain.User;
 import slipp.support.db.ConnectionManager;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class UserDao {
-    public void insert(User user) throws SQLException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        try {
-            con = ConnectionManager.getConnection();
-            String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
-            pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, user.getUserId());
-            pstmt.setString(2, user.getPassword());
-            pstmt.setString(3, user.getName());
-            pstmt.setString(4, user.getEmail());
+    private static final RowMapper ROW_MAPPER = (resultSet) -> {
+        String userId = resultSet.getString("userId");
+        String password = resultSet.getString("password");
+        String name = resultSet.getString("name");
+        String email = resultSet.getString("email");
 
-            pstmt.executeUpdate();
-        } finally {
-            if (pstmt != null) {
-                pstmt.close();
-            }
+        return new User(userId, password, name, email);
+    };
 
-            if (con != null) {
-                con.close();
-            }
-        }
+    private JdbcTemplate jdbcTemplate;
+
+    public UserDao() {
+        this.jdbcTemplate = JdbcTemplate.getInstance(ConnectionManager.getDataSource());
     }
 
-    public void update(User user) throws SQLException {
-        // TODO 구현 필요함.
+    public void insert(User user) {
+        String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
+
+        jdbcTemplate.executeUpdate(sql, user.getUserId(), user.getPassword(), user.getName(), user.getEmail());
     }
 
-    public List<User> findAll() throws SQLException {
-        // TODO 구현 필요함.
-        return new ArrayList<User>();
+    public void update(User user) {
+        String sql = "UPDATE USERS " +
+                "SET password = ?, name = ?, email = ? " +
+                "WHERE userId = ?";
+
+        jdbcTemplate.executeUpdate(sql, user.getPassword(), user.getName(), user.getEmail(), user.getUserId());
     }
 
-    public User findByUserId(String userId) throws SQLException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        try {
-            con = ConnectionManager.getConnection();
-            String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
-            pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, userId);
+    public List<User> findAll() {
+        String sql = "SELECT userId, password, name, email FROM USERS";
 
-            rs = pstmt.executeQuery();
+        return jdbcTemplate.selectAll(sql, ROW_MAPPER);
+    }
 
-            User user = null;
-            if (rs.next()) {
-                user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
-                        rs.getString("email"));
-            }
+    public User findByUserId(String userId) {
+        String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
 
-            return user;
-        } finally {
-            if (rs != null) {
-                rs.close();
-            }
-            if (pstmt != null) {
-                pstmt.close();
-            }
-            if (con != null) {
-                con.close();
-            }
-        }
+        return jdbcTemplate.selectObject(sql, ROW_MAPPER, userId);
     }
 }
