@@ -1,4 +1,4 @@
-package nextstep.jdbc;
+package slipp.dao;
 
 import org.apache.commons.dbcp2.BasicDataSource;
 

@@ -5,6 +5,7 @@ import nextstep.jdbc.exception.FailConnectionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -15,9 +16,15 @@ import java.util.List;
 public class JdbcTemplate {
     private static final Logger log = LoggerFactory.getLogger(JdbcTemplate.class);
 
+    private final DataSource dataSource;
+
+    public JdbcTemplate(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
+
     private Connection getConnection() {
         try {
-            return ConnectionManager.getConnection();
+            return dataSource.getConnection();
         } catch (Exception e) {
             log.error("Fail connection", e);
             throw new FailConnectionException(e);
