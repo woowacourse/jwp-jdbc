@@ -40,8 +40,8 @@ public class ConnectionManager {
             ds.setPassword(properties.getProperty("jdbc.password"));
             return ds;
         } catch (IOException e) {
-            log.error("Fail get datasource", e);
-            throw new IllegalArgumentException();
+            log.error(e.getMessage(), e);
+            throw new IllegalStateException(e);
         }
     }
 
@@ -49,6 +49,7 @@ public class ConnectionManager {
         try {
             return getDataSource().getConnection();
         } catch (SQLException e) {
+            log.error(e.getMessage(), e);
             throw new IllegalStateException(e);
         }
     }
