@@ -28,7 +28,7 @@ public class ConnectionManager {
         Properties properties = new Properties();
         try {
             if (inputStream == null) {
-                logger.debug("not found db.properties");
+                logger.error("not found db.properties");
             }
             properties.load(inputStream);
 
