@@ -5,8 +5,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Properties;
@@ -19,19 +19,25 @@ public class ConnectionManager {
     private String DB_USERNAME;
     private String DB_PW;
 
+    private static class ConnectionManagerHolder {
+        static ConnectionManager instance = new ConnectionManager();
+    }
+
     private ConnectionManager() {
+        InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream("db.properties");
+        Properties properties = new Properties();
         try {
-            String resource = "D:\\woowaBros\\level_3\\jwp-jdbc\\slipp\\src\\main\\resources\\db.properties";
-            Properties properties = new Properties();
-            FileInputStream fis = new FileInputStream(resource);
-            properties.load(new java.io.BufferedInputStream(fis));
+            if (inputStream == null) {
+                logger.debug("not found db.properties");
+            }
+            properties.load(inputStream);
 
             DB_DRIVER = properties.getProperty("jdbc.driverClass");
             DB_URL = properties.getProperty("jdbc.url");
             DB_USERNAME = properties.getProperty("jdbc.username");
             DB_PW = properties.getProperty("jdbc.password");
         } catch (IOException e) {
-            logger.error("()", e.getCause());
+            logger.error("{}", e.getCause());
         }
     }
 
@@ -56,9 +62,5 @@ public class ConnectionManager {
         } catch (SQLException e) {
             throw new IllegalStateException(e);
         }
-    }
-
-    private static class ConnectionManagerHolder {
-        static ConnectionManager instance = new ConnectionManager();
     }
 }
