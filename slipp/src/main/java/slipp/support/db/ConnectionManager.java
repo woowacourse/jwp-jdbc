@@ -29,6 +29,7 @@ public class ConnectionManager {
         try {
             if (inputStream == null) {
                 logger.error("not found db.properties");
+                throw new IllegalStateException();
             }
             properties.load(inputStream);
 
