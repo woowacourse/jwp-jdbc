@@ -11,7 +11,7 @@ import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import slipp.domain.User;
 import slipp.dto.UserCreatedDto;
 import slipp.dto.UserUpdatedDto;
-import slipp.support.db.ConnectionManager;
+import slipp.support.db.SlippConnectionManager;
 import support.test.NsWebTestClient;
 
 import java.net.URI;
@@ -28,7 +28,7 @@ public class UserAcceptanceTest {
         client = NsWebTestClient.of(8080);
         ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
         populator.addScript(new ClassPathResource("jwp.sql"));
-        DatabasePopulatorUtils.execute(populator, ConnectionManager.getDataSource());
+        DatabasePopulatorUtils.execute(populator, SlippConnectionManager.getDataSource());
     }
 
     @Test
