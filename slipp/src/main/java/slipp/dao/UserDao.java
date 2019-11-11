@@ -1,18 +1,22 @@
 package slipp.dao;
 
 import nextstep.jdbc.JdbcTemplate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import slipp.domain.User;
+import slipp.support.db.ConnectionManager;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Optional;
 
 public class UserDao {
+    private static final Logger log = LoggerFactory.getLogger(UserDao.class);
+
     private final JdbcTemplate jdbcTemplate;
 
     public UserDao() {
-        this.jdbcTemplate = new JdbcTemplate();
+        this.jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
     }
 
     public void insert(User user) {
@@ -35,8 +39,8 @@ public class UserDao {
         return jdbcTemplate.query(query, this::getUser);
     }
 
-    public Optional<User> findByUserId(String userId) {
-        String query = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
+    public User findByUserId(String userId) {
+        String query = "SELECT userId, password, name, email FROM USERS WHERE userId=?";
 
         return jdbcTemplate.queryForObject(query, this::getUser, userId);
     }
