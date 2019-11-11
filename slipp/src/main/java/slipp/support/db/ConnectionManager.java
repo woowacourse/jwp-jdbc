@@ -4,13 +4,15 @@ import org.apache.commons.dbcp2.BasicDataSource;
 import slipp.support.db.exception.ReadPropertiesFailedException;
 
 import javax.sql.DataSource;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Properties;
 
 public class ConnectionManager {
+    public static final String DB_PROPERTIES_FILE_NAME = "db.properties";
+
     public static DataSource getDataSource() {
         Properties properties = readProperties();
         BasicDataSource ds = new BasicDataSource();
@@ -23,8 +25,10 @@ public class ConnectionManager {
 
     private static Properties readProperties() {
         Properties properties = new Properties();
-        try {
-            properties.load(new FileInputStream("src/main/resources/db.properties"));
+        ClassLoader classLoader = ConnectionManager.class.getClassLoader();
+
+        try (InputStream fileInputStream = classLoader.getResourceAsStream(DB_PROPERTIES_FILE_NAME)) {
+            properties.load(fileInputStream);
         } catch (IOException e) {
             e.printStackTrace();
             throw new ReadPropertiesFailedException();
