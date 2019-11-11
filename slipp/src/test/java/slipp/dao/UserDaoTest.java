@@ -1,6 +1,5 @@
 package slipp.dao;
 
-import nextstep.jdbc.ConnectionManager;
 import nextstep.jdbc.JdbcTemplate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,7 +18,7 @@ public class UserDaoTest {
 
     @BeforeEach
     public void setup() {
-        userDao = new UserDao(new JdbcTemplate());
+        userDao = new UserDao(new JdbcTemplate(ConnectionManager.getDataSource()));
         ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
         populator.addScript(new ClassPathResource("jwp.sql"));
         DatabasePopulatorUtils.execute(populator, ConnectionManager.getDataSource());

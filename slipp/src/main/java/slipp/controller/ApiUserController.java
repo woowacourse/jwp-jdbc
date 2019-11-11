@@ -10,6 +10,7 @@ import nextstep.web.annotation.RequestMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import slipp.dao.ConnectionManager;
 import slipp.dao.UserDao;
 import slipp.domain.User;
 import slipp.dto.UserCreatedDto;
@@ -22,7 +23,7 @@ import javax.servlet.http.HttpServletResponse;
 public class ApiUserController {
     private static final Logger logger = LoggerFactory.getLogger(ApiUserController.class);
 
-    private final UserDao userDao = new UserDao(new JdbcTemplate());
+    private final UserDao userDao = new UserDao(new JdbcTemplate(ConnectionManager.getDataSource()));
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @RequestMapping(value = "/api/users", method = RequestMethod.POST)
