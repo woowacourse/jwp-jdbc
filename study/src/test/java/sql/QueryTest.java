@@ -53,12 +53,11 @@ public class QueryTest {
         );
 
         String normalizedTable = "DEV_DATA";
-        String sql = String.format("SELECT d.Dev_type as devType, round(avg(d.year), 1) as result\n" +
-                "FROM %s as s\n" +
-                "JOIN %s as d\n" +
-                "ON s.Respondent = d.Respondent\n" +
-                "group by d.Dev_type\n" +
-                "ORDER BY result DESC;", TABLE_NAME, normalizedTable);
+        String sql = String.format("SELECT Dev_type as devType, round(avg(year), 1) as result\n" +
+                "FROM %s as d\n" +
+                "WHERE Dev_type <> \"NA\"\n" +
+                "group by Dev_type\n" +
+                "order by result DESC;", normalizedTable);
 
         List<QueryResult<Double>> queryResults = jdbcTemplate.query(sql, rs -> new QueryResult<>(
                 rs.getString("devType"), rs.getDouble("result")
