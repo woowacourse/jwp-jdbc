@@ -1,4 +1,5 @@
 CREATE INDEX idx_hobby ON survey_results_public (hobby);
+CREATE INDEX idx_dev_type ON DEV_DATA (Dev_type, year);
 
 CREATE TABLE DEV_DATA (
 	id INT NOT NULL auto_increment primary key,
