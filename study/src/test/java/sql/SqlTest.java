@@ -23,7 +23,7 @@ public class SqlTest {
     }
 
     @Test
-    @DisplayName("Coding as hobby인 개발자의 비율은 80.8%다.")
+    @DisplayName("Coding as hobby인 개발자의 비율")
     void coddingAsHobby() {
         String query = "select " +
                 "round(selected.yes / selected.total, 3) as 'yes', " +
@@ -52,5 +52,36 @@ public class SqlTest {
             jdbcTemplate.executeQueryForObject(query,
                     rs -> rs.getString("yes"));
         });
+    }
+
+    @Test
+    @DisplayName("DevType에 따른 professional coding experience 년차 평균")
+    void professionalCodingExperience() {
+        String query = createQuery();
+        int engineeringManager = 0;
+        int devOps = 3;
+        int mobile = 17;
+        int gameOrGraphics = 18;
+
+        List<String> result = jdbcTemplate.executeQuery(query, rs -> rs.getString("average"));
+        assertThat(result.get(engineeringManager)).isEqualTo("10.2");
+        assertThat(result.get(devOps)).isEqualTo("8.0");
+        assertThat(result.get(mobile)).isEqualTo("5.1");
+        assertThat(result.get(gameOrGraphics)).isEqualTo("4.5");
+
+    }
+
+    private String createQuery() {
+        return "SELECT t.devtype, round(avg(if(t.YearsCodingProf = '30 or more years', 30, substring_index(t.YearsCodingProf, '-', 1))), 1) AS average" +
+                " from (SELECT" +
+                " SUBSTRING_INDEX(SUBSTRING_INDEX(devtype, ';', n.digit + 1), ';', -1) devtype, YearsCodingProf" +
+                " FROM" +
+                " survey_results_public" +
+                " INNER JOIN" +
+                " (SELECT 0 digit UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9 UNION ALL SELECT 10) n" +
+                " ON LENGTH(REPLACE(devtype, ';' , '')) <= LENGTH(devtype)-n.digit WHERE devtype != 'NA') as t" +
+                " WHERE t.YearsCodingProf != 'NA'" +
+                " group by t.devtype" +
+                " order by average desc";
     }
 }
