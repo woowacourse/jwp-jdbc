@@ -63,7 +63,7 @@ public class QueryTest {
                 "from  respondent_dev_type as rdt\n" +
                 "inner join respondent as r\n" +
                 "on r.id = rdt.respondent_id\n" +
-                "where rdt.dev_type_id != (select id from dev_type where title = 'NA') and r.yearsCodingProf_int != 0\n" +
+                "where rdt.dev_type_id != (select id from dev_type where title = 'NA') and r.yearsCodingProf != 'NA'\n" +
                 "group by rdt.dev_type_id) as joined\n" +
                 "inner join dev_type as dt\n" +
                 "on joined.dt_id = dt.id;";
