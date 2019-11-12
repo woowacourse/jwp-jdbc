@@ -1,5 +1,6 @@
 package slipp;
 
+import nextstep.jdbc.ConnectionManager;
 import nextstep.jdbc.JdbcTemplate;
 import nextstep.mvc.DispatcherServlet;
 import nextstep.mvc.HandlerMapping;
@@ -19,12 +20,7 @@ public class ManualHandlerMapping implements HandlerMapping {
     private Map<String, Controller> mappings = new HashMap<>();
 
     public void initialize() {
-        JdbcTemplate jdbcTemplate = JdbcTemplate.builder()
-                .driver("org.h2.Driver")
-                .url("jdbc:h2:mem:jwp-framework")
-                .userName("sa")
-                .password("")
-                .build();
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(new ConnectionManager());
 
         mappings.put("/", new HomeController());
         mappings.put("/users/form", new ForwardController("/user/form.jsp"));
