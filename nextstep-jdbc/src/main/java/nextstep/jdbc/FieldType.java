@@ -1,5 +1,7 @@
 package nextstep.jdbc;
 
+import java.math.BigDecimal;
+
 public enum FieldType {
     BOOLEAN(Boolean.class),
     BYTE(Byte.class),
@@ -9,7 +11,8 @@ public enum FieldType {
     LONG(Long.class),
     DOUBLE(Double.class),
     FLOAT(Float.class),
-    STRING(String.class);
+    STRING(String.class),
+    BIG_DECIMAL(BigDecimal.class);
 
     private Class<?> type;
 
