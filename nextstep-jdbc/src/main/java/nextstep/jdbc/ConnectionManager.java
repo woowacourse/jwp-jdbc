@@ -44,9 +44,18 @@ public class ConnectionManager {
         ds.setUsername(userName);
         ds.setPassword(password);
 
+        ds.setMaxWaitMillis(100);
+        ds.setInitialSize(10);
+        ds.setMinIdle(10);
+        ds.setMaxIdle(10);
+        ds.setMaxTotal(10);
+        ds.setPoolPreparedStatements(true);
+        ds.setMaxOpenPreparedStatements(10);
+
         try {
             ds.getConnection().close();  // initialize dbcp of basic data source.
         } catch (SQLException e) {
+            e.printStackTrace();
             throw new DataSourceFailException();
         }
 
