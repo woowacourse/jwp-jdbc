@@ -3,7 +3,6 @@ package slipp.support.db;
 import org.apache.commons.dbcp2.BasicDataSource;
 
 import javax.sql.DataSource;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -17,7 +16,7 @@ public class ConnectionManager {
 
     public static DataSource getDataSource() {
         BasicDataSource ds = new BasicDataSource();
-        Properties properties = load("../../../../resources/db.properties");
+        Properties properties = load("db.properties");
 
         ds.setDriverClassName(properties.getProperty(DRIVER_CLASS));
         ds.setUrl(properties.getProperty(URL));
@@ -34,10 +33,11 @@ public class ConnectionManager {
         }
     }
 
-    private static Properties load(String path) {
+    private static Properties load(String propertiesFileName) {
         Properties properties = new Properties();
         try {
-            properties.load(new FileInputStream(path));
+            properties.load(ConnectionManager.class
+                    .getClassLoader().getResourceAsStream(propertiesFileName));
         } catch (IOException e) {
             e.printStackTrace();
         }
