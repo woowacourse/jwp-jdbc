@@ -1,5 +1,6 @@
 package nextstep.jdbc;
 
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -8,6 +9,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class JdbcTemplate {
+    private final DataSource ds;
+
+    public JdbcTemplate(DataSource ds) {
+        this.ds = ds;
+    }
+
     public <T> List<T> selectTemplate(String sql, RowMapper<T> rowMapper, Object... params) {
         return selectTemplate(sql, (pstmt) -> setValues(pstmt, params), rowMapper);
     }
