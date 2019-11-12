@@ -64,6 +64,11 @@ public class JdbcTemplate implements DBTemplate {
         cxud(query);
     }
 
+    @Override
+    public void execute(String query, Object... params) {
+        cxud(query, params);
+    }
+
     private void cxud(String query, Object... params) {
         try (final Connection con = this.dataSource.getConnection();
              final PreparedStatement pstmt = preparedStatementSetter.run(con, query, params)) {

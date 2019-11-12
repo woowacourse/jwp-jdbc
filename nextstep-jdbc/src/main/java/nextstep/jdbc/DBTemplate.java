@@ -10,4 +10,5 @@ public interface DBTemplate {
     void update(String query, Object... params);
     void delete(String query, Object... params);
     void deleteAll(String query);
+    void execute(String query, Object... params);
 }
