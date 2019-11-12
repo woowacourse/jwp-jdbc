@@ -8,7 +8,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -22,11 +21,6 @@ public class QueryTest {
     void setUp() {
         ConnectionManager.initialize();
         this.jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
-    }
-
-    @Test
-    void initializeTest() {
-        // do nothing
     }
 
     @Test
@@ -46,7 +40,7 @@ public class QueryTest {
             String sql = "SELECT COUNT(*) * 100 / (SELECT COUNT(*) FROM survey_results_public) AS Percentage\n" +
                     "FROM survey_results_public\n" +
                     "WHERE Hobby = ?";
-            double codingNoHobby = jdbcTemplate.selectObjectTemplate(sql,
+            jdbcTemplate.selectObjectTemplate(sql,
                     (rs) -> rs.getDouble("Percentage"), "No");
         });
     }
@@ -78,7 +72,6 @@ public class QueryTest {
                 Pair.of("Mobile developer", 5.2),
                 Pair.of("Game or graphics developer", 4.6)
         );
-
         assertThat(yearsOfCodingProf).isEqualTo(answer);
     }
 }
