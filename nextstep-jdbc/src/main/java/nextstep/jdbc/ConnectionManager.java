@@ -20,10 +20,6 @@ public class ConnectionManager {
         dataSource = makeDataSource();
     }
 
-    public static String getDbProperties() {
-        return DB_PROPERTIES;
-    }
-
     Connection getConnection() {
         try {
             return dataSource.getConnection();
