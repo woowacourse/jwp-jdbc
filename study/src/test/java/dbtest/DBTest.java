@@ -8,6 +8,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
+import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertTimeout;
 
@@ -28,6 +30,8 @@ public class DBTest {
 
     @Test
     void yearsOfProfessionalCodingExperience() {
+        initDevTypeTable();
+
         String sql = "SELECT d.name, ROUND(AVG(s.YearsCodingProf),1) as exp\n" +
                 "FROM dev_type as d, survey_results_public as s\n" +
                 "WHERE s.DevType LIKE CONCAT('%', d.name, '%') and s.YearsCodingProf != 'NA'\n" +
@@ -40,6 +44,37 @@ public class DBTest {
 
         for (String result : jdbcTemplate.query(sql, rs -> rs.getString(1) + ": " + rs.getDouble(2))) {
             log.info(result);
+        }
+    }
+
+    void initDevTypeTable() {
+        String dropDevType = "DROP TABLE dev_type;";
+        jdbcTemplate.update(dropDevType);
+
+        String createDevTypeTable = "create table dev_type (" +
+                " name varchar(50));";
+        jdbcTemplate.update(createDevTypeTable);
+
+        List<String> insertDataSqls = Arrays.asList(
+                "insert into dev_type values ('Engineering manager');",
+                "insert into dev_type values ('DevOps specialist');",
+                "insert into dev_type values ('Desktop or enterprise applications developer');",
+                "insert into dev_type values ('Embedded applications or devices developer');",
+                "insert into dev_type values ('Data or business analyst');",
+                "insert into dev_type values ('System administrator');",
+                "insert into dev_type values ('Database administrator');",
+                "insert into dev_type values ('Full-stack developer');",
+                "insert into dev_type values ('Back-end developer');",
+                "insert into dev_type values ('Educator or academic researcher');",
+                "insert into dev_type values ('Designer');",
+                "insert into dev_type values ('QA or test developer');",
+                "insert into dev_type values ('Front-end developer');",
+                "insert into dev_type values ('Data scientist or machine learning specialist');",
+                "insert into dev_type values ('Mobile developer');",
+                "insert into dev_type values ('Game or graphics developer');"
+        );
+        for (String insertDataSql : insertDataSqls) {
+            jdbcTemplate.update(insertDataSql);
         }
     }
 }
