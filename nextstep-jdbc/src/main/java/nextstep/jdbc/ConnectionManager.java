@@ -43,6 +43,13 @@ public class ConnectionManager {
         ds.setUrl(url);
         ds.setUsername(userName);
         ds.setPassword(password);
+
+        try {
+            ds.getConnection().close();  // initialize dbcp of basic data source.
+        } catch (SQLException e) {
+            throw new DataSourceFailException();
+        }
+
         return ds;
     }
 
