@@ -5,6 +5,7 @@ import org.apache.commons.dbcp2.BasicDataSource;
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.SQLException;
 import java.util.Properties;
 
 public class DataSourcePropertiesBinder {
@@ -28,6 +29,12 @@ public class DataSourcePropertiesBinder {
         dataSource.setUrl(PROPERTIES.getProperty(key("url")));
         dataSource.setUsername(PROPERTIES.getProperty(key("username")));
         dataSource.setPassword(PROPERTIES.getProperty(key("password")));
+
+        try {
+            dataSource.getConnection().close();
+        } catch (SQLException e) {
+            throw new ConnectionFailException(e);
+        }
 
         return dataSource;
     }
