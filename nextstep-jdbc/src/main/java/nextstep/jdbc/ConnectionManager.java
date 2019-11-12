@@ -15,15 +15,7 @@ public class ConnectionManager {
     public ConnectionManager(String resource) {
         this.properties = loadProperties(resource);
         this.ds = getDataSource();
-        initConnectionPoll();
-    }
 
-    private void initConnectionPoll() {
-        try {
-            ds.getConnection().close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
     }
 
     private Properties loadProperties(String resource) {
