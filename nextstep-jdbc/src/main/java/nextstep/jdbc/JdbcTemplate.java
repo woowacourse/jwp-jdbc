@@ -20,7 +20,7 @@ public class JdbcTemplate {
     }
 
     public <T> List<T> selectTemplate(String sql, PreparedStatementSetter pstmtSetter, RowMapper<T> rowMapper) {
-        try (Connection con = ConnectionManager.getConnection();
+        try (Connection con = ds.getConnection();
              PreparedStatement pstmt = setValues(con.prepareStatement(sql), pstmtSetter);
              ResultSet rs = pstmt.executeQuery()) {
             return getRows(rowMapper, rs);
@@ -34,7 +34,7 @@ public class JdbcTemplate {
     }
 
     public <T> T selectObjectTemplate(String sql, PreparedStatementSetter pstmtSetter, RowMapper<T> rowMapper) {
-        try (Connection con = ConnectionManager.getConnection();
+        try (Connection con = ds.getConnection();
              PreparedStatement pstmt = setValues(con.prepareStatement(sql), pstmtSetter);
              ResultSet rs = pstmt.executeQuery()) {
             return getObject(rowMapper, rs);
@@ -48,7 +48,7 @@ public class JdbcTemplate {
     }
 
     public void updateTemplate(String sql, PreparedStatementSetter pstmtSetter) {
-        try (Connection con = ConnectionManager.getConnection();
+        try (Connection con = ds.getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
             pstmtSetter.setValues(pstmt);
             pstmt.executeUpdate();
