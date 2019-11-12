@@ -9,3 +9,4 @@ CREATE TABLE USERS (
 );
 
 INSERT INTO USERS VALUES('admin', 'password', '자바지기', 12);
+INSERT INTO USERS VALUES('asd', 'asd', 'asd', 12);
