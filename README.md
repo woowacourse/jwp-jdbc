@@ -1,4 +1,20 @@
 # 프레임워크 구현
+
+## STEP 2 대용량 데이터 처리미션
+
+```
+CREATE VIEW dtype AS
+    SELECT 
+        SUBSTRING_INDEX(SUBSTRING_INDEX(DevType, ';', numbers.n), ';', - 1) AS dtype,
+        CAST(REPLACE(LEFT(YearsCodingProf, 2), '-', '') AS UNSIGNED) AS period
+    FROM
+        numbers
+            INNER JOIN
+        survey_results_public ON CHAR_LENGTH(DevType) - CHAR_LENGTH(REPLACE(DevType, ';', '')) >= numbers.n - 1
+    WHERE
+        NOT YearsCodingProf = 'NA';
+```
+
 ## 진행 방법
 * 프레임워크 구현에 대한 요구사항을 파악한다.
 * 요구사항에 대한 구현을 완료한 후 자신의 github 아이디에 해당하는 브랜치에 Pull Request(이하 PR)를 통해 코드 리뷰 요청을 한다.
