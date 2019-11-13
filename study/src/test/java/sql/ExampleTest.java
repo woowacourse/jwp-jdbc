@@ -25,6 +25,9 @@ public class ExampleTest {
 
     @Test
     void Coding_as_a_hobby_테스트() {
+        String index = "create index hobby_index on survey_results_public (hobby);";
+        jdbcTemplate.executeUpdate(index);
+
         String sql = "select hobby, round(count(*) / (select count(*) from survey_results_public) * 100, 2) as ratio\n" +
                 "from survey_results_public\n" +
                 "group by hobby;";
@@ -46,7 +49,7 @@ public class ExampleTest {
         assertThat(hobbyResults.get("No")).isEqualTo(19.18);
         assertThat(hobbyResults.get("Yes")).isEqualTo(80.82);
 
-        assertTimeout(Duration.ofMillis(1500), () -> jdbcTemplate.selectAll(sql, results));
+        assertTimeout(Duration.ofMillis(100), () -> jdbcTemplate.selectAll(sql, results));
     }
 
     @Test
