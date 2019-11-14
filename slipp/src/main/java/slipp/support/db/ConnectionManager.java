@@ -11,14 +11,24 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 public class ConnectionManager {
-    private static final String DB_DRIVER = "org.h2.Driver";
-    private static final String DB_URL = "jdbc:h2:mem:jwp-framework";
-    private static final String DB_USERNAME = "sa";
-    private static final String DB_PW = "";
+    private static final String DEFAULT_DB_DRIVER = "org.h2.Driver";
+    private static final String DEFAULT_DB_URL = "jdbc:h2:mem:jwp-framework";
+    private static final String DEFAULT_DB_USERNAME = "sa";
+    private static final String DEFAULT_DB_PW = "";
 
     public static DataSource getDataSource() {
+        BasicDataSource ds = new BasicDataSource();
+        ds.setDriverClassName(DEFAULT_DB_DRIVER);
+        ds.setUrl(DEFAULT_DB_URL);
+        ds.setUsername(DEFAULT_DB_USERNAME);
+        ds.setPassword(DEFAULT_DB_PW);
+
+        return ds;
+    }
+
+    public static DataSource getDataSource(String path) {
         Properties properties = new Properties();
-        try (InputStream in = new FileInputStream("/home/pkch/techcourse/jwp-jdbc/slipp/src/main/resources/db.properties")) {
+        try (InputStream in = new FileInputStream(path)) {
             properties.load(in);
         } catch (IOException e) {
             e.printStackTrace();
