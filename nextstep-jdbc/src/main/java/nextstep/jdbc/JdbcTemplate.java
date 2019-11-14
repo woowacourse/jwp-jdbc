@@ -92,6 +92,10 @@ public class JdbcTemplate {
         return execute(sql, null, sqlExecuteStrategy);
     }
 
+    public <T> Optional<T> query(final String sql) {
+        return execute(sql, null, null);
+    }
+
     public <T> List<T> queryForList(final String sql, final RowMapper<T> rowMapper) {
         return execute(sql, new RowMapperResultSetExtractor<>(rowMapper), null)
                 .orElse(new ArrayList<>());
