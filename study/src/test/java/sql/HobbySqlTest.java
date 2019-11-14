@@ -3,6 +3,7 @@ package sql;
 import nextstep.jdbc.JdbcTemplate;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import slipp.support.db.ConnectionManager;
 
@@ -27,7 +28,8 @@ class HobbySqlTest {
     }
 
     @Test
-    void Coding_is_Hobby() throws Exception {
+    @DisplayName("코딩은 취미다")
+    void codingIsHobby() throws Exception {
         Hobby hobby = jdbcTemplate.queryForCount(SELECT_CODING_IS_HOBBY_SQL, resultSet ->
                 new Hobby(
                         resultSet.getDouble("yes"),
@@ -40,7 +42,8 @@ class HobbySqlTest {
     }
 
     @Test
-    void Coding_is_Hobby_TimeOut() throws Exception {
+    @DisplayName("코딩은 취미다 timeout")
+    void codingIsHobbyTimeOut() throws Exception {
         assertTimeout(Duration.ofMillis(100), () -> jdbcTemplate.queryForCount(SELECT_CODING_IS_HOBBY_SQL, resultSet ->
                 new Hobby(
                         resultSet.getDouble("yes"),

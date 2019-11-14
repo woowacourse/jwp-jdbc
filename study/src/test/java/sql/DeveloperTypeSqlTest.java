@@ -50,7 +50,7 @@ public class DeveloperTypeSqlTest {
 
     @Test
     @DisplayName("코딩 경력 평균")
-    void SELECTYearsOfProfessionalCodingExperienceSql() {
+    void selectYearsOfProfessionalCodingExperienceSql() {
         List<YearsOfProfessionalCodingExperience> yearsOfProfessionalCodingExperience = jdbcTemplate.queryForList(
                 SELECT_YEARS_OF_PROFESSIONAL_CODING_EXPERIENCE_SQL, resultSet ->
                 new YearsOfProfessionalCodingExperience(
