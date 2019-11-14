@@ -54,33 +54,40 @@ public class ExampleTest {
 
     @Test
     void Years_of_Professional_Coding_Experience_by_devType_테스트() {
-        String sql = "select round(avg(YearsCodingProf),2) as average, devType\n" +
+        String sql = "\n" +
+                "select devType, round(avg(YearsCodingProf),1) as avg\n" +
                 "from (select SUBSTRING_INDEX (SUBSTRING_INDEX(survey_results_public.devType,';',numbers.n),';',-1) devType, Respondent, YearsCodingProf\n" +
                 "from \n" +
                 "   (select  1 n union  all  select 2  \n" +
                 "    union  all  select  3  union  all select 4 \n" +
                 "    union  all  select  5  union  all  select  6\n" +
                 "    union  all  select  7  union  all  select  8 \n" +
-                "    union  all  select  9 union  all  select  10) numbers INNER  JOIN survey_results_public\n" +
+                "    union  all  select  9 union  all  select  10\n" +
+                "    union  all  select  11  union  all select 12 \n" +
+                "    union  all  select  13  union  all  select  14\n" +
+                "    union  all  select  15  union  all  select  16 \n" +
+                "    union  all  select  17 union  all  select  18\n" +
+                "    union  all  select  19) numbers INNER  JOIN survey_results_public\n" +
                 "    on CHAR_LENGTH ( survey_results_public.devType) \n" +
                 "      - CHAR_LENGTH ( REPLACE ( survey_results_public.devType,  ';' ,  '' ))>= numbers.n-1) as sub\n" +
-                "      group by devType;\n";
+                "where devType not like 'NA%' AND YearsCodingProf != 'NA'\n" +
+                "group by devType;";
 
         RowMapper result = (resultSet) -> {
             String devType = resultSet.getString("devType");
-            double average = resultSet.getDouble("average");
+            double average = resultSet.getDouble("avg");
 
-            return new YpceOfDevTypeDto(devType, average);
+            return new DevTypeDto(devType, average);
         };
 
-        List<YpceOfDevTypeDto> results = jdbcTemplate.selectAll(sql, result);
+        List<DevTypeDto> results = jdbcTemplate.selectAll(sql, result);
 
         Map<String, Double> ypceOfDevTypeMap = new HashMap<>();
-        for (YpceOfDevTypeDto ypceOfDevTypeDto : results) {
-            ypceOfDevTypeMap.put(ypceOfDevTypeDto.getDevType(), ypceOfDevTypeDto.getAverageOfYears());
+        for (DevTypeDto devTypeDto : results) {
+            ypceOfDevTypeMap.put(devTypeDto.getDevType(), devTypeDto.getAverageOfYears());
         }
 
-        assertThat(ypceOfDevTypeMap.get("Back-end developer")).isEqualTo(5.46);
+        assertThat(ypceOfDevTypeMap.get("Back-end developer")).isEqualTo(6.2);
         assertTimeout(Duration.ofMillis(6000), () -> jdbcTemplate.selectAll(sql, result));
     }
 }

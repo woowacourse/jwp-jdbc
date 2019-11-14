@@ -1,10 +1,10 @@
 package sql;
 
-public class YpceOfDevTypeDto {
+public class DevTypeDto {
     private String devType;
     private double averageOfYears;
 
-    public YpceOfDevTypeDto(String devType, double averageOfYears) {
+    public DevTypeDto(String devType, double averageOfYears) {
         this.devType = devType;
         this.averageOfYears = averageOfYears;
     }
