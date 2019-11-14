@@ -7,11 +7,6 @@ import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import slipp.support.db.DataBasePropertyReader;
 
-import static slipp.dao.UserDao.DB_DRIVER;
-import static slipp.dao.UserDao.DB_PW;
-import static slipp.dao.UserDao.DB_URL;
-import static slipp.dao.UserDao.DB_USERNAME;
-
 public class DataBaseInitialSetter {
     private static final String path = "/Users/mac/level3/jwp-jdbc/slipp/src/main/resources/db.properties";
     private JdbcTemplate jdbcTemplate;
@@ -24,7 +19,7 @@ public class DataBaseInitialSetter {
         dataBasePropertyReader.readDataBaseProperty();
         DatabasePopulatorUtils.execute(populator, ConnectionGenerator.getDataSource(dataBasePropertyReader.getDriver(), dataBasePropertyReader.getUrl(),
             dataBasePropertyReader.getUserName(), dataBasePropertyReader.getPassword()));
-        
+
         jdbcTemplate = new JdbcTemplate(
             ConnectionGenerator.getDataSource(dataBasePropertyReader.getDriver(), dataBasePropertyReader.getUrl(),
                 dataBasePropertyReader.getUserName(), dataBasePropertyReader.getPassword()));

@@ -1,24 +1,14 @@
 package sql;
 
-import nextstep.jdbc.ConnectionGenerator;
 import nextstep.jdbc.JdbcTemplate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
-import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
-import slipp.support.db.DataBasePropertyReader;
 
 import java.time.Duration;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertTimeout;
-import static slipp.dao.UserDao.DB_DRIVER;
-import static slipp.dao.UserDao.DB_PW;
-import static slipp.dao.UserDao.DB_URL;
-import static slipp.dao.UserDao.DB_USERNAME;
 
 public class SqlTest {
     private static final Logger logger = LoggerFactory.getLogger(SqlTest.class);

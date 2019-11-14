@@ -19,8 +19,8 @@ public class ParameterNameDiscovererTest {
         Class clazz = Sample.class;
         Method[] methods = clazz.getDeclaredMethods();
         Method method = Arrays.stream(methods)
-                .filter(m -> m.getName().equals("method"))
-                .findFirst().get();
+            .filter(m -> m.getName().equals("method"))
+            .findFirst().get();
         String[] parameterNames = nameDiscoverer.getParameterNames(method);
         assertThat(parameterNames[0]).isEqualTo("name");
         assertThat(parameterNames[1]).isEqualTo("email");
