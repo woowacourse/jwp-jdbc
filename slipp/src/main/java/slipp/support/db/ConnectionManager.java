@@ -18,10 +18,10 @@ public class ConnectionManager {
 
     public static DataSource getDataSource() {
         BasicDataSource ds = new BasicDataSource();
-        try (InputStream input = new FileInputStream("src/main/resources/db.properties")) {
-            Properties prop = new Properties();
+        Properties prop = new Properties();
 
-            prop.load(input);
+        try {
+            prop.load(ConnectionManager.class.getResourceAsStream(("/db.properties")));
             ds.setDriverClassName(prop.getProperty(DB_DRIVER_KEY));
             ds.setUrl(prop.getProperty(DB_URL_KEY));
             ds.setUsername(prop.getProperty(DB_USERNAME_KEY));
