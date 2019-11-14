@@ -49,7 +49,7 @@ SELECT ROUND(s1.yes / (s1.yes + s2.not_yes) * 100, 1) yes, ROUND(s2.not_yes / (s
 FROM (SELECT COUNT(*) yes FROM survey_results_public WHERE hobby='YES') s1
 JOIN (SELECT COUNT(*) not_yes FROM survey_results_public WHERE hobby='NO') s2;
 
-ALTER TABLE survey_results_public DROP IND EX idx_hobby;
+ALTER TABLE survey_results_public DROP INDEX idx_hobby;
 
 -- 미션 2단계 --
 SELECT SUBSTRING_INDEX(SUBSTRING_INDEX(devtype, ';', n), ';', -1) dev_type, ROUND(AVG((SUBSTRING_INDEX(YearsCodingProf, '-', 1))), 1) years_of_prof
