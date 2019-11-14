@@ -15,11 +15,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class QueryTest {
 
     private static final String TABLE_NAME = "survey_results_public";
+    private static final String DB_CONFIGURATION_PATH = "src/test/resources/db.properties";
     private JdbcTemplate jdbcTemplate;
 
     @BeforeEach
     void setUp() {
-        jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+        jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource(DB_CONFIGURATION_PATH));
     }
 
     @Test
