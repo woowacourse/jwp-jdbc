@@ -65,7 +65,6 @@ class sqlTest {
         return jdbcTemplate.query(HOBBY_RATIO_SQL, results);
     }
 
-
     @Test
     void devTypeYearsCoding_duration() {
         assertTimeout(Duration.ofMillis(10000), this::getDevTypeYearsCoding);
@@ -76,10 +75,6 @@ class sqlTest {
         List<DevTypeYearsCodingDto> devTypeYearsCodingDtos = getDevTypeYearsCoding();
         DevTypeYearsCodingDto expectDto1 = new DevTypeYearsCodingDto("Engineering manager", 10.2);
         assertThat(devTypeYearsCodingDtos.contains(expectDto1)).isTrue();
-        for (DevTypeYearsCodingDto y : devTypeYearsCodingDtos) {
-            System.out.println(y.getDevType());
-        }
-
     }
 
     List<DevTypeYearsCodingDto> getDevTypeYearsCoding() {
@@ -88,5 +83,4 @@ class sqlTest {
                         rs.getString("DevType"),
                         rs.getDouble("Average")));
     }
-
 }
