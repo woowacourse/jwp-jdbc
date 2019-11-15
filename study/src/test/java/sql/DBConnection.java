@@ -1,7 +1,7 @@
 package sql;
 
-import slipp.support.db.ConnectionManager;
-import slipp.support.db.exception.PropertiesIOException;
+
+import sql.exception.PropertiesIOException;
 
 import java.io.IOException;
 import java.io.InputStream;

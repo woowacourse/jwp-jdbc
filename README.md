@@ -38,3 +38,8 @@ docker-compose up -d
 
 #### 요구사항 1번의 Advanced는 다음의 인덱스 쿼리를 먼저 실행해주세요.
 > CREATE INDEX idx_hobby ON survey_results_public (hobby)
+
+#### 요구사항 2번을 실행하기 전에 다음의 쿼리를 먼저 실행해주세요.
+> INSERT INTO numbers VALUES (1),(2),(3),(4),(5),(6),(7),(8),(9),(10); <br>
+  INSERT INTO numbers VALUES (11),(12),(13),(14),(15),(16),(17),(18),(19),(20); <br>
+  INSERT INTO numbers VALUES (21),(22),(23),(24),(25),(26),(27),(28),(29),(30);

@@ -21,16 +21,16 @@ public class Problem1 {
                 "FROM survey_results_public " +
                 "GROUP BY hobby";
 
-        List<Result> results = jdbcTemplate.executeQuery(
+        List<Hobby> hobbies = jdbcTemplate.executeQuery(
                 query, Collections.emptyMap(),
-                rs -> new Result(rs.getString("hobby"), rs.getDouble("respondents")));
+                rs -> new Hobby(rs.getString("hobby"), rs.getDouble("respondents")));
 
-        assertThat(results).hasSize(2);
-        for (Result result : results) {
-            if (result.getHobby().equals("Yes")) {
-                assertThat(result.getRespondents()).isBetween(80.0, 81.0);
-            } else if (result.getHobby().equals("No")) {
-                assertThat(result.getRespondents()).isBetween(10.0, 20.0);
+        assertThat(hobbies).hasSize(2);
+        for (Hobby hobby : hobbies) {
+            if (hobby.getHobby().equals("Yes")) {
+                assertThat(hobby.getRespondents()).isBetween(80.0, 81.0);
+            } else if (hobby.getHobby().equals("No")) {
+                assertThat(hobby.getRespondents()).isBetween(10.0, 20.0);
             }
         }
 
@@ -47,7 +47,7 @@ public class Problem1 {
 
         assertTimeout(Duration.ofMillis(100), () -> jdbcTemplate.executeQuery(
                 query, Collections.emptyMap(),
-                rs -> new Result(rs.getString("hobby"), rs.getDouble("respondents"))));
+                rs -> new Hobby(rs.getString("hobby"), rs.getDouble("respondents"))));
 
     }
 }
