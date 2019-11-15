@@ -56,17 +56,14 @@ public class QueryTest {
 
     @Test
     void years_of_coding_prof_by_dev_type() {
-        String query = "select dt.title as dev_type, avg_years\n" +
+        String query = "select title as dev_type, years_avg as avg_years\n" +
                 "from (\n" +
-                "select rdt.dev_type_id as dt_id\n" +
-                ", round(avg(yearsCodingProf_int), 1) as avg_years\n" +
-                "from  respondent_dev_type as rdt\n" +
-                "inner join respondent as r\n" +
-                "on r.id = rdt.respondent_id\n" +
-                "where rdt.dev_type_id != (select id from dev_type where title = 'NA') and r.yearsCodingProf != 'NA'\n" +
-                "group by rdt.dev_type_id) as joined\n" +
-                "inner join dev_type as dt\n" +
-                "on joined.dt_id = dt.id;";
+                "select dev_type_id as dtid, round(avg(yearsCodingProf_int), 1) as years_avg\n" +
+                "from respondent_den\n" +
+                "where dev_type_id != (select id from dev_type where title = 'NA')\n" +
+                "group by dev_type_id) as to_join\n" +
+                "\tinner join dev_type as dt\n" +
+                "    on dtid = dt.id;";
         List<AvgYearsCodingProfDevTypeDto> portions = new ArrayList<>();
         assertTimeout(Duration.ofMillis(3000), () -> portions.addAll(jdbcTemplate.executeQuery(
                 query,
