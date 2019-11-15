@@ -18,12 +18,12 @@ class sqlTest {
             "FROM  survey_results_public\n" +
             "GROUP BY name";
 
-    private static final String DEV_TYPE_YEARS_CODING_SQL = "SELECT dt.DevType, ROUND(AVG(IF(dt.YearsCodingProf = '30 or more years', 30, SUBSTRING_INDEX(dt.YearsCodingProf, '-', 1))), 1) AS Average\n" +
+    private static final String DEV_TYPE_YEARS_CODING_SQL = "SELECT dt.DevType, ROUND(AVG(YearsCodingProf), 1) AS Average\n" +
             "FROM (SELECT\n" +
-            "SUBSTRING_INDEX(SUBSTRING_INDEX(DevType, ';', numbers.digit), ';', -1) DevType, YearsCodingProf\n" +
+            "SUBSTRING_INDEX(SUBSTRING_INDEX(DevType, ‘;’, numbers.digit), ‘;’, -1) DevType, YearsCodingProf\n" +
             "FROM survey_results_public\n" +
             "INNER JOIN\n" +
-            "(SELECT 0 digit UNION ALL SELECT 1 UNION ALL\n" +
+            "(SELECT 1 digit UNION ALL\n" +
             "SELECT 2 UNION ALL\n" +
             "SELECT 3 UNION ALL\n" +
             "SELECT 4 UNION ALL\n" +
@@ -32,9 +32,19 @@ class sqlTest {
             "SELECT 7 UNION ALL\n" +
             "SELECT 8 UNION ALL\n" +
             "SELECT 9 UNION ALL\n" +
-            "SELECT 10) numbers\n" +
-            "ON CHAR_LENGTH ( DevType ) - CHAR_LENGTH ( REPLACE ( DevType ,  ';' ,  '' ))>= numbers.digit-1) as dt\n" +
-            "WHERE dt.YearsCodingProf != 'NA'\n" +
+            "SELECT 10 UNION ALL\n" +
+            "SELECT 11 UNION ALL\n" +
+            "SELECT 12 UNION ALL\n" +
+            "SELECT 13 UNION ALL\n" +
+            "SELECT 14 UNION ALL\n" +
+            "SELECT 15 UNION ALL\n" +
+            "SELECT 16 UNION ALL\n" +
+            "SELECT 17 UNION ALL\n" +
+            "SELECT 18 UNION ALL\n" +
+            "SELECT 19 UNION ALL\n" +
+            "SELECT 20) numbers\n" +
+            "ON CHAR_LENGTH ( DevType ) - CHAR_LENGTH ( REPLACE ( DevType ,  ‘;’ ,  ‘’ ))>= numbers.digit-1) as dt\n" +
+            "WHERE dt.YearsCodingProf != ‘NA’\n" +
             "GROUP BY DevType\n" +
             "ORDER BY Average desc";
 
