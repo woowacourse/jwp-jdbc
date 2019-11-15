@@ -33,3 +33,8 @@ docker-compose up -d
 
 
 
+---
+## 대용량 데이터 처리 테스트를 실행하기 전에..!
+
+#### 요구사항 1번의 Advanced는 다음의 인덱스 쿼리를 먼저 실행해주세요.
+> CREATE INDEX idx_hobby ON survey_results_public (hobby)
