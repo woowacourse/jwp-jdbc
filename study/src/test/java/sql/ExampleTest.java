@@ -63,7 +63,6 @@ public class ExampleTest {
                 "    union  all  select  3  union  all select 4 \n" +
                 "    union  all  select  5  union  all  select  6\n" +
                 "    union  all  select  7  union  all  select  8 \n" +
-                "    union  all  select  9 union  all  select  10) numbers INNER  JOIN survey_results_public\n" +
                 "    union  all  select  9 union  all  select  10\n" +
                 "    union  all  select  11  union  all select 12 \n" +
                 "    union  all  select  13  union  all  select  14\n" +
