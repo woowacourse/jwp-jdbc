@@ -26,9 +26,6 @@ public class ExampleTest {
 
     @Test
     void Coding_as_a_hobby_테스트() {
-//        String index = "create index hobby_index on survey_results_public (hobby);";
-//        jdbcTemplate.execute(index);
-
         String sql = "select hobby, round(count(*) / (select count(*) from survey_results_public) * 100, 2) as ratio\n" +
                 "from survey_results_public\n" +
                 "group by hobby;";
