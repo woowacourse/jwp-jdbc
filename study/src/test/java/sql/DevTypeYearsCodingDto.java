@@ -1,0 +1,35 @@
+package sql;
+
+import java.util.Objects;
+
+public class DevTypeYearsCodingDto {
+    private String devType;
+    private Double average;
+
+    public DevTypeYearsCodingDto(String devType, Double average) {
+        this.devType = devType;
+        this.average = average;
+    }
+
+    public String getDevType() {
+        return devType;
+    }
+
+    public Double getAverage() {
+        return average;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        DevTypeYearsCodingDto that = (DevTypeYearsCodingDto) o;
+        return Objects.equals(devType, that.devType) &&
+                Objects.equals(average, that.average);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(devType, average);
+    }
+}
