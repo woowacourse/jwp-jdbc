@@ -3,6 +3,8 @@ package nextstep.jdbc;
 import nextstep.jdbc.exception.JdbcTemplateException;
 
 import javax.sql.DataSource;
+import java.io.Closeable;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -10,11 +12,15 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
-public class JdbcTemplate {
-    private final DataSource dataSource;
+public class JdbcTemplate implements Closeable {
+    private Connection connection;
 
     public JdbcTemplate(DataSource dataSource) {
-        this.dataSource = dataSource;
+        try {
+            connection = dataSource.getConnection();
+        } catch (SQLException e) {
+            throw new JdbcTemplateException(e);
+        }
     }
 
     public void update(String sql, Object... args) {
@@ -45,10 +51,9 @@ public class JdbcTemplate {
         };
     }
 
-    private  <T> T execute(String sql, PreparedStatementSetter pstmtSetter,
-                           ResultSetExtractionStrategy<T> strategy) {
-        try (Connection connection = dataSource.getConnection();
-             PreparedStatement pstmt = connection.prepareStatement(sql)) {
+    private <T> T execute(String sql, PreparedStatementSetter pstmtSetter,
+                          ResultSetExtractionStrategy<T> strategy) {
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
             pstmtSetter.setValues(pstmt);
             return extractEntity(strategy, pstmt);
         } catch (SQLException e) {
@@ -83,5 +88,13 @@ public class JdbcTemplate {
         return Optional.ofNullable(result);
     }
 
+    @Override
+    public void close() throws IOException {
+        try {
+            connection.close();
+        } catch (SQLException e) {
+            throw new JdbcTemplateException(e);
+        }
+    }
 }
 
