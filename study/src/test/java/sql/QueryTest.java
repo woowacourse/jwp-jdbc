@@ -11,9 +11,8 @@ import org.slf4j.LoggerFactory;
 import slipp.support.db.ConnectionManager;
 
 import java.time.Duration;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTimeout;
@@ -40,6 +39,10 @@ public class QueryTest {
         put("Data scientist or machine learning specialist", 5.5);
         put("Mobile developer", 5.2);
         put("Game or graphics developer", 4.6);
+        put("C-suite executive (CEO, CTO, etc.)", 10.1);
+        put("Marketing or sales professional", 7.2);
+        put("Product manager", 8.8);
+        put("Student", 1.2);
     }};
 
     private final DBTemplate template = new JdbcTemplate(ConnectionManager.getDataSource());
@@ -64,104 +67,32 @@ public class QueryTest {
         });
     }
 
-
     @Test
     void yearsOfProfessionalCodingExperienceByDeveloperTypeTest() {
-        final RowMapper<StringRecord> f = rs -> new StringRecord(rs.getString(1), rs.getString(2));
+        final RowMapper<DevTypeCodingExp> f =
+                rs -> new DevTypeCodingExp(rs.getString("devType"), rs.getDouble("avgExp"));
         final String resultQuery =
-                "SELECT DevType, YearsCodingProf FROM survey_results_public " +
-                "WHERE DevType != 'NA' AND YearsCodingProf != 'NA';";
-        final DevTypeCodingExpResultProcessor resultProcessor = new DevTypeCodingExpResultProcessor();
-        this.template.readAll(f, resultQuery).forEach(r -> resultProcessor.add(new DevTypeCodingExp(r)));
-        resultProcessor.process();
-        resultProcessor.match(CODING_EXP_PER_DEV_TYPE_ANSWER);
-        assertTimeout(Duration.ofMillis(MAX_DURATION), () -> {
-            this.template.readAll(f, resultQuery);
+                "SELECT devType, ROUND(AVG(YearsCodingProf), 1) AS avgExp FROM (" +
+                "  SELECT Respondent, SUBSTRING_INDEX(SUBSTRING_INDEX(survey_results_public.devType, ';', numbers.n), ';', -1) devType, YearsCodingProf FROM (" +
+                "    SELECT 1 n UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9 UNION ALL SELECT 10 UNION ALL SELECT 11 UNION ALL SELECT 12 UNION ALL SELECT 13 UNION ALL SELECT 14 UNION ALL SELECT 15 UNION ALL SELECT 16 UNION ALL SELECT 17 UNION ALL SELECT 18 UNION ALL SELECT 19 UNION ALL SELECT 20" +
+                "  ) numbers JOIN survey_results_public ON CHAR_LENGTH(survey_results_public.devType) - CHAR_LENGTH(REPLACE(survey_results_public.devType, ';' ,'')) >= numbers.n - 1) AS tmp " +
+                "WHERE devType NOT LIKE 'NA%' AND YearsCodingProf != 'NA' GROUP BY devType;";
+        this.template.readAll(f, resultQuery).forEach(x -> {
+            System.out.println(x.devType + ": " + x.avgExp);
+            assertThat(x.avgExp).isEqualTo(CODING_EXP_PER_DEV_TYPE_ANSWER.get(x.devType));
         });
-    }
-}
-
-class StringRecord {
-    public final String a;
-    public final String b;
-
-    public StringRecord(String a, String b) {
-        this.a = a;
-        this.b = b;
+//        assertTimeout(Duration.ofMillis(MAX_DURATION), () -> {
+//            this.template.readAll(f, resultQuery);
+//        });
     }
 }
 
 class DevTypeCodingExp {
-    static final Pattern numbers = Pattern.compile("\\d+");
+    final String devType;
+    final double avgExp;
 
-    private final List<String> devTypes;
-    private final int minExp;
-    private final int maxExp;
-
-    DevTypeCodingExp(String devTypes, String yearsOfExperience) {
-        this.devTypes = Arrays.asList(devTypes.split(";"));
-        final Matcher numberExtractor = numbers.matcher(yearsOfExperience);
-        numberExtractor.find();
-        this.minExp = Integer.parseInt(numberExtractor.group());
-        if (numberExtractor.find()) {
-            this.maxExp = Integer.parseInt(numberExtractor.group());
-        } else {
-            this.maxExp = this.minExp;
-        }
-    }
-
-    DevTypeCodingExp(StringRecord r) {
-        this(r.a, r.b);
-    }
-
-    void print() {
-        if (this.minExp == this.maxExp) {
-            System.out.println(
-                    String.join(", ", this.devTypes) + ": " + this.minExp + " years"
-            );
-        } else {
-            System.out.println(
-                    String.join(", ", this.devTypes) + ": " + this.minExp + "-" + this.maxExp + " years"
-            );
-        }
-    }
-
-    public List<String> devTypes() {
-        return this.devTypes;
-    }
-
-    public int minExp() {
-        return this.minExp;
-    }
-
-    public int maxExp() {
-        return this.maxExp;
-    }
-}
-
-class DevTypeCodingExpResultProcessor {
-    final List<DevTypeCodingExp> resultSet = new ArrayList<>();
-    final Map<String, Double> processedResult = new HashMap<>();
-
-    DevTypeCodingExpResultProcessor add(DevTypeCodingExp x) {
-        this.resultSet.add(x);
-        return this;
-    }
-
-    void process() {
-        final HashMap<String, Integer[]> temp = new HashMap<>();
-        this.resultSet.forEach(x ->
-            x.devTypes().forEach(y -> {
-                final Object[] acc = temp.getOrDefault(y, new Integer[] { 0, 0 });
-                final int accYears = (int) acc[0] + x.minExp();
-                final int number = (int) acc[1] + 1;
-                temp.put(y, new Integer[] { accYears, number });
-             })
-        );
-        temp.forEach((k, v) -> this.processedResult.put(k, (double) v[0] / v[1]));
-    }
-
-    void match(Map<String, Double> answerSheet) {
-        answerSheet.forEach((k, v) -> assertThat(this.processedResult.get(k)).isCloseTo(v, Offset.offset(0.1)));
+    DevTypeCodingExp(String devType, double avgExp) {
+        this.devType = devType;
+        this.avgExp = avgExp;
     }
 }
