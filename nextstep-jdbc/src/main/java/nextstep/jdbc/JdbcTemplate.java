@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class JdbcTemplate<T> {
+public class JdbcTemplate {
     private static final Logger log = LoggerFactory.getLogger(JdbcTemplate.class);
     private DataSource dataSource;
 
@@ -20,21 +20,18 @@ public class JdbcTemplate<T> {
         this.dataSource = dataSource;
     }
 
-    public void update(String sql, SqlExecuteStrategy sqlExecuteStrategy) {
+    public void update(String sql, SqlExecuteStrategy sqlExecuteStrategy) throws SQLException {
         try (Connection connection = dataSource.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             sqlExecuteStrategy.preparedStatementSetter(preparedStatement);
-
-        } catch (SQLException e) {
-            log.error("ErrorCode: {}", e.getErrorCode());
         }
     }
 
-    public Optional<T> readForObject(RowMapper<T> rowMapper, String sql, SqlExecuteStrategy sqlExecuteStrategy) {
+    public <T> Optional<T> readForObject(RowMapper<T> rowMapper, String sql, SqlExecuteStrategy sqlExecuteStrategy) throws SQLException {
         return Optional.of(readForList(rowMapper, sql, sqlExecuteStrategy).get(0));
     }
 
-    public List<T> readForList(RowMapper<T> rowMapper, String sql, SqlExecuteStrategy sqlExecuteStrategy) {
+    public <T> List<T> readForList(RowMapper<T> rowMapper, String sql, SqlExecuteStrategy sqlExecuteStrategy) throws SQLException {
         List<T> objects = new ArrayList<>();
         try (Connection connection = dataSource.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
@@ -44,8 +41,6 @@ public class JdbcTemplate<T> {
             while (resultSet.next()) {
                 objects.add(rowMapper.mapRow(resultSet));
             }
-        } catch (SQLException e) {
-            log.error("ErrorCode: {}", e.getErrorCode());
         }
         return objects;
     }
