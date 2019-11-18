@@ -1,4 +1,4 @@
-package slipp.support.db;
+package sql;
 
 import org.apache.commons.dbcp2.BasicDataSource;
 
