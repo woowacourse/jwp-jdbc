@@ -9,7 +9,7 @@ import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import slipp.domain.User;
 import slipp.dto.UserUpdatedDto;
-import slipp.support.db.SlippConnectionManager;
+import slipp.support.db.ConnectionManager;
 
 import java.util.List;
 
@@ -23,7 +23,7 @@ public class UserDaoTest {
     public void setup() {
         ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
         populator.addScript(new ClassPathResource("jwp.sql"));
-        DatabasePopulatorUtils.execute(populator, SlippConnectionManager.getDataSource());
+        DatabasePopulatorUtils.execute(populator, ConnectionManager.getDataSource());
 
         userDao = new UserDao();
     }
