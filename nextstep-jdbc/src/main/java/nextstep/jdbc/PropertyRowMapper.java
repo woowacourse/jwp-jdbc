@@ -13,17 +13,10 @@ import java.sql.SQLException;
 public class PropertyRowMapper<T> implements RowMapper<T> {
     private static final Logger logger = LoggerFactory.getLogger(PropertyRowMapper.class);
 
-    private final Field[] fields;
-    private final T instance;
+    private final Class<T> clazz;
 
     private PropertyRowMapper(final Class<T> clazz) {
-        try {
-            this.fields = clazz.getDeclaredFields();
-            this.instance = clazz.getConstructor().newInstance();
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-            logger.error(e.getMessage());
-            throw new PropertyRowMapperException(e);
-        }
+        this.clazz = clazz;
     }
 
     public static <T> PropertyRowMapper<T> from(final Class<T> clazz) {
@@ -33,13 +26,15 @@ public class PropertyRowMapper<T> implements RowMapper<T> {
     @Override
     public T mapRow(final ResultSet rs) throws SQLException {
         try {
+            final T instance = clazz.getConstructor().newInstance();
+            final Field[] fields = clazz.getDeclaredFields();
             for (final Field field : fields) {
                 final Object value = ResultSetMapper.getInstance().map(rs, field.getName(), field.getType());
                 field.setAccessible(true);
                 field.set(instance, value);
             }
             return instance;
-        } catch (IllegalAccessException e) {
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             logger.error(e.getMessage());
             throw new PropertyRowMapperException(e);
         }
