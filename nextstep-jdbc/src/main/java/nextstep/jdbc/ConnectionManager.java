@@ -15,6 +15,7 @@ public class ConnectionManager {
     public ConnectionManager(String resource) {
         this.properties = loadProperties(resource);
         this.ds = getDataSource();
+
     }
 
     private Properties loadProperties(String resource) {
