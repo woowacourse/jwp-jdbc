@@ -75,15 +75,15 @@ public class QueryTest {
                 "SELECT devType, ROUND(AVG(YearsCodingProf), 1) AS avgExp FROM (" +
                 "  SELECT Respondent, SUBSTRING_INDEX(SUBSTRING_INDEX(survey_results_public.devType, ';', numbers.n), ';', -1) devType, YearsCodingProf FROM (" +
                 "    SELECT 1 n UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9 UNION ALL SELECT 10 UNION ALL SELECT 11 UNION ALL SELECT 12 UNION ALL SELECT 13 UNION ALL SELECT 14 UNION ALL SELECT 15 UNION ALL SELECT 16 UNION ALL SELECT 17 UNION ALL SELECT 18 UNION ALL SELECT 19 UNION ALL SELECT 20" +
-                "  ) numbers JOIN survey_results_public ON CHAR_LENGTH(survey_results_public.devType) - CHAR_LENGTH(REPLACE(survey_results_public.devType, ';' ,'')) >= numbers.n - 1) AS tmp " +
+                "  ) numbers JOIN survey_results_public ON CHAR_LENGTH(survey_results_public.devType) - CHAR_LENGTH(REPLACE(survey_results_public.devType, ';', '')) >= numbers.n - 1) AS tmp " +
                 "WHERE devType NOT LIKE 'NA%' AND YearsCodingProf != 'NA' GROUP BY devType;";
         this.template.readAll(f, resultQuery).forEach(x -> {
             System.out.println(x.devType + ": " + x.avgExp);
             assertThat(x.avgExp).isEqualTo(CODING_EXP_PER_DEV_TYPE_ANSWER.get(x.devType));
         });
-//        assertTimeout(Duration.ofMillis(MAX_DURATION), () -> {
-//            this.template.readAll(f, resultQuery);
-//        });
+        assertTimeout(Duration.ofMillis(MAX_DURATION), () -> {
+            this.template.readAll(f, resultQuery);
+        });
     }
 }
 
