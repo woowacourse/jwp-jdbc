@@ -1,5 +1,6 @@
 package nextstep.jdbc;
 
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -8,12 +9,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class JdbcTemplate {
+    private final DataSource ds;
+
+    public JdbcTemplate(DataSource ds) {
+        this.ds = ds;
+    }
+
     public <T> List<T> selectTemplate(String sql, RowMapper<T> rowMapper, Object... params) {
         return selectTemplate(sql, (pstmt) -> setValues(pstmt, params), rowMapper);
     }
 
     public <T> List<T> selectTemplate(String sql, PreparedStatementSetter pstmtSetter, RowMapper<T> rowMapper) {
-        try (Connection con = ConnectionManager.getConnection();
+        try (Connection con = ds.getConnection();
              PreparedStatement pstmt = setValues(con.prepareStatement(sql), pstmtSetter);
              ResultSet rs = pstmt.executeQuery()) {
             return getRows(rowMapper, rs);
@@ -27,7 +34,7 @@ public class JdbcTemplate {
     }
 
     public <T> T selectObjectTemplate(String sql, PreparedStatementSetter pstmtSetter, RowMapper<T> rowMapper) {
-        try (Connection con = ConnectionManager.getConnection();
+        try (Connection con = ds.getConnection();
              PreparedStatement pstmt = setValues(con.prepareStatement(sql), pstmtSetter);
              ResultSet rs = pstmt.executeQuery()) {
             return getObject(rowMapper, rs);
@@ -41,7 +48,7 @@ public class JdbcTemplate {
     }
 
     public void updateTemplate(String sql, PreparedStatementSetter pstmtSetter) {
-        try (Connection con = ConnectionManager.getConnection();
+        try (Connection con = ds.getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
             pstmtSetter.setValues(pstmt);
             pstmt.executeUpdate();
