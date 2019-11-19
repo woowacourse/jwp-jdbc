@@ -1,3 +1,14 @@
+-- devType 테이블 생성
+create table dev_type(
+	id bigint auto_increment,
+	title varchar(255),
+	primary key(id)
+);
+
+-- dev type별로 삽입
+insert into dev_type(title) 
+select distinct substring_index(devType, ';', 1) from survey_results_public;
+
 -- 비정규화 테이블 생성
 create table respondent_den(
 	id bigint auto_increment,
