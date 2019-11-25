@@ -1,12 +1,7 @@
-CREATE TABLE `survey`.`devtype` (
-  `id` INT NOT NULL AUTO_INCREMENT,
-  `respondent` int not NULL,
-  `type` VARCHAR(45) not NULL,
-  `years` VARCHAR(45) not NULL,
-  PRIMARY KEY (`id`));
-
-ALTER TABLE `survey`.`devtype`
-ADD INDEX `ix_devtype` (`type` ASC) VISIBLE;
+ALTER TABLE `jwp_jdbc`.`survey_results_public`
+DROP INDEX `idx_hobby_student` ,
+ADD INDEX `idx_hobby_student` (`Hobby` ASC, `Student` ASC) VISIBLE;
+;
 
 DROP TABLE IF EXISTS `numbers`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -26,17 +21,30 @@ INSERT INTO `numbers` VALUES (1,'3-5 years',3),(2,'18-20 years',18),(3,'6-8 year
 /*!40000 ALTER TABLE `numbers` ENABLE KEYS */;
 UNLOCK TABLES;
 
-INSERT INTO devtype(respondent, type, years)
+DROP TABLE IF EXISTS `dev_type`;
+CREATE TABLE `jwp_jdbc`.`dev_type` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `type` VARCHAR(45) not NULL,
+  `years` VARCHAR(45) not NULL,
+  PRIMARY KEY (`id`));
+
+ALTER TABLE `jwp_jdbc`.`dev_type`
+ADD INDEX `ix_type` (`type` ASC) VISIBLE,
+ADD INDEX `ix_year` (`years` ASC) VISIBLE;
+;
+
+INSERT INTO dev_type(type, years)
     SELECT
-        respondent,
-        substring_index(substring_index(devtype, ';', numbers.id), ';', -1) AS type, yearscodingprof AS years
-    FROM survey INNER JOIN numbers
-    ON char_length(devtype) - char_length(replace(devtype, ';', '')) >= numbers.id -1;
-
-
+        substring_index(substring_index(survey_results_public.devtype, ';', numbers.id), ';', -1) as type,
+        IF (yearscodingprof = '30 or more years', 30, cast(substring_index(yearscodingprof, '-', 1) as signed)) as years
+    FROM
+        numbers
+    INNER JOIN
+        survey_results_public ON char_length(survey_results_public.devtype) - char_length(replace(survey_results_public.devtype, ';', '')) >= numbers.id -1
+    WHERE
+        YearsCodingProf != 'NA' AND YearsCoding != 'NA';
 
 SELECT type, AVG(years) AS average
-FROM devtype
-WHERE type != 'NA'
+FROM dev_type
 GROUP BY type
 ORDER BY average DESC;

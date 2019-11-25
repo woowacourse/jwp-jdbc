@@ -18,6 +18,6 @@ public class PropertiesTest {
         Properties prop = new Properties();
         prop.load(input);
         assertThat(prop.getProperty("jdbc.url")).isNotNull();
-        assertThat(prop.getProperty("jdbc.username")).isEqualTo("techcourse");
+        assertThat(prop.getProperty("jdbc.username")).isEqualTo("root");
     }
 }
