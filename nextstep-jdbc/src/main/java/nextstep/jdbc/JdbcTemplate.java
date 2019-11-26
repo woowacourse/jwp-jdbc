@@ -13,10 +13,17 @@ import java.util.List;
 import java.util.Optional;
 
 public class JdbcTemplate {
-    private final DataSource dataSource;
+    private DataSource dataSource;
 
     public JdbcTemplate(DataSource dataSource) {
         this.dataSource = dataSource;
+    }
+
+    public JdbcTemplate(final String path) {
+        DataBasePropertyReader dataBasePropertyReader = new DataBasePropertyReader(path);
+        dataBasePropertyReader.readDataBaseProperty();
+        dataSource = ConnectionGenerator.getDataSource(dataBasePropertyReader.getDriver(), dataBasePropertyReader.getUrl(),
+            dataBasePropertyReader.getUserName(), dataBasePropertyReader.getPassword());
     }
 
     private void update(String sql, PrepareStatementSetter prepareStatementSetter) {

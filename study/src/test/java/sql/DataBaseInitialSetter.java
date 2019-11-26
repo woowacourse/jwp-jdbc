@@ -10,15 +10,9 @@ import slipp.support.db.DataBasePropertyReader;
 public class DataBaseInitialSetter {
     private static final String path = "/Users/mac/level3/jwp-jdbc/slipp/src/main/resources/db.properties";
     private JdbcTemplate jdbcTemplate;
-    private DataBasePropertyReader dataBasePropertyReader;
 
     public DataBaseInitialSetter() {
-        dataBasePropertyReader = new DataBasePropertyReader(path);
-        dataBasePropertyReader.readDataBaseProperty();
-
-        jdbcTemplate = new JdbcTemplate(
-            ConnectionGenerator.getDataSource(dataBasePropertyReader.getDriver(), dataBasePropertyReader.getUrl(),
-                dataBasePropertyReader.getUserName(), dataBasePropertyReader.getPassword()));
+        jdbcTemplate = new JdbcTemplate(path);
     }
 
     public JdbcTemplate getJdbcTemplate() {
