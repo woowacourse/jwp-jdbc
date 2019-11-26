@@ -11,8 +11,6 @@ import java.time.Duration;
 import static org.junit.jupiter.api.Assertions.assertTimeout;
 
 public class SqlTest {
-    private static final Logger logger = LoggerFactory.getLogger(SqlTest.class);
-    private String path = "/Users/mac/level3/jwp-jdbc/slipp/src/main/resources/db.properties";
     private JdbcTemplate jdbcTemplate;
 
     @BeforeEach
@@ -27,7 +25,7 @@ public class SqlTest {
             "FROM survey_results_public " +
             "GROUP BY hobby;";
 
-        assertTimeout(Duration.ofMillis(1000), () -> {
+        assertTimeout(Duration.ofMillis(2000), () -> {
             jdbcTemplate.listQuery(sql, rs -> new SurveyResult(rs.getString("Hobby")));
         });
     }

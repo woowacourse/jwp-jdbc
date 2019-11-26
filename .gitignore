@@ -36,4 +36,3 @@ nbdist/
 docker/
 !docker/docker-compose.yml
 !docker/db/mysql/init/init.sql
-!docker/db/mysql/init/Dump20191112.sql
