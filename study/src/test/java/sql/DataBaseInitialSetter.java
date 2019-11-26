@@ -13,12 +13,8 @@ public class DataBaseInitialSetter {
     private DataBasePropertyReader dataBasePropertyReader;
 
     public DataBaseInitialSetter() {
-        ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
-        populator.addScript(new ClassPathResource("jwp.sql"));
         dataBasePropertyReader = new DataBasePropertyReader(path);
         dataBasePropertyReader.readDataBaseProperty();
-        DatabasePopulatorUtils.execute(populator, ConnectionGenerator.getDataSource(dataBasePropertyReader.getDriver(), dataBasePropertyReader.getUrl(),
-            dataBasePropertyReader.getUserName(), dataBasePropertyReader.getPassword()));
 
         jdbcTemplate = new JdbcTemplate(
             ConnectionGenerator.getDataSource(dataBasePropertyReader.getDriver(), dataBasePropertyReader.getUrl(),
