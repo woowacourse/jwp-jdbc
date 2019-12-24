@@ -3,21 +3,25 @@ package slipp.support.db;
 import org.apache.commons.dbcp2.BasicDataSource;
 
 import javax.sql.DataSource;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Properties;
 
 public class ConnectionManager {
-    private static final String DB_DRIVER = "org.h2.Driver";
-    private static final String DB_URL = "jdbc:h2:mem:jwp-framework";
-    private static final String DB_USERNAME = "sa";
-    private static final String DB_PW = "";
+    private static final String DRIVER_CLASS = "jdbc.driverClass";
+    private static final String URL = "jdbc.url";
+    private static final String USERNAME = "jdbc.username";
+    private static final String PASSWORD = "jdbc.password";
 
     public static DataSource getDataSource() {
         BasicDataSource ds = new BasicDataSource();
-        ds.setDriverClassName(DB_DRIVER);
-        ds.setUrl(DB_URL);
-        ds.setUsername(DB_USERNAME);
-        ds.setPassword(DB_PW);
+        Properties properties = load("db.properties");
+
+        ds.setDriverClassName(properties.getProperty(DRIVER_CLASS));
+        ds.setUrl(properties.getProperty(URL));
+        ds.setUsername(properties.getProperty(USERNAME));
+        ds.setPassword(properties.getProperty(PASSWORD));
         return ds;
     }
 
@@ -27,5 +31,16 @@ public class ConnectionManager {
         } catch (SQLException e) {
             throw new IllegalStateException(e);
         }
+    }
+
+    private static Properties load(String propertiesFileName) {
+        Properties properties = new Properties();
+        try {
+            properties.load(ConnectionManager.class
+                    .getClassLoader().getResourceAsStream(propertiesFileName));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return properties;
     }
 }
