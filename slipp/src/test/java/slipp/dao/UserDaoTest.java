@@ -16,12 +16,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class UserDaoTest {
-    private JdbcTemplate jdbcTemplate = JdbcTemplate.builder()
-            .driver("org.h2.Driver")
-            .url("jdbc:h2:mem:jwp-framework")
-            .userName("sa")
-            .password("")
-            .build();
+    private JdbcTemplate jdbcTemplate = new JdbcTemplate(new nextstep.jdbc.ConnectionManager());
 
     @BeforeEach
     public void setup() {
