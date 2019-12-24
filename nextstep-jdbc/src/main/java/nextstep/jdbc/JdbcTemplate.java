@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.IntStream;
 
 /**
  * 리팩토링하면서 기존의 클래스가 컴파일 에러가 나면 안 돼
@@ -63,6 +64,15 @@ public class JdbcTemplate implements AutoCloseable {
     public int executeUpdate(String query, Map<String, Object> params) {
         try (PreparedStatement pstmt = getStatement(query, params)) {
             return pstmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new JdbcTemplateException(e);
+        }
+    }
+
+    public int executeBulkUpdate(String query, List<Map<String, Object>> params) {
+        try (PreparedStatement pstmt = QueryUtil.addBatchStatements(conn, query, params)) {
+            return IntStream.of(pstmt.executeBatch())
+                    .sum();
         } catch (SQLException e) {
             throw new JdbcTemplateException(e);
         }

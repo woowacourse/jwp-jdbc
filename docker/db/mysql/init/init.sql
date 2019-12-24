@@ -1,1 +1,1 @@
-ALTER DATABASE jwp_jdbc DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+ALTER DATABASE survey DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
